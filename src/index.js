@@ -1,13 +1,27 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
+import { HashRouter, Routes, Route } from "react-router-dom";
+import NewForm from "./components/NewForm";
+import FillForm from "./components/FillForm";
+import ViewResponses from "./components/ViewResponses";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
   <React.StrictMode>
-    <App />
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route path="forms/new" element={<NewForm />} />
+          <Route path="forms/fill" element={<FillForm />} />
+          <Route path="forms/:npub" element={<FillForm />} />
+          <Route path="forms/responses" element={<ViewResponses />} />
+        </Route>
+      </Routes>
+    </HashRouter>
   </React.StrictMode>
 );
 
