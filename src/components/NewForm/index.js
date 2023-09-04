@@ -26,9 +26,7 @@ function NewForm() {
       hostname += "/nostr-forms";
     }
 
-    return (
-      "http://" + window.location.host + "/#/forms/" + formCredentials.publicKey
-    );
+    return "http://" + hostname + "/#/forms/" + formCredentials.publicKey;
   }
 
   function addQuestion() {
