@@ -21,6 +21,11 @@ function NewForm() {
   }
 
   function constructFormUrl() {
+    let hostname = window.location.host;
+    if (hostname.includes("abhay-raizada")) {
+      hostname += "/nostr-forms";
+    }
+
     return (
       "http://" + window.location.host + "/#/forms/" + formCredentials.publicKey
     );
