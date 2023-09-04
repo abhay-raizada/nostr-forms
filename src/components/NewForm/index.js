@@ -87,7 +87,7 @@ function NewForm() {
               flexDirection: "column",
               alignContent: "center",
               justifyContent: "center",
-              maxWidth: "60%",
+              maxWidth: "80%",
             }}
           >
             <Card>
