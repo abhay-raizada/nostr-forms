@@ -2,7 +2,7 @@
 
 A usable alternative to google forms, that works on "notes and other stuff transmitted through relays(nostr)".
 
-# Getting Started
+# Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

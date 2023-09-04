@@ -4,6 +4,7 @@ import { makeTag } from "../../utils/utility";
 
 import { Button, Card, Form, Input, Select, Typography } from "antd";
 import Paragraph from "antd/es/skeleton/Paragraph";
+import Title from "antd/es/skeleton/Title";
 
 function NewForm() {
   const [isOpenForm, setIsOpenForm] = useState(false);
@@ -11,10 +12,11 @@ function NewForm() {
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [questions, setQuestions] = useState([]);
   const [formCredentials, setFormCredentials] = useState("");
+  const [publicForm, setPublicForm] = useState(false);
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
   const { Option } = Select;
-  const { Text, Paragraph } = Typography;
+  const { Text, Paragraph, Title } = Typography;
 
   function toggleModal() {
     setIsOpenForm(!isOpenForm);
@@ -30,7 +32,6 @@ function NewForm() {
   }
 
   function addQuestion() {
-    console.log("nQ", newQuestion);
     setNewQuestion(true);
   }
 
@@ -40,6 +41,10 @@ function NewForm() {
 
   function handleNameChange(event) {
     setFormName(event.target.value);
+  }
+
+  function handlePublicForm(event) {
+    setPublicForm(event.target.checked);
   }
 
   function handleDescriptionChange(event) {
@@ -61,7 +66,7 @@ function NewForm() {
       description: formDescription,
       fields: questions,
     };
-    const [pk, sk] = await createForm(formspec);
+    const [pk, sk] = await createForm(formspec, publicForm);
     setFormCredentials({ publicKey: pk, privateKey: sk });
   }
   return (
@@ -87,6 +92,7 @@ function NewForm() {
           >
             <Card>
               <Form>
+                <Title level={2}>New Form</Title>
                 <Form.Item label="Name of the form">
                   {" "}
                   <Input onChange={handleNameChange} />{" "}
@@ -94,6 +100,10 @@ function NewForm() {
                 <Form.Item label="Enter form description">
                   {" "}
                   <Input onChange={handleDescriptionChange} />{" "}
+                </Form.Item>
+                <Form.Item label="Make responses public?">
+                  {" "}
+                  <Input type="checkbox" onChange={handlePublicForm} />{" "}
                 </Form.Item>
               </Form>
               {questions.map((question) => {

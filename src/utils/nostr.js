@@ -8,18 +8,21 @@ import {
   nip04,
 } from "nostr-tools";
 
-export async function createForm(form) {
+export async function createForm(form, publicForm = false) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
   ];
-  let content = JSON.stringify(form);
 
   let pool = new SimplePool();
   const sk = generatePrivateKey();
   const pk = getPublicKey(sk);
+  if (publicForm) {
+    form.privateKey = sk;
+  }
+  let content = JSON.stringify(form);
   let event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),

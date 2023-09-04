@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { Button, Card } from "antd";
 import { useState } from "react";
 import { getFormResponses } from "../../utils/nostr";
 
@@ -31,12 +31,22 @@ function ViewResponses(props) {
         View Responses
       </Button>
 
-      <ul>
-        {responses.map((response) => {
-          console.log("r", response);
-          return <li>{JSON.stringify(response)}</li>;
-        })}
-      </ul>
+      {responses.map((response, index) => {
+        let questions = JSON.parse(response);
+        console.log("r", response);
+        return (
+          <Card title={"Response " + (index + 1)}>
+            {questions.map((question) => {
+              console.log(question);
+              return (
+                <Card type="inner" title={question.question}>
+                  {question.inputValue}
+                </Card>
+              );
+            })}
+          </Card>
+        );
+      })}
     </>
   );
 }

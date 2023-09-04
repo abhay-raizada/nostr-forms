@@ -19,6 +19,8 @@ root.render(
           <Route path="forms/fill" element={<FillForm />} />
           <Route path="forms/:npub" element={<FillForm />} />
           <Route path="forms/responses" element={<ViewResponses />} />
+          <Route path="*" element={<NewForm />} />
+          <Route index element={<NewForm />} />
         </Route>
       </Routes>
     </HashRouter>

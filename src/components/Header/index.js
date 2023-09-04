@@ -21,7 +21,7 @@ export const Header = (props) => {
         return "/forms/fill";
       }
     }
-    return "";
+    return "/forms/new";
   };
   return (
     <>

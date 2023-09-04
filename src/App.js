@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
       <Header selected="Create Form" />
-      <div style={{ padding: "10%" }}>
+      <div style={{ padding: "5%", maxWidth: "100%" }}>
         <Outlet />
       </div>
     </div>
