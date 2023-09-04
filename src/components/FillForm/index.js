@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 // import { Button, Input } from "antd";
 import { getFormTemplate } from "../../utils/nostr";
 import React from "react";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, Typography } from "antd";
 import { useParams } from "react-router-dom";
 import NostrForm from "./NostrForm";
 
@@ -12,7 +12,9 @@ const onFinishFailed = (errorInfo) => {
 const FillForm = (props) => {
   const [npubState, setNpubState] = useState("");
   const [formTemplate, setFormTemplate] = useState("");
+  const [finished, setFinished] = useState(false);
   const { npub } = useParams();
+  const { Text } = Typography;
 
   useEffect(() => {
     if (npub) {
@@ -32,7 +34,7 @@ const FillForm = (props) => {
   }
   return (
     <>
-      {!npub && !formTemplate && (
+      {!npub && !formTemplate && !finished && (
         <div
           style={{
             display: "flex",
@@ -91,12 +93,17 @@ const FillForm = (props) => {
           </Form>
         </div>
       )}
-      {formTemplate && (
+      {formTemplate && !finished && (
         <NostrForm
           content={JSON.parse(formTemplate)}
           npub={npub || npubState}
+          onSubmit={() => {
+            setFinished(true);
+          }}
         />
       )}
+
+      {finished && <Text> Form has been submitted! </Text>}
     </>
   );
 };

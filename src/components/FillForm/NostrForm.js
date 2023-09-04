@@ -33,6 +33,7 @@ function NostrForm(props) {
       return { ...field, inputValue: formInputs[field["tag"]] };
     });
     sendFormResponse(npub, answerObject);
+    props.onSubmit();
   };
 
   const getField = (answerType, question, tag) => {

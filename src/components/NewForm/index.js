@@ -108,7 +108,11 @@ function NewForm() {
               </Form>
               {questions.map((question) => {
                 return (
-                  <Card type="inner" title={question.question}>
+                  <Card
+                    type="inner"
+                    title={question.question}
+                    style={{ margin: "10px" }}
+                  >
                     <ul>
                       <li>Question: {question.question}</li>
                       <li>Input Type: {question.answerType}</li>
@@ -118,7 +122,7 @@ function NewForm() {
                 );
               })}
               {newQuestion && (
-                <Card type="inner">
+                <Card type="inner" style={{ maxWidth: "100%", margin: "10px" }}>
                   <Form>
                     <Form.Item label="Question">
                       <Input type="text" onChange={handleCurrentQuestion} />
@@ -144,17 +148,26 @@ function NewForm() {
                   </Form>
                 </Card>
               )}
-              <Button
-                type="primary"
-                size="large"
-                disabled={newQuestion}
-                onClick={addQuestion}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  margin: "10px",
+                }}
               >
-                +
-              </Button>
-              {questions.length >= 1 && (
-                <Button onClick={handleSaveForm}>Save Form</Button>
-              )}
+                <Button
+                  type="primary"
+                  size="large"
+                  disabled={newQuestion}
+                  onClick={addQuestion}
+                  style={{ margin: "10px" }}
+                >
+                  +
+                </Button>
+                {questions.length >= 1 && (
+                  <Button onClick={handleSaveForm}>Save Form</Button>
+                )}
+              </div>
             </Card>
           </div>
         )}
