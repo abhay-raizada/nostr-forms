@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Formstr",
+  "name": "A usable alternative to google forms, that works on \"notes and other stuff transmitted through relays(nostr)\".",
   "icons": [
     {
       "src": "favicon.ico",
