@@ -103,6 +103,8 @@ const FillForm = (props) => {
           }}
         />
       )}
+
+      {finished && <Text> Form has been submitted! </Text>}
     </>
   );
 };
