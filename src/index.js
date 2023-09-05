@@ -22,7 +22,7 @@ root.render(
           <Route path="forms/:npub" element={<FillForm />} />
           <Route path="forms/responses" element={<ViewResponses />} />
           <Route path="*" element={<NewForm />} />
-          <Route index element={<NewForm />} />
+          <Route index element={<MyForms />} />
         </Route>
       </Routes>
     </HashRouter>
