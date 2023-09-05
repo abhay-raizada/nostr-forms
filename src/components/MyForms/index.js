@@ -54,7 +54,11 @@ const MyForms = () => {
           {" "}
           <Text>
             Hi there! You don't have any forms yet, click{" "}
-            <Button href={<Link to="forms/new" />}>Here</Button> to create one!
+            <Link to="forms/new">
+              {" "}
+              <Button>Here</Button>{" "}
+            </Link>{" "}
+            to create one!
           </Text>
         </div>
       )}
