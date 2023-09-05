@@ -21,7 +21,7 @@ export const Header = (props) => {
         return "/forms/fill";
       }
     }
-    return "/forms/new";
+    return "/myForms";
   };
   return (
     <>
@@ -30,6 +30,9 @@ export const Header = (props) => {
         style={{ display: "flex", justifyContent: "center" }}
         selectedKeys={[getSelectedTab()]}
       >
+        <Menu.Item key="/myForms">
+          <Link to="myForms">My Forms</Link>
+        </Menu.Item>
         <Menu.Item key="/forms/new">
           <Link to="forms/new">Create Form</Link>
         </Menu.Item>

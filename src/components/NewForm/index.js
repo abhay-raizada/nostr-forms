@@ -4,6 +4,7 @@ import Choices from "./Choices";
 import { makeTag } from "../../utils/utility";
 
 import { Button, Card, Form, Input, Select, Typography } from "antd";
+import FormSubmitted from "./FormSubmitted";
 
 function NewForm() {
   const [newQuestion, setNewQuestion] = useState(false);
@@ -17,15 +18,6 @@ function NewForm() {
   const [choices, setChoices] = useState([]);
   const { Option } = Select;
   const { Text, Paragraph, Title } = Typography;
-
-  function constructFormUrl() {
-    let hostname = window.location.host;
-    if (hostname.includes("abhay-raizada")) {
-      hostname += "/nostr-forms";
-    }
-
-    return "http://" + hostname + "/#/forms/" + formCredentials.publicKey;
-  }
 
   function addQuestion() {
     setNewQuestion(true);
@@ -201,31 +193,7 @@ function NewForm() {
         )}
       </div>
       {formCredentials && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignContent: "center",
-          }}
-        >
-          <Text> Your form has been published! </Text>
-          <div>
-            <Text>
-              {" "}
-              The Form Can be found here:{" "}
-              <Paragraph copyable>
-                {" "}
-                <a href={constructFormUrl()}>{constructFormUrl()}</a>{" "}
-              </Paragraph>{" "}
-            </Text>
-          </div>
-          <div>
-            <Text>
-              Private Key (needed to acces responses){" "}
-              <Paragraph copyable> {formCredentials.privateKey} </Paragraph>{" "}
-            </Text>
-          </div>
-        </div>
+        <FormSubmitted formCredentials={formCredentials} formName={formName} />
       )}
     </>
   );

@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import NewForm from "./components/NewForm";
 import FillForm from "./components/FillForm";
 import ViewResponses from "./components/ViewResponses";
+import MyForms from "./components/MyForms";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -15,6 +16,7 @@ root.render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
+          <Route path="myForms" element={<MyForms />} />
           <Route path="forms/new" element={<NewForm />} />
           <Route path="forms/fill" element={<FillForm />} />
           <Route path="forms/:npub" element={<FillForm />} />

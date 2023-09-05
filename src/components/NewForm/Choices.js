@@ -44,8 +44,11 @@ const Choices = (props) => {
       {newChoice && (
         <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
           <Radio disabled />{" "}
-          <Input onChange={handleCurrentInput} style={{ maxWidth: "80%" }} />{" "}
-          <Button size="small" onClick={addChoice}>
+          <Input
+            onChange={handleCurrentInput}
+            style={{ margin: "10px", maxWidth: "80%" }}
+          />{" "}
+          <Button size="middle" style={{ margin: "10px" }} onClick={addChoice}>
             {" "}
             Add{" "}
           </Button>
