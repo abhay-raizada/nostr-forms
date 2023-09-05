@@ -1,4 +1,4 @@
-import { Button, Card } from "antd";
+import { Button, Card, Input, Form } from "antd";
 import { useEffect, useState } from "react";
 import { getFormResponses } from "../../utils/nostr";
 import Analytics from "./Analytics";
@@ -16,21 +16,50 @@ function ViewResponses(props) {
     setNsec(event.target.value);
   }
   return (
-    <>
-      <input
-        type="text"
-        placeholder="Enter form nsec"
-        onChange={handleInputchange}
-      />
-      <Button
-        type="primary"
-        onClick={async () => {
-          await getResponses();
-          return;
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignContent: "center",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Form
+        name="basic"
+        labelCol={{
+          span: 8,
+        }}
+        labelWrap
+        wrapperCol={{
+          span: 16,
+        }}
+        style={{
+          maxWidth: 600,
+          alignContent: "center",
+          flexDirection: "column",
         }}
       >
-        View Responses
-      </Button>
+        <Form.Item label="enter form private key">
+          <Input
+            type="text"
+            placeholder="Enter form nsec"
+            onChange={handleInputchange}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            type="primary"
+            onClick={async () => {
+              await getResponses();
+              return;
+            }}
+            style={{ margine: "10px" }}
+          >
+            View Responses
+          </Button>
+        </Form.Item>
+      </Form>
 
       {responses.length !== 0 && <Analytics responses={responses} />}
 
@@ -52,7 +81,7 @@ function ViewResponses(props) {
           </>
         );
       })}
-    </>
+    </div>
   );
 }
 

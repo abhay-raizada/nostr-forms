@@ -10,3 +10,12 @@ export function makeTag(length) {
   }
   return result;
 }
+
+export function constructFormUrl(publicKey) {
+  let hostname = window.location.host;
+  if (hostname.includes("abhay-raizada")) {
+    hostname += "/nostr-forms";
+  }
+
+  return "http://" + hostname + "/#/forms/" + publicKey;
+}

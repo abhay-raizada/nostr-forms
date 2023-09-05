@@ -49,6 +49,7 @@ const FillForm = (props) => {
             labelCol={{
               span: 8,
             }}
+            labelWrap
             wrapperCol={{
               span: 16,
             }}
@@ -66,7 +67,7 @@ const FillForm = (props) => {
             autoComplete="off"
           >
             <Form.Item
-              label="Npub"
+              label="enter form public key"
               name="npub"
               rules={[
                 {
@@ -102,8 +103,6 @@ const FillForm = (props) => {
           }}
         />
       )}
-
-      {finished && <Text> Form has been submitted! </Text>}
     </>
   );
 };

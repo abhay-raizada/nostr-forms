@@ -36,11 +36,11 @@ export const Header = (props) => {
         <Menu.Item key="/forms/new">
           <Link to="forms/new">Create Form</Link>
         </Menu.Item>
-        <Menu.Item key="/forms/fill">
-          <Link to="forms/fill">Fill Form</Link>
-        </Menu.Item>
         <Menu.Item key="/forms/responses">
           <Link to="forms/responses">View Form Responses</Link>
+        </Menu.Item>
+        <Menu.Item key="/forms/fill">
+          <Link to="forms/fill">Fill Form</Link>
         </Menu.Item>
       </Menu>
     </>

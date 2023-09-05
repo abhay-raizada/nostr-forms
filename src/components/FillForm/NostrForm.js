@@ -8,6 +8,10 @@ const { Title, Text } = Typography;
 function NostrForm(props) {
   const { content, npub } = props;
   const { description, name, fields } = content;
+  let privateKey = "";
+  if (content.privateKey) {
+    privateKey = content.privateKey;
+  }
   console.log("choices!", content);
 
   const [formInputs, setFormInputs] = useState(() => {
@@ -43,7 +47,6 @@ function NostrForm(props) {
 
   const getField = (field) => {
     let { answerType, question, tag } = field;
-    console.log("abswer type");
     switch (answerType) {
       case "string":
         return (
@@ -135,6 +138,15 @@ function NostrForm(props) {
           </Button>
         ) : null}
       </Form>
+
+      {privateKey && (
+        <Text mark style={{ margin: "10px" }}>
+          {" "}
+          This is a public form to view responses use private key: {
+            privateKey
+          }{" "}
+        </Text>
+      )}
     </div>
   );
 }

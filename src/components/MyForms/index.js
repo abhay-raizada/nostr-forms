@@ -1,8 +1,11 @@
-import { Table } from "antd";
+import { Button, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { constructFormUrl } from "../../utils/utility";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState("");
+  const { Text } = Typography;
 
   useEffect(() => {
     let forms = localStorage.getItem("formstr:forms");
@@ -11,10 +14,11 @@ const MyForms = () => {
     }
     forms = forms || [];
     let tableForms = forms.map((form, index) => {
+      let formUrl = constructFormUrl(form.publicKey);
       return {
         key: index,
         name: form.name,
-        url: form.publicKey,
+        url: <a href={formUrl}> {formUrl}</a>,
         privateKey: form.privateKey,
       };
     });
@@ -42,7 +46,18 @@ const MyForms = () => {
 
   return (
     <div>
-      <Table dataSource={tableForms} columns={columns} />;
+      {tableForms.length !== 0 && (
+        <Table dataSource={tableForms} columns={columns} />
+      )}
+      {tableForms.length === 0 && (
+        <div>
+          {" "}
+          <Text>
+            Hi there! You don't have any forms yet, click{" "}
+            <Button href={<Link to="forms/new" />}>Here</Button> to create one!
+          </Text>
+        </div>
+      )}
     </div>
   );
 };

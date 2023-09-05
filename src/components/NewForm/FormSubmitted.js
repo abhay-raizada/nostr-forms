@@ -1,14 +1,7 @@
 import { Button, notification, Typography } from "antd";
+import { constructFormUrl } from "../../utils/utility";
 
 const FormSubmitted = (props) => {
-  function constructFormUrl() {
-    let hostname = window.location.host;
-    if (hostname.includes("abhay-raizada")) {
-      hostname += "/nostr-forms";
-    }
-
-    return "http://" + hostname + "/#/forms/" + props.formCredentials.publicKey;
-  }
   const [api, contextHolder] = notification.useNotification();
   const { Text, Paragraph } = Typography;
 
@@ -35,7 +28,7 @@ const FormSubmitted = (props) => {
     api.info({ message: "Saved Successfully" });
   }
 
-  let formUrl = constructFormUrl();
+  let formUrl = constructFormUrl(props.formCredentials.publicKey);
   return (
     <div
       style={{
@@ -51,7 +44,7 @@ const FormSubmitted = (props) => {
         <Text>
           {" "}
           The Form Can be found here:{" "}
-          <Paragraph copyable>
+          <Paragraph>
             {" "}
             <a href={formUrl}>{formUrl}</a>{" "}
           </Paragraph>{" "}
@@ -60,7 +53,7 @@ const FormSubmitted = (props) => {
       <div>
         <Text>
           Private Key (needed to acces responses){" "}
-          <Paragraph copyable> {props.formCredentials.privateKey} </Paragraph>{" "}
+          <Paragraph> {props.formCredentials.privateKey} </Paragraph>{" "}
         </Text>
       </div>
       <div style={{ display: "flex", flexDirection: "row" }}>

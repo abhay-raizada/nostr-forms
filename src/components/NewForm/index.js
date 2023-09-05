@@ -126,9 +126,6 @@ function NewForm() {
                       <li>
                         <h3>Input Type:</h3> {question.answerType}
                       </li>
-                      <li>
-                        <h3>Question ID:</h3> {question.tag}
-                      </li>
                     </ul>
                   </Card>
                 );
