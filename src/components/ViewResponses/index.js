@@ -1,6 +1,7 @@
 import { Button, Card } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getFormResponses } from "../../utils/nostr";
+import Analytics from "./Analytics";
 
 function ViewResponses(props) {
   const [nsec, setNsec] = useState("");
@@ -31,20 +32,24 @@ function ViewResponses(props) {
         View Responses
       </Button>
 
+      {responses.length !== 0 && <Analytics responses={responses} />}
+
       {responses.map((response, index) => {
         let questions = JSON.parse(response);
         console.log("r", response);
         return (
-          <Card title={"Response " + (index + 1)}>
-            {questions.map((question) => {
-              console.log(question);
-              return (
-                <Card type="inner" title={question.question}>
-                  {question.inputValue}
-                </Card>
-              );
-            })}
-          </Card>
+          <>
+            <Card title={"Response " + (index + 1)}>
+              {questions.map((question) => {
+                console.log(question);
+                return (
+                  <Card type="inner" title={question.question}>
+                    {question.inputValue}
+                  </Card>
+                );
+              })}
+            </Card>
+          </>
         );
       })}
     </>

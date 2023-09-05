@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button, Input, Form, Checkbox, message, Radio } from "antd";
+import { Button, Input, Form, Radio, Space } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 function NostrForm(props) {
   const { content, npub } = props;
@@ -29,7 +29,13 @@ function NostrForm(props) {
   const handleSubmit = (event) => {
     console.log("safdsfsddf", npub, formInputs, fields);
     let answerObject = fields.map((field) => {
-      return { ...field, inputValue: formInputs[field["tag"]] };
+      let { question, tag, answerType } = field;
+      return {
+        question,
+        tag,
+        answerType,
+        inputValue: formInputs[field["tag"]],
+      };
     });
     sendFormResponse(npub, answerObject);
     props.onSubmit();
@@ -51,13 +57,6 @@ function NostrForm(props) {
               value={formInputs[tag]}
               onChange={onFieldChange}
             />
-            {/* <Input
-              name={tag}
-              value={formInputs[tag]}
-              onChange={onFieldChange}
-              id="blah"
-            ></Input>
-          </> */}
           </Form.Item>
         );
       case "singleChoice":
@@ -71,14 +70,28 @@ function NostrForm(props) {
               name={tag}
               onChange={onFieldChange}
               value={formInputs[tag]}
+              defaultValue={field.choices[0].message}
             >
-              {field.choices.map((choice) => {
-                return (
-                  <Radio value={choice.message} name={tag}>
-                    {choice.message}
-                  </Radio>
-                );
-              })}
+              <Space
+                direction="vertical"
+                style={{
+                  display: "flex",
+                  alignContent: "flex-start",
+                  alignItems: "flex-start",
+                }}
+              >
+                {field.choices.map((choice) => {
+                  return (
+                    <Radio
+                      value={choice.message}
+                      name={tag}
+                      style={{ textAlign: "left" }}
+                    >
+                      {choice.message}
+                    </Radio>
+                  );
+                })}
+              </Space>
             </Radio.Group>
           </Form.Item>
         );
@@ -91,6 +104,8 @@ function NostrForm(props) {
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
+      <Title label="Form Name:">{name}</Title>
+      <Text label="Form Description">{description}</Text>
       <Form
         name="basic"
         labelCol={{
@@ -111,8 +126,6 @@ function NostrForm(props) {
         onFinishFailed={handleSubmit}
         autoComplete="off"
       >
-        <Form.Item label="Form Name:">{name}</Form.Item>
-        <Form.Item label="Form Description">{description}</Form.Item>
         {fields?.map((field) => {
           return getField(field);
         })}
