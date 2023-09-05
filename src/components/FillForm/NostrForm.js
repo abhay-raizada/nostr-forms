@@ -16,9 +16,13 @@ function NostrForm(props) {
 
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
-    fields?.map(({ answerType, tag }) => {
+    fields?.map((field) => {
+      let { answerType, tag } = field;
       if (answerType === "string") {
         fieldInputs[tag] = "";
+      }
+      if (answerType === "singleChoice") {
+        fieldInputs[tag] = field.choices[0].message;
       }
     });
     return fieldInputs;
