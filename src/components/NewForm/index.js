@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { createForm } from "../../utils/nostr";
+import Choices from "./Choices";
 import { makeTag } from "../../utils/utility";
 
 import { Button, Card, Form, Input, Select, Typography } from "antd";
-import Paragraph from "antd/es/skeleton/Paragraph";
-import Title from "antd/es/skeleton/Title";
 
 function NewForm() {
-  const [isOpenForm, setIsOpenForm] = useState(false);
   const [newQuestion, setNewQuestion] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState("");
   const [questions, setQuestions] = useState([]);
@@ -15,12 +13,10 @@ function NewForm() {
   const [publicForm, setPublicForm] = useState(false);
   const [formName, setFormName] = useState("");
   const [formDescription, setFormDescription] = useState("");
+  const [inputType, setInputType] = useState("string");
+  const [choices, setChoices] = useState([]);
   const { Option } = Select;
   const { Text, Paragraph, Title } = Typography;
-
-  function toggleModal() {
-    setIsOpenForm(!isOpenForm);
-  }
 
   function constructFormUrl() {
     let hostname = window.location.host;
@@ -51,11 +47,24 @@ function NewForm() {
     setFormDescription(event.target.value);
   }
 
+  function handleInputType(value, _) {
+    setInputType(value);
+  }
+
+  function handleChoices(options) {
+    setChoices(options);
+  }
+
   function handleSaveQuestion() {
-    let newQuestions = [
-      ...questions,
-      { question: currentQuestion, answerType: "string", tag: makeTag(6) },
-    ];
+    let newQuestion = {
+      question: currentQuestion,
+      answerType: inputType,
+      tag: makeTag(6),
+    };
+    if (["singleChoice", "multipleChoice"].includes(inputType)) {
+      newQuestion.choices = choices;
+    }
+    let newQuestions = [...questions, newQuestion];
     setQuestions(newQuestions);
     setCurrentQuestion("");
     setNewQuestion(false);
@@ -78,6 +87,7 @@ function NewForm() {
           flexDirection: "column",
           alignContent: "center",
           alignItems: "center",
+          maxWidth: "100%",
         }}
       >
         {!formCredentials && (
@@ -85,12 +95,13 @@ function NewForm() {
             style={{
               display: "flex",
               flexDirection: "column",
-              alignContent: "center",
-              justifyContent: "center",
-              maxWidth: "80%",
+              alignContent: "left",
+              justifyContent: "left",
+              maxWidth: "100%",
+              minWidth: "70%",
             }}
           >
-            <Card>
+            <Card style={{ maxWidth: "100%", alignContent: "left" }}>
               <Form>
                 <Title level={2}>New Form</Title>
                 <Form.Item label="Name of the form">
@@ -108,15 +119,24 @@ function NewForm() {
               </Form>
               {questions.map((question) => {
                 return (
-                  <Card
-                    type="inner"
-                    title={question.question}
-                    style={{ margin: "10px" }}
-                  >
-                    <ul>
-                      <li>Question: {question.question}</li>
-                      <li>Input Type: {question.answerType}</li>
-                      <li>Question ID: {question.tag}</li>
+                  <Card type="inner" title={question.question}>
+                    <ul
+                      style={{
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
+                        alignContent: "flex-start",
+                        textAlign: "left",
+                      }}
+                    >
+                      <li>
+                        <h3>Question:</h3> {question.question}
+                      </li>
+                      <li>
+                        <h3>Input Type:</h3> {question.answerType}
+                      </li>
+                      <li>
+                        <h3>Question ID:</h3> {question.tag}
+                      </li>
                     </ul>
                   </Card>
                 );
@@ -128,22 +148,30 @@ function NewForm() {
                       <Input type="text" onChange={handleCurrentQuestion} />
                     </Form.Item>
                     <Form.Item label="Input type">
-                      <Select defaultValue="Text">
-                        <Option value="Text">Text</Option>
-                        <Option value="Single Choice" disabled>
-                          Single Choice{"("}Radio Button{")"}
+                      <Select defaultValue="string" onSelect={handleInputType}>
+                        <Option value="string">Short Answer</Option>
+                        <Option value="text" disabled>
+                          Paragraph
                         </Option>
-                        <Option value="Multiple choice" disabled>
-                          Multiple Choice{"("}Checkbox{")"}
+                        <Option value="singleChoice">
+                          Choice{"("}Radio Button{")"}
                         </Option>
-                        <Option value="Number" disabled>
+                        <Option value="multipleChoice" disabled>
+                          Choice{"("}Checkbox{")"}
+                        </Option>
+                        <Option value="number" disabled>
                           Number
                         </Option>
-                        <Option value="Date" disabled>
+                        <Option value="date" disabled>
                           Date
                         </Option>
                       </Select>
                     </Form.Item>
+                    {["singleChoice", "multipleChoice"].includes(inputType) && (
+                      <Form.Item>
+                        <Choices onChoice={handleChoices} />
+                      </Form.Item>
+                    )}
                     <Button onClick={handleSaveQuestion}>Add Question</Button>
                   </Form>
                 </Card>

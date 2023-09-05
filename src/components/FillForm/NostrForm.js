@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Input, Form, Checkbox, message } from "antd";
+import { Button, Input, Form, Checkbox, message, Radio } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 
@@ -8,8 +8,7 @@ const { Title } = Typography;
 function NostrForm(props) {
   const { content, npub } = props;
   const { description, name, fields } = content;
-
-  console.log("c, np", content, npub, name, description);
+  console.log("choices!", content);
 
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
@@ -28,7 +27,7 @@ function NostrForm(props) {
   };
 
   const handleSubmit = (event) => {
-    console.log(npub, formInputs, fields);
+    console.log("safdsfsddf", npub, formInputs, fields);
     let answerObject = fields.map((field) => {
       return { ...field, inputValue: formInputs[field["tag"]] };
     });
@@ -36,7 +35,9 @@ function NostrForm(props) {
     props.onSubmit();
   };
 
-  const getField = (answerType, question, tag) => {
+  const getField = (field) => {
+    let { answerType, question, tag } = field;
+    console.log("abswer type");
     switch (answerType) {
       case "string":
         return (
@@ -57,6 +58,28 @@ function NostrForm(props) {
               id="blah"
             ></Input>
           </> */}
+          </Form.Item>
+        );
+      case "singleChoice":
+        return (
+          <Form.Item
+            label={question}
+            name={tag}
+            rules={[{ message: "Select.." }]}
+          >
+            <Radio.Group
+              name={tag}
+              onChange={onFieldChange}
+              value={formInputs[tag]}
+            >
+              {field.choices.map((choice) => {
+                return (
+                  <Radio value={choice.message} name={tag}>
+                    {choice.message}
+                  </Radio>
+                );
+              })}
+            </Radio.Group>
           </Form.Item>
         );
       default:
@@ -90,8 +113,8 @@ function NostrForm(props) {
       >
         <Form.Item label="Form Name:">{name}</Form.Item>
         <Form.Item label="Form Description">{description}</Form.Item>
-        {fields?.map(({ answerType, question, tag }) => {
-          return getField(answerType, question, tag);
+        {fields?.map((field) => {
+          return getField(field);
         })}
         {fields ? (
           <Button type="primary" onClick={handleSubmit}>
