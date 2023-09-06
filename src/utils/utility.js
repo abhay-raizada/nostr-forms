@@ -19,3 +19,12 @@ export function constructFormUrl(publicKey) {
 
   return "http://" + hostname + "/#/forms/" + publicKey;
 }
+
+export function constructResponseUrl(privateKey) {
+  let hostname = window.location.host;
+  if (hostname.includes("abhay-raizada")) {
+    hostname += "/nostr-forms";
+  }
+
+  return "http://" + hostname + "/#/forms/" + privateKey + "/responses";
+}

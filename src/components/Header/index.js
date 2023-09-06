@@ -3,7 +3,7 @@ import { Link, matchRoutes, useLocation } from "react-router-dom";
 
 export const Header = (props) => {
   const location = useLocation();
-  const routes = [{ path: "/forms/:npub" }];
+  const routes = [{ path: "/forms/:npub" }, { path: "/forms/:nsec/responses" }];
   //const route = matchRoutes(location);
   console.log(location);
 
@@ -16,9 +16,17 @@ export const Header = (props) => {
       return "/forms/responses";
     } else {
       const route = matchRoutes(routes, location);
-      console.log(route);
-      if (route) {
+      if (!route) {
+        return "/myForms";
+      }
+      if (route?.length !== 0 && route[0].route?.path === "/forms/:npub") {
         return "/forms/fill";
+      } else if (
+        route?.length !== 0 &&
+        route[0].route?.path === "/forms/:nsec/responses"
+      ) {
+        console.log("heeere ");
+        return "/forms/responses";
       }
     }
     return "/myForms";

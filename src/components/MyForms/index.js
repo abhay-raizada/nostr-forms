@@ -1,7 +1,7 @@
 import { Card, Typography, Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { constructFormUrl } from "../../utils/utility";
+import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState("");
@@ -18,12 +18,14 @@ const MyForms = () => {
     let tableForms = forms
       .map((form, index) => {
         let formUrl = constructFormUrl(form.publicKey);
+        let responseUrl = constructResponseUrl(form.privateKey);
         return {
           key: index,
           name: form.name,
-          url: <a href={formUrl}> {formUrl}</a>,
-          privateKey: form.privateKey,
+          formUrl: <a href={formUrl}> {formUrl}</a>,
+          responseUrl: <a href={responseUrl}> {responseUrl}</a>,
           createdAt: form.createdAt || new Date(),
+          privateKey: form.privateKey,
         };
       })
       .sort((a, b) => {
@@ -85,13 +87,13 @@ const MyForms = () => {
                 <li>
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <Title level={3}> Form Url </Title>
-                    <a href={currentForm.url}>{currentForm.url}</a>
+                    {currentForm.formUrl}
                   </div>
                 </li>
                 <li>
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Title level={3}> Form Private Key </Title>
-                    <Text>{currentForm.privateKey}</Text>
+                    <Title level={3}> Response Url </Title>
+                    {currentForm.responseUrl}
                   </div>
                 </li>
               </ul>

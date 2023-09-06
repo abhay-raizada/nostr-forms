@@ -13,7 +13,7 @@ function ViewResponses(props) {
     if (nsec) {
       getResponses(nsec);
     }
-  });
+  }, [nsec]);
 
   async function getResponses(nsecInput) {
     let resp = await getFormResponses(nsecInput);
@@ -33,44 +33,44 @@ function ViewResponses(props) {
         alignItems: "center",
       }}
     >
-      <Form
-        name="basic"
-        labelCol={{
-          span: 8,
-        }}
-        labelWrap
-        wrapperCol={{
-          span: 16,
-        }}
-        style={{
-          maxWidth: 600,
-          alignContent: "center",
-          flexDirection: "column",
-        }}
-      >
-        <Form.Item label="enter form private key">
-          <Input
-            type="text"
-            placeholder="Enter form nsec"
-            onChange={handleInputchange}
-          />
-        </Form.Item>
-        <Form.Item>
-          <Button
-            type="primary"
-            onClick={async () => {
-              await getResponses();
-              return;
-            }}
-            style={{ margine: "10px" }}
-          >
-            View Responses
-          </Button>
-        </Form.Item>
-      </Form>
-
+      {!nsec && (
+        <Form
+          name="basic"
+          labelCol={{
+            span: 8,
+          }}
+          labelWrap
+          wrapperCol={{
+            span: 16,
+          }}
+          style={{
+            maxWidth: 600,
+            alignContent: "center",
+            flexDirection: "column",
+          }}
+        >
+          <Form.Item label="enter form private key">
+            <Input
+              type="text"
+              placeholder="Enter form nsec"
+              onChange={handleInputchange}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              onClick={async () => {
+                await getResponses(nsecState);
+                return;
+              }}
+              style={{ margine: "10px" }}
+            >
+              View Responses
+            </Button>
+          </Form.Item>
+        </Form>
+      )}
       {responses.length !== 0 && <Analytics responses={responses} />}
-
       {responses.map((response, index) => {
         let questions = JSON.parse(response);
         console.log("r", response);
