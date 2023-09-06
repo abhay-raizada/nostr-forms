@@ -2,18 +2,26 @@ import { Button, Card, Input, Form } from "antd";
 import { useEffect, useState } from "react";
 import { getFormResponses } from "../../utils/nostr";
 import Analytics from "./Analytics";
+import { useParams } from "react-router";
 
 function ViewResponses(props) {
-  const [nsec, setNsec] = useState("");
+  const [nsecState, setNsecState] = useState("");
   const [responses, setResponses] = useState([]);
+  const { nsec } = useParams();
 
-  async function getResponses() {
-    let resp = await getFormResponses(nsec);
+  useEffect(() => {
+    if (nsec) {
+      getResponses(nsec);
+    }
+  });
+
+  async function getResponses(nsecInput) {
+    let resp = await getFormResponses(nsecInput);
     console.log("fetching", resp);
     setResponses(resp);
   }
   function handleInputchange(event) {
-    setNsec(event.target.value);
+    setNsecState(event.target.value);
   }
   return (
     <div

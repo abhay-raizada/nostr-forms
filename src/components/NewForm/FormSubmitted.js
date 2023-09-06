@@ -6,7 +6,11 @@ const FormSubmitted = (props) => {
   const { Text, Paragraph } = Typography;
 
   function saveFormLocally() {
-    let saveObject = { ...props.formCredentials, name: props.formName };
+    let saveObject = {
+      ...props.formCredentials,
+      name: props.formName,
+      createdAt: new Date(),
+    };
     let forms = localStorage.getItem("formstr:forms");
     if (forms) {
       forms = JSON.parse(forms);

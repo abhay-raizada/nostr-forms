@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Typography, Card } from "antd";
 
 const Analytics = (props) => {

@@ -6,9 +6,6 @@ import { Button, Form, Input, Typography } from "antd";
 import { useParams } from "react-router-dom";
 import NostrForm from "./NostrForm";
 
-const onFinishFailed = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
 const FillForm = (props) => {
   const [npubState, setNpubState] = useState("");
   const [formTemplate, setFormTemplate] = useState("");
@@ -20,7 +17,7 @@ const FillForm = (props) => {
     if (npub) {
       fetchFormTemplate(npub);
     }
-  }, []);
+  }, [npub]);
 
   async function fetchFormTemplate(npubInput) {
     console.log("npub", npubInput);

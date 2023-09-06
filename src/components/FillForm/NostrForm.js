@@ -16,7 +16,7 @@ function NostrForm(props) {
 
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
-    fields?.map((field) => {
+    fields?.forEach((field) => {
       let { answerType, tag } = field;
       if (answerType === "string") {
         fieldInputs[tag] = "";
@@ -55,7 +55,7 @@ function NostrForm(props) {
       case "string":
         return (
           <Form.Item
-            label={question}
+            label={<strong>{question}</strong>}
             name={tag}
             rules={[{ message: "Please Enter.." }]}
           >
@@ -69,7 +69,7 @@ function NostrForm(props) {
       case "singleChoice":
         return (
           <Form.Item
-            label={question}
+            label={<strong>{question}</strong>}
             name={tag}
             rules={[{ message: "Select.." }]}
           >
@@ -102,6 +102,21 @@ function NostrForm(props) {
             </Radio.Group>
           </Form.Item>
         );
+      case "text":
+        return (
+          <Form.Item
+            label={<strong>{question}</strong>}
+            name={tag}
+            rules={[{ message: "Please Enter.." }]}
+            layout="vertical"
+          >
+            <Input.TextArea
+              name={tag}
+              value={formInputs[tag]}
+              onChange={onFieldChange}
+            />
+          </Form.Item>
+        );
       default:
         return null;
     }
@@ -132,6 +147,7 @@ function NostrForm(props) {
         onFinish={handleSubmit}
         onFinishFailed={handleSubmit}
         autoComplete="off"
+        layout="vertical"
       >
         {fields?.map((field) => {
           return getField(field);

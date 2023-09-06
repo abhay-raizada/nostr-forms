@@ -17,7 +17,7 @@ function NewForm() {
   const [inputType, setInputType] = useState("string");
   const [choices, setChoices] = useState([]);
   const { Option } = Select;
-  const { Text, Paragraph, Title } = Typography;
+  const { Title } = Typography;
 
   function addQuestion() {
     setNewQuestion(true);
@@ -61,6 +61,17 @@ function NewForm() {
     setCurrentQuestion("");
     setNewQuestion(false);
   }
+
+  const formItemLayout = {
+    labelCol: {
+      xs: { span: 24 },
+      sm: { span: 8 },
+    },
+    wrapperCol: {
+      xs: { span: 24 },
+      sm: { span: 16 },
+    },
+  };
   async function handleSaveForm() {
     let formspec = {
       name: formName,
@@ -94,7 +105,7 @@ function NewForm() {
             }}
           >
             <Card style={{ maxWidth: "100%", alignContent: "left" }}>
-              <Form>
+              <Form {...formItemLayout}>
                 <Title level={2}>New Form</Title>
                 <Form.Item label="Name of the form">
                   {" "}
@@ -139,9 +150,7 @@ function NewForm() {
                     <Form.Item label="Input type">
                       <Select defaultValue="string" onSelect={handleInputType}>
                         <Option value="string">Short Answer</Option>
-                        <Option value="text" disabled>
-                          Paragraph
-                        </Option>
+                        <Option value="text">Paragraph</Option>
                         <Option value="singleChoice">
                           Choice{"("}Radio Button{")"}
                         </Option>

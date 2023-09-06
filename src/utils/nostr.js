@@ -4,7 +4,6 @@ import {
   getPublicKey,
   getEventHash,
   getSignature,
-  nip19,
   nip04,
 } from "nostr-tools";
 
