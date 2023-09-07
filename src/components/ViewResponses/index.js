@@ -1,4 +1,4 @@
-import { Button, Card, Input, Form } from "antd";
+import { Button, Card, Input, Form, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { getFormResponses } from "../../utils/nostr";
 import Analytics from "./Analytics";
@@ -8,6 +8,7 @@ function ViewResponses(props) {
   const [nsecState, setNsecState] = useState("");
   const [responses, setResponses] = useState([]);
   const { nsec } = useParams();
+  const { Text } = Typography;
 
   useEffect(() => {
     if (nsec) {
@@ -89,6 +90,13 @@ function ViewResponses(props) {
           </>
         );
       })}
+      {responses.length === 0 && (
+        <Text>
+          {" "}
+          Searching for responses... If it takes a while there are probably no
+          responses yet.
+        </Text>
+      )}
     </div>
   );
 }

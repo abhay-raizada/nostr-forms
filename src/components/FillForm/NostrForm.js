@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Input, Form, Radio, Space } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
+import { constructResponseUrl } from "../../utils/utility";
 
 const { Title, Text } = Typography;
 
@@ -162,9 +163,10 @@ function NostrForm(props) {
       {privateKey && (
         <Text mark style={{ margin: "10px" }}>
           {" "}
-          This is a public form to view responses use private key: {
-            privateKey
-          }{" "}
+          This is a public form, to view responses visit the following link:{" "}
+          <a href={constructResponseUrl(privateKey)}>
+            {constructResponseUrl(privateKey)}
+          </a>{" "}
         </Text>
       )}
     </div>
