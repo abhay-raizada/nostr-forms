@@ -105,7 +105,7 @@ const MyForms = () => {
           {" "}
           <Text>
             Hi there! You don't have any forms yet, click{" "}
-            <Link to="forms/new">
+            <Link to="/forms/new">
               {" "}
               <Button>Here</Button>{" "}
             </Link>{" "}
