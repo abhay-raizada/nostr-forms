@@ -90,7 +90,7 @@ function ViewResponses(props) {
           </>
         );
       })}
-      {responses.length === 0 && (
+      {nsec && responses.length === 0 && (
         <Text>
           {" "}
           Searching for responses... If it takes a while there are probably no

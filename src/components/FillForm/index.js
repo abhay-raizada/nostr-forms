@@ -101,6 +101,10 @@ const FillForm = (props) => {
         />
       )}
 
+      {!formTemplate && npub && (
+        <Text> Please wait while form is being fetched..</Text>
+      )}
+
       {finished && <Text> Form has been submitted! </Text>}
     </>
   );
