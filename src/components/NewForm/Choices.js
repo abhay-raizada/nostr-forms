@@ -4,13 +4,26 @@ import { makeTag } from "../../utils/utility";
 
 const Choices = (props) => {
   const [choices, setChoices] = useState([]);
+  const [other, setOther] = useState(false);
   const [newChoice, setNewChoice] = useState(true);
   const [currentInput, setCurrentInput] = useState(true);
 
-  const { Title } = Typography;
+  const { Title, Text } = Typography;
 
   function handleCurrentInput(event) {
     setCurrentInput(event.target.value);
+  }
+
+  function addOther() {
+    const newChoices = [
+      ...choices,
+      { message: "other", tag: makeTag(6), other: true },
+    ];
+    setChoices(newChoices);
+    setNewChoice(false);
+    setCurrentInput("");
+    props.onChoice(newChoices);
+    setOther(true);
   }
 
   function addChoice() {
@@ -18,7 +31,6 @@ const Choices = (props) => {
     setChoices(newChoices);
     setNewChoice(false);
     setCurrentInput("");
-    console.log("Chooooices", newChoices);
     props.onChoice(newChoices);
   }
 
@@ -42,16 +54,35 @@ const Choices = (props) => {
         );
       })}
       {newChoice && (
-        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-          <Radio disabled />{" "}
-          <Input
-            onChange={handleCurrentInput}
-            style={{ margin: "10px", maxWidth: "80%" }}
-          />{" "}
+        <div
+          style={{ display: "flex", flexDirection: "column", margin: "10px" }}
+        >
+          <div
+            style={{ display: "flex", flexDirection: "row", margin: "10px" }}
+          >
+            <Radio disabled />{" "}
+            <Input
+              onChange={handleCurrentInput}
+              style={{ margin: "10px", maxWidth: "80%" }}
+            />{" "}
+          </div>
           <Button size="middle" style={{ margin: "10px" }} onClick={addChoice}>
             {" "}
             Add{" "}
           </Button>
+          {!other && (
+            <>
+              <Text style={{ minWidth: "15px", margin: "10px" }}> or </Text>
+              <Button
+                size="middle"
+                style={{ margin: "10px" }}
+                onClick={addOther}
+              >
+                {" "}
+                Add Other{" "}
+              </Button>
+            </>
+          )}
         </div>
       )}
       {

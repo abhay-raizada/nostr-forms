@@ -28,6 +28,11 @@ function NostrForm(props) {
     });
     return fieldInputs;
   });
+  const [otherMessage, setOtherMessage] = useState("");
+
+  function onOtherChange(event) {
+    setOtherMessage(event.target.value);
+  }
 
   const onFieldChange = (event) => {
     const { name, value } = event.target;
@@ -44,6 +49,7 @@ function NostrForm(props) {
         tag,
         answerType,
         inputValue: formInputs[field["tag"]],
+        otherMessage: otherMessage,
       };
     });
     sendFormResponse(npub, answerObject);
@@ -90,13 +96,23 @@ function NostrForm(props) {
               >
                 {field.choices.map((choice) => {
                   return (
-                    <Radio
-                      value={choice.message}
-                      name={tag}
-                      style={{ textAlign: "left" }}
-                    >
-                      {choice.message}
-                    </Radio>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <Radio
+                        value={choice.message}
+                        name={tag}
+                        style={{ textAlign: "left", margin: "10px" }}
+                      >
+                        {choice.message}
+                      </Radio>
+                      {choice.other && (
+                        <Input
+                          name={tag}
+                          disabled={formInputs[tag] !== "other"}
+                          onChange={onOtherChange}
+                          placeholder="Enter your own choice"
+                        />
+                      )}
+                    </div>
                   );
                 })}
               </Space>

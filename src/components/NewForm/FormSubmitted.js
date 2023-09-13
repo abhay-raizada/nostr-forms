@@ -1,5 +1,5 @@
 import { Button, notification, Typography } from "antd";
-import { constructFormUrl } from "../../utils/utility";
+import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
 
 const FormSubmitted = (props) => {
   const [api, contextHolder] = notification.useNotification();
@@ -33,6 +33,7 @@ const FormSubmitted = (props) => {
   }
 
   let formUrl = constructFormUrl(props.formCredentials.publicKey);
+  let responseUrl = constructResponseUrl(props.formCredentials.privateKey);
   return (
     <div
       style={{
@@ -56,8 +57,11 @@ const FormSubmitted = (props) => {
       </div>
       <div>
         <Text>
-          Private Key (needed to acces responses){" "}
-          <Paragraph> {props.formCredentials.privateKey} </Paragraph>{" "}
+          Responses to the form can be seen here:{" "}
+          <Paragraph>
+            {" "}
+            <a href={responseUrl}>{responseUrl} </a>
+          </Paragraph>{" "}
         </Text>
       </div>
       <div style={{ display: "flex", flexDirection: "row" }}>

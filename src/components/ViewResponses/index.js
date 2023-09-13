@@ -82,7 +82,15 @@ function ViewResponses(props) {
                 console.log(question);
                 return (
                   <Card type="inner" title={question.question}>
-                    {question.inputValue}
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <div>{question.inputValue}</div>
+                      {question.otherMessage && (
+                        <div>
+                          User Input:
+                          {question.otherMessage}
+                        </div>
+                      )}
+                    </div>
                   </Card>
                 );
               })}

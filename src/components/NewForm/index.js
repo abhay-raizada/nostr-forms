@@ -134,9 +134,6 @@ function NewForm() {
                       <li>
                         <h3>Question:</h3> {question.question}
                       </li>
-                      <li>
-                        <h3>Input Type:</h3> {question.answerType}
-                      </li>
                     </ul>
                   </Card>
                 );
