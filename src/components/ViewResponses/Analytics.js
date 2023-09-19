@@ -1,4 +1,5 @@
 import { Typography, Card } from "antd";
+import "./index.css";
 
 const Analytics = (props) => {
   const { responses } = props;

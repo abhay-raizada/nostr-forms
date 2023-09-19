@@ -115,4 +115,3 @@ export const getFormResponses = async (nsec) => {
   pool.close(relays);
   return responses;
 };
-//pk,sk 559ddd336a0f43867f109cc53b3fac7f53683f2e4de8d24d7ffa933d7ede2154 72031d789c1b7de052f3af0f1f129ff8878608b62b195ef2f8feea331d1bf621
