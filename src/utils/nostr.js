@@ -115,3 +115,21 @@ export const getFormResponses = async (nsec) => {
   pool.close(relays);
   return responses;
 };
+
+export const fetchGlobalFeed = async () => {
+  const relays = [
+    "wss://relay.damus.io/",
+    "wss://offchain.pub/",
+    "wss://nos.lol/",
+    "wss://relay.nostr.wirednet.jp/",
+    "wss://nostr.wine/",
+  ];
+  let filter = {
+    kinds: [0],
+    "#l": ["formstr"],
+    limit: 20,
+  };
+  let pool = new SimplePool();
+  let responses = await pool.list(relays, [filter]);
+  return responses;
+};

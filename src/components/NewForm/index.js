@@ -8,48 +8,57 @@ import FormSubmitted from "./FormSubmitted";
 
 function NewForm() {
   const [newQuestion, setNewQuestion] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState("");
   const [questions, setQuestions] = useState([]);
+  const [showOptions, setShowOptions] = useState(false);
   const [formCredentials, setFormCredentials] = useState("");
-  const [publicForm, setPublicForm] = useState(false);
-  const [formName, setFormName] = useState("");
-  const [formDescription, setFormDescription] = useState("");
-  const [inputType, setInputType] = useState("string");
-  const [choices, setChoices] = useState([]);
   const { Option } = Select;
   const { Title } = Typography;
+  const [settingsForm] = Form.useForm();
+  const [questionsForm] = Form.useForm();
 
   function addQuestion() {
     setNewQuestion(true);
   }
 
   function handleCurrentQuestion(event) {
-    setCurrentQuestion(event.target.value);
+    questionsForm.setFieldValue("question", event.target.value);
   }
 
   function handleNameChange(event) {
-    setFormName(event.target.value);
+    settingsForm.setFieldValue("name", event.target.value);
   }
 
   function handlePublicForm(event) {
-    setPublicForm(event.target.checked);
+    settingsForm.setFieldValue("public?", event.target.checked);
   }
 
   function handleDescriptionChange(event) {
-    setFormDescription(event.target.value);
+    settingsForm.setFieldValue("description", event.target.value);
   }
 
   function handleInputType(value, _) {
-    setInputType(value);
+    console.log("inputType", value, questionsForm.getFieldValue("inputType"));
+    if (["singleChoice", "multipleChoice"].includes(value)) {
+      setShowOptions(true);
+    } else {
+      setShowOptions(false);
+    }
+    questionsForm.setFieldValue("inputType", value);
   }
 
   function handleChoices(options) {
-    setChoices(options);
+    questionsForm.setFieldValue("choices", options);
+  }
+
+  function submitSettingsForm() {
+    settingsForm.submit();
   }
 
   function handleSaveQuestion() {
+    let inputType = questionsForm.getFieldValue("inputType");
+    let choices = questionsForm.getFieldValue("choices");
     let newQuestion = {
-      question: currentQuestion,
+      question: questionsForm.getFieldValue("question"),
       answerType: inputType,
       tag: makeTag(6),
     };
@@ -58,7 +67,7 @@ function NewForm() {
     }
     let newQuestions = [...questions, newQuestion];
     setQuestions(newQuestions);
-    setCurrentQuestion("");
+    questionsForm.setFieldValue("question", undefined);
     setNewQuestion(false);
   }
 
@@ -72,14 +81,19 @@ function NewForm() {
       sm: { span: 16 },
     },
   };
-  async function handleSaveForm() {
+  async function handleSaveForm(values) {
     let formspec = {
-      name: formName,
-      description: formDescription,
+      name: settingsForm.getFieldValue("name"),
+      description: settingsForm.getFieldValue("description"),
       fields: questions,
     };
+    let publicForm = settingsForm.getFieldValue("public?");
     const [pk, sk] = await createForm(formspec, publicForm);
     setFormCredentials({ publicKey: pk, privateKey: sk });
+  }
+
+  function onFinishFailed(error) {
+    console.log("Task failed successfully :D", error);
   }
   return (
     <>
@@ -105,17 +119,26 @@ function NewForm() {
             }}
           >
             <Card style={{ maxWidth: "100%", alignContent: "left" }}>
-              <Form {...formItemLayout}>
+              <Form
+                {...formItemLayout}
+                onFinish={handleSaveForm}
+                form={settingsForm}
+                onFinishFailed={onFinishFailed}
+              >
                 <Title level={2}>New Form</Title>
-                <Form.Item label="Name of the form">
+                <Form.Item
+                  name="name"
+                  label="Name of the form"
+                  rules={[{ required: true }]}
+                >
                   {" "}
                   <Input onChange={handleNameChange} />{" "}
                 </Form.Item>
-                <Form.Item label="Enter form description">
+                <Form.Item name="description" label="Enter form description">
                   {" "}
                   <Input onChange={handleDescriptionChange} />{" "}
                 </Form.Item>
-                <Form.Item label="Make responses public?">
+                <Form.Item name="public?" label="Make responses public?">
                   {" "}
                   <Input type="checkbox" onChange={handlePublicForm} />{" "}
                 </Form.Item>
@@ -140,11 +163,15 @@ function NewForm() {
               })}
               {newQuestion && (
                 <Card type="inner" style={{ maxWidth: "100%", margin: "10px" }}>
-                  <Form>
-                    <Form.Item label="Question">
+                  <Form form={questionsForm} onFinish={handleSaveQuestion}>
+                    <Form.Item
+                      name="question"
+                      label="Question"
+                      rules={[{ required: true }]}
+                    >
                       <Input type="text" onChange={handleCurrentQuestion} />
                     </Form.Item>
-                    <Form.Item label="Input type">
+                    <Form.Item name="inputType" label="Input type">
                       <Select defaultValue="string" onSelect={handleInputType}>
                         <Option value="string">Short Answer</Option>
                         <Option value="text">Paragraph</Option>
@@ -162,12 +189,12 @@ function NewForm() {
                         </Option>
                       </Select>
                     </Form.Item>
-                    {["singleChoice", "multipleChoice"].includes(inputType) && (
-                      <Form.Item>
+                    {showOptions && (
+                      <Form.Item name="choices">
                         <Choices onChoice={handleChoices} />
                       </Form.Item>
                     )}
-                    <Button onClick={handleSaveQuestion}>Add Question</Button>
+                    <Button htmlType="submit">Add Question</Button>
                   </Form>
                 </Card>
               )}
@@ -188,7 +215,7 @@ function NewForm() {
                   +
                 </Button>
                 {questions.length >= 1 && (
-                  <Button onClick={handleSaveForm}>Save Form</Button>
+                  <Button onClick={submitSettingsForm}>Finish</Button>
                 )}
               </div>
             </Card>
@@ -196,7 +223,10 @@ function NewForm() {
         )}
       </div>
       {formCredentials && (
-        <FormSubmitted formCredentials={formCredentials} formName={formName} />
+        <FormSubmitted
+          formCredentials={formCredentials}
+          formName={settingsForm.getFieldValue("name")}
+        />
       )}
     </>
   );
