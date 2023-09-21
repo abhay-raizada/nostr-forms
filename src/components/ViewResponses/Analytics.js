@@ -54,8 +54,9 @@ const Analytics = (props) => {
                 return (
                   <li>
                     {" "}
-                    <h3>{a}:</h3> {((aggregations[a] / total) * 100).toFixed(2)}
-                    %{" "}
+                    <h3>{a}:</h3> {((aggregations[a] / total) * 100).toFixed(2)}{" "}
+                    %{"("}
+                    {aggregations[a]} Responses{")"}{" "}
                   </li>
                 );
               })}{" "}

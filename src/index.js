@@ -8,6 +8,7 @@ import NewForm from "./components/NewForm";
 import FillForm from "./components/FillForm";
 import ViewResponses from "./components/ViewResponses";
 import MyForms from "./components/MyForms";
+import { GlobalForms } from "./components/GlobalForms";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -16,6 +17,7 @@ root.render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<App />}>
+          <Route path="global" element={<GlobalForms />} />
           <Route path="myForms" element={<MyForms />} />
           <Route path="forms/new" element={<NewForm />} />
           <Route path="forms/fill" element={<FillForm />} />

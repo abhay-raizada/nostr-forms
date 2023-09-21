@@ -6,11 +6,13 @@ const Choices = (props) => {
   const [choices, setChoices] = useState([]);
   const [other, setOther] = useState(false);
   const [newChoice, setNewChoice] = useState(true);
-  const [currentInput, setCurrentInput] = useState(true);
+  const [currentInput, setCurrentInput] = useState("");
+  const [inputStatus, setInputStatus] = useState("");
 
   const { Title, Text } = Typography;
 
   function handleCurrentInput(event) {
+    setInputStatus("");
     setCurrentInput(event.target.value);
   }
 
@@ -27,6 +29,10 @@ const Choices = (props) => {
   }
 
   function addChoice() {
+    if (currentInput.length === 0) {
+      setInputStatus("error");
+      return;
+    }
     const newChoices = [...choices, { message: currentInput, tag: makeTag(6) }];
     setChoices(newChoices);
     setNewChoice(false);
@@ -63,7 +69,11 @@ const Choices = (props) => {
             <Radio disabled />{" "}
             <Input
               onChange={handleCurrentInput}
+              status={inputStatus}
               style={{ margin: "10px", maxWidth: "80%" }}
+              placeholder={
+                inputStatus === "error" ? "Cannot be blank" : "Enter Option"
+              }
             />{" "}
           </div>
           <Button size="middle" style={{ margin: "10px" }} onClick={addChoice}>
