@@ -24,6 +24,10 @@ function NewForm() {
     questionsForm.setFieldValue("question", event.target.value);
   }
 
+  function handleSelfSign(event) {
+    settingsForm.setFieldValue("selfSign", event.target.checked);
+  }
+
   function handleNameChange(event) {
     settingsForm.setFieldValue("name", event.target.value);
   }
@@ -85,6 +89,7 @@ function NewForm() {
     let formspec = {
       name: settingsForm.getFieldValue("name"),
       description: settingsForm.getFieldValue("description"),
+      settings: { selfSignForms: settingsForm.getFieldValue("selfSign") },
       fields: questions,
     };
     let publicForm = settingsForm.getFieldValue("public?");
@@ -121,6 +126,7 @@ function NewForm() {
             <Card style={{ maxWidth: "100%", alignContent: "left" }}>
               <Form
                 {...formItemLayout}
+                labelWrap
                 onFinish={handleSaveForm}
                 form={settingsForm}
                 onFinishFailed={onFinishFailed}
@@ -141,6 +147,13 @@ function NewForm() {
                 <Form.Item name="public?" label="Make responses public?">
                   {" "}
                   <Input type="checkbox" onChange={handlePublicForm} />{" "}
+                </Form.Item>
+                <Form.Item
+                  name="selfSign"
+                  label="Non-anonymous form filling: Ask users to self sign their submissions"
+                >
+                  {" "}
+                  <Input type="checkbox" onChange={handleSelfSign} />{" "}
                 </Form.Item>
               </Form>
               {questions.map((question) => {
