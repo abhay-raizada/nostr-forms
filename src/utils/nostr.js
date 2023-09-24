@@ -7,7 +7,7 @@ import {
   nip04,
 } from "nostr-tools";
 
-export async function createForm(form, publicForm = false) {
+export async function createForm(form) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
@@ -18,9 +18,6 @@ export async function createForm(form, publicForm = false) {
   let pool = new SimplePool();
   const sk = generatePrivateKey();
   const pk = getPublicKey(sk);
-  if (publicForm) {
-    form.privateKey = sk;
-  }
   let content = JSON.stringify(form);
   let event = {
     kind: 0,
@@ -108,10 +105,10 @@ export const sendFormResponse = async (
     if (!kind4Event) {
       alert("Error signing event");
     }
+    onEventSigned();
   } else {
     kind4Event.id = getEventHash(kind4Event);
     kind4Event.sig = getSignature(kind4Event, newSk);
-    onEventSigned();
   }
 
   let pool = new SimplePool();
@@ -141,7 +138,7 @@ export const getFormResponses = async (nsec) => {
         response.pubkey,
         response.content
       );
-      return plaintext;
+      return { plaintext: plaintext, pubkey: response.pubkey };
     })
   );
   pool.close(relays);

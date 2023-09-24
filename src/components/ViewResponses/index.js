@@ -73,7 +73,7 @@ function ViewResponses(props) {
       )}
       {responses.length !== 0 && <Analytics responses={responses} />}
       {responses.map((response, index) => {
-        let questions = JSON.parse(response);
+        let questions = JSON.parse(response.plaintext);
         console.log("r", response);
         return (
           <>
