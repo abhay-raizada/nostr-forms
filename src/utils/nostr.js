@@ -58,9 +58,16 @@ export const getFormTemplate = async (npub) => {
   return kind0;
 };
 
-export const sendFormResponse = async (npub, answers) => {
-  console.log("FDSAFSFSAFDWS");
-  console.log(npub, answers);
+export const sendFormResponse = async (
+  npub,
+  answers,
+  nip07 = false,
+  onReadPubkey = (publicKey) => {
+    return publicKey;
+  },
+  onEncryptedResponse = () => {},
+  onEventSigned = () => {}
+) => {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
@@ -70,18 +77,45 @@ export const sendFormResponse = async (npub, answers) => {
   const newSk = generatePrivateKey();
   const newPk = getPublicKey(newSk);
   const message = JSON.stringify(answers);
-  const ciphertext = await nip04.encrypt(newSk, npub, message);
-  let event = {
+  //const ciphertext =
+  let ciphertext = "";
+  let publicKey = "";
+
+  if (nip07) {
+    publicKey = await window.nostr.getPublicKey();
+    if (!publicKey) {
+      alert("A nip07 extension is required to fill this form");
+    }
+    onReadPubkey(publicKey);
+    ciphertext = await window.nostr.nip04.encrypt(npub, message);
+    if (!ciphertext) {
+      alert("Please encrypt your response");
+    }
+    onEncryptedResponse();
+    // async window.nostr.signEvent(event)
+  }
+  publicKey = publicKey || newPk;
+  ciphertext = ciphertext || (await nip04.encrypt(newSk, npub, message));
+  let kind4Event = {
     kind: 4,
-    pubkey: newPk,
+    pubkey: publicKey,
     tags: [["p", npub]],
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
   };
-  event.id = getEventHash(event);
-  event.sig = getSignature(event, newSk);
+  if (nip07) {
+    kind4Event = await window.nostr.signEvent(kind4Event);
+    if (!kind4Event) {
+      alert("Error signing event");
+    }
+  } else {
+    kind4Event.id = getEventHash(kind4Event);
+    kind4Event.sig = getSignature(kind4Event, newSk);
+    onEventSigned();
+  }
+
   let pool = new SimplePool();
-  pool.publish(relays, event);
+  pool.publish(relays, kind4Event);
   console.log("Message Published");
   pool.close(relays);
 };
@@ -100,7 +134,6 @@ export const getFormResponses = async (nsec) => {
   };
   let pool = new SimplePool();
   let responses = await pool.list(relays, [filter]);
-  console.log("responses", responses);
   responses = Promise.all(
     responses.map(async (response) => {
       let plaintext = await nip04.decrypt(
@@ -108,7 +141,6 @@ export const getFormResponses = async (nsec) => {
         response.pubkey,
         response.content
       );
-      console.log("Plaaaaaain", plaintext);
       return plaintext;
     })
   );

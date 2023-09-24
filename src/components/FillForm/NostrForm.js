@@ -3,12 +3,17 @@ import { Button, Input, Form, Radio, Space } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 import { constructResponseUrl } from "../../utils/utility";
+import { SignAndSubmit } from "./SignAndSubmit";
 
 const { Title, Text } = Typography;
 
 function NostrForm(props) {
   const { content, npub } = props;
   const { description, name, fields } = content;
+  let selfSign = false;
+  if (content.settings?.selfSignForms) {
+    selfSign = content.settings.selfSignForms;
+  }
   let privateKey = "";
   if (content.privateKey) {
     privateKey = content.privateKey;
@@ -40,8 +45,11 @@ function NostrForm(props) {
     setFormInputs({ ...formInputs, [name]: value });
   };
 
-  const handleSubmit = (event) => {
-    console.log("safdsfsddf", npub, formInputs, fields);
+  const handleSubmit = async (
+    onReadPubkey = (_) => {},
+    onEncryptedResponse = () => {},
+    onEventSigned = () => {}
+  ) => {
     let answerObject = fields.map((field) => {
       let { question, tag, answerType } = field;
       return {
@@ -52,7 +60,14 @@ function NostrForm(props) {
         otherMessage: otherMessage,
       };
     });
-    sendFormResponse(npub, answerObject);
+    await sendFormResponse(
+      npub,
+      answerObject,
+      selfSign,
+      onReadPubkey,
+      onEncryptedResponse,
+      onEventSigned
+    );
     props.onSubmit();
   };
 
@@ -170,9 +185,13 @@ function NostrForm(props) {
           return getField(field);
         })}
         {fields ? (
-          <Button type="primary" onClick={handleSubmit}>
-            Submit
-          </Button>
+          !selfSign ? (
+            <Button type="primary" onClick={handleSubmit}>
+              Submit
+            </Button>
+          ) : (
+            <SignAndSubmit onSubmit={handleSubmit} />
+          )
         ) : null}
       </Form>
 
