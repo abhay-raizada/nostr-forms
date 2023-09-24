@@ -32,10 +32,6 @@ function NewForm() {
     settingsForm.setFieldValue("name", event.target.value);
   }
 
-  function handlePublicForm(event) {
-    settingsForm.setFieldValue("public?", event.target.checked);
-  }
-
   function handleDescriptionChange(event) {
     settingsForm.setFieldValue("description", event.target.value);
   }
@@ -143,10 +139,6 @@ function NewForm() {
                 <Form.Item name="description" label="Enter form description">
                   {" "}
                   <Input onChange={handleDescriptionChange} />{" "}
-                </Form.Item>
-                <Form.Item name="public?" label="Make responses public?">
-                  {" "}
-                  <Input type="checkbox" onChange={handlePublicForm} />{" "}
                 </Form.Item>
                 <Form.Item
                   name="selfSign"

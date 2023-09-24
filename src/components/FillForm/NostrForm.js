@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button, Input, Form, Radio, Space } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
-import { constructResponseUrl } from "../../utils/utility";
 import { SignAndSubmit } from "./SignAndSubmit";
 
 const { Title, Text } = Typography;
@@ -14,11 +13,6 @@ function NostrForm(props) {
   if (content.settings?.selfSignForms) {
     selfSign = content.settings.selfSignForms;
   }
-  let privateKey = "";
-  if (content.privateKey) {
-    privateKey = content.privateKey;
-  }
-  console.log("choices!", content);
 
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
@@ -194,16 +188,6 @@ function NostrForm(props) {
           )
         ) : null}
       </Form>
-
-      {privateKey && (
-        <Text mark style={{ margin: "10px" }}>
-          {" "}
-          This is a public form, to view responses visit the following link:{" "}
-          <a href={constructResponseUrl(privateKey)}>
-            {constructResponseUrl(privateKey)}
-          </a>{" "}
-        </Text>
-      )}
     </div>
   );
 }
