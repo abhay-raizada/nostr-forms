@@ -1,101 +1,67 @@
 import { useState } from "react";
 import { createForm } from "../../utils/nostr";
-import Choices from "./Choices";
-import { makeTag } from "../../utils/utility";
-
-import { Button, Card, Form, Input, Select, Typography } from "antd";
+import Constants from "../../constants";
+import { Button, Card, Form, Input } from "antd";
 import FormSubmitted from "./FormSubmitted";
+import FormSettings from "./FormSettings";
+import QuestionForm from "./QuestionForm";
 
 function NewForm() {
-  const [newQuestion, setNewQuestion] = useState(false);
   const [questions, setQuestions] = useState([]);
-  const [showOptions, setShowOptions] = useState(false);
   const [formCredentials, setFormCredentials] = useState("");
-  const { Option } = Select;
-  const { Title } = Typography;
+  const [activeTab, setActiveTab] = useState(
+    Constants.CreateFormTab.addQuestion
+  );
   const [settingsForm] = Form.useForm();
   const [questionsForm] = Form.useForm();
-
-  function addQuestion() {
-    setNewQuestion(true);
-  }
-
-  function handleCurrentQuestion(event) {
-    questionsForm.setFieldValue("question", event.target.value);
-  }
-
-  function handleSelfSign(event) {
-    settingsForm.setFieldValue("selfSign", event.target.checked);
-  }
 
   function handleNameChange(event) {
     settingsForm.setFieldValue("name", event.target.value);
   }
 
-  function handleDescriptionChange(event) {
-    settingsForm.setFieldValue("description", event.target.value);
+  const tabList = [
+    {
+      key: Constants.CreateFormTab.addQuestion,
+      label: "Add Questions",
+    },
+    {
+      key: Constants.CreateFormTab.settings,
+      label: "Settings",
+    },
+  ];
+
+  function handleTabChange(key) {
+    setActiveTab(key);
   }
 
-  function handleInputType(value, _) {
-    console.log("inputType", value, questionsForm.getFieldValue("inputType"));
-    if (["singleChoice", "multipleChoice"].includes(value)) {
-      setShowOptions(true);
-    } else {
-      setShowOptions(false);
-    }
-    questionsForm.setFieldValue("inputType", value);
-  }
-
-  function handleChoices(options) {
-    questionsForm.setFieldValue("choices", options);
+  function handleAddQuestion(question) {
+    let newQuestions = [...questions, question];
+    setQuestions(newQuestions);
   }
 
   function submitSettingsForm() {
+    settingsForm.onFinish = handleSaveForm;
     settingsForm.submit();
+    settingsForm.onFinish();
   }
 
-  function handleSaveQuestion() {
-    let inputType = questionsForm.getFieldValue("inputType");
-    let choices = questionsForm.getFieldValue("choices");
-    let newQuestion = {
-      question: questionsForm.getFieldValue("question"),
-      answerType: inputType,
-      tag: makeTag(6),
-    };
-    if (["singleChoice", "multipleChoice"].includes(inputType)) {
-      newQuestion.choices = choices;
-    }
-    let newQuestions = [...questions, newQuestion];
-    setQuestions(newQuestions);
-    questionsForm.setFieldValue("question", undefined);
-    setNewQuestion(false);
-  }
-
-  const formItemLayout = {
-    labelCol: {
-      xs: { span: 24 },
-      sm: { span: 8 },
-    },
-    wrapperCol: {
-      xs: { span: 24 },
-      sm: { span: 16 },
-    },
-  };
   async function handleSaveForm(values) {
+    let showOnGlobal =
+      settingsForm.getFieldValue("showOnGlobal") === undefined ? true : false;
     let formspec = {
       name: settingsForm.getFieldValue("name"),
       description: settingsForm.getFieldValue("description"),
       settings: { selfSignForms: settingsForm.getFieldValue("selfSign") },
       fields: questions,
     };
-    let publicForm = settingsForm.getFieldValue("public?");
-    const [pk, sk] = await createForm(formspec, publicForm);
+    const [pk, sk] = await createForm(formspec, showOnGlobal);
     setFormCredentials({ publicKey: pk, privateKey: sk });
   }
 
   function onFinishFailed(error) {
     console.log("Task failed successfully :D", error);
   }
+
   return (
     <>
       <div
@@ -119,110 +85,85 @@ function NewForm() {
               minWidth: "70%",
             }}
           >
-            <Card style={{ maxWidth: "100%", alignContent: "left" }}>
-              <Form
-                {...formItemLayout}
-                labelWrap
-                onFinish={handleSaveForm}
-                form={settingsForm}
-                onFinishFailed={onFinishFailed}
-              >
-                <Title level={2}>New Form</Title>
-                <Form.Item
-                  name="name"
-                  label="Name of the form"
-                  rules={[{ required: true }]}
-                >
-                  {" "}
-                  <Input onChange={handleNameChange} />{" "}
-                </Form.Item>
-                <Form.Item name="description" label="Enter form description">
-                  {" "}
-                  <Input onChange={handleDescriptionChange} />{" "}
-                </Form.Item>
-                <Form.Item
-                  name="selfSign"
-                  label="Non-anonymous form filling: Ask users to self sign their submissions"
-                >
-                  {" "}
-                  <Input type="checkbox" onChange={handleSelfSign} />{" "}
-                </Form.Item>
-              </Form>
-              {questions.map((question) => {
-                return (
-                  <Card type="inner" title={question.question}>
-                    <ul
-                      style={{
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                        alignContent: "flex-start",
-                        textAlign: "left",
-                      }}
-                    >
-                      <li>
-                        <h3>Question:</h3> {question.question}
-                      </li>
-                    </ul>
-                  </Card>
-                );
-              })}
-              {newQuestion && (
-                <Card type="inner" style={{ maxWidth: "100%", margin: "10px" }}>
-                  <Form form={questionsForm} onFinish={handleSaveQuestion}>
-                    <Form.Item
-                      name="question"
-                      label="Question"
-                      rules={[{ required: true }]}
-                    >
-                      <Input type="text" onChange={handleCurrentQuestion} />
-                    </Form.Item>
-                    <Form.Item name="inputType" label="Input type">
-                      <Select defaultValue="string" onSelect={handleInputType}>
-                        <Option value="string">Short Answer</Option>
-                        <Option value="text">Paragraph</Option>
-                        <Option value="singleChoice">
-                          Choice{"("}Radio Button{")"}
-                        </Option>
-                        <Option value="multipleChoice" disabled>
-                          Choice{"("}Checkbox{")"}
-                        </Option>
-                        <Option value="number" disabled>
-                          Number
-                        </Option>
-                        <Option value="date" disabled>
-                          Date
-                        </Option>
-                      </Select>
-                    </Form.Item>
-                    {showOptions && (
-                      <Form.Item name="choices">
-                        <Choices onChoice={handleChoices} />
-                      </Form.Item>
-                    )}
-                    <Button htmlType="submit">Add Question</Button>
-                  </Form>
-                </Card>
-              )}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  margin: "10px",
-                }}
-              >
+            <Card
+              style={{ maxWidth: "100%", alignContent: "left" }}
+              tabList={tabList}
+              activeTabKey={activeTab}
+              onTabChange={handleTabChange}
+              title={settingsForm.getFieldValue("name") || "New Form"}
+              extra={
                 <Button
                   type="primary"
-                  size="large"
-                  disabled={newQuestion}
-                  onClick={addQuestion}
-                  style={{ margin: "10px" }}
+                  disabled={questions.length < 1}
+                  onClick={submitSettingsForm}
                 >
-                  +
+                  Submit Form
                 </Button>
-                {questions.length >= 1 && (
-                  <Button onClick={submitSettingsForm}>Finish</Button>
-                )}
-              </div>
+              }
+            >
+              {activeTab === Constants.CreateFormTab.settings && (
+                <>
+                  <FormSettings
+                    onFormFinish={handleSaveForm}
+                    form={settingsForm}
+                    onFinishFailed={onFinishFailed}
+                  />
+                </>
+              )}
+
+              {activeTab === Constants.CreateFormTab.addQuestion && (
+                <>
+                  <Card style={{ margin: "10px" }}>
+                    <div
+                      style={{
+                        justifyContent: "left",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        margin: "10px",
+                      }}
+                    >
+                      <Form form={settingsForm}>
+                        {" "}
+                        <Form.Item
+                          name="name"
+                          label="Name of the form"
+                          rules={[{ required: true }]}
+                        >
+                          <Input onChange={handleNameChange} />
+                        </Form.Item>
+                      </Form>
+                      <Button
+                        type="link"
+                        onClick={() => {
+                          handleTabChange(Constants.CreateFormTab.settings);
+                        }}
+                      >
+                        Additional Settings
+                      </Button>
+                    </div>
+                  </Card>
+                  <QuestionForm
+                    form={questionsForm}
+                    questions={questions}
+                    onAddQuestion={handleAddQuestion}
+                  />
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      margin: "10px",
+                    }}
+                  >
+                    {questions.length >= 1 && (
+                      <Button type="primary" onClick={submitSettingsForm}>
+                        Finish
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
             </Card>
           </div>
         )}

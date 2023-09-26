@@ -5,7 +5,7 @@ const Analytics = (props) => {
   const { responses } = props;
   const { Title } = Typography;
   let responsesJSON = responses.map((response) => {
-    return JSON.parse(response.plaintext);
+    return JSON.parse(response.plaintextq);
   });
   let questionHash = {};
   responsesJSON.forEach((questions) => {

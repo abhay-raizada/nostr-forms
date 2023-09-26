@@ -7,13 +7,17 @@ import {
   nip04,
 } from "nostr-tools";
 
-export async function createForm(form) {
+export async function createForm(form, showOnGlobal = true) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
   ];
+  let tags = [];
+  if (showOnGlobal) {
+    tags = [["l", "formstr"]];
+  }
 
   let pool = new SimplePool();
   const sk = generatePrivateKey();
@@ -22,7 +26,7 @@ export async function createForm(form) {
   let event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [["l", "formstr"]],
+    tags: tags,
     content: content,
     pubkey: pk,
   };

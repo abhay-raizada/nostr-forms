@@ -21,7 +21,7 @@ export const GlobalForms = () => {
     <>
       {forms.length !== 0 && (
         <div>
-          <Title level={3}> First {forms.length} forms from global </Title>
+          <Title level={3}> Recent {forms.length} forms from global </Title>
           {forms.map((formString) => {
             let form = JSON.parse(formString.content);
             return (
