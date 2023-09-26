@@ -35,7 +35,12 @@ export const SignAndSubmit = (props) => {
       <Button type="primary" onClick={showModal}>
         Sign and Submit
       </Button>
-      <Modal open={isModalOpen} onCancel={closeModal} footer={null}>
+      <Modal
+        open={isModalOpen}
+        onCancel={closeModal}
+        footer={null}
+        title="Nip-07 browser extension needed to sign"
+      >
         {pubKeyAccess && (
           <div>
             {" "}
