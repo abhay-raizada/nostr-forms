@@ -1,12 +1,14 @@
-import { Button, Card, Input, Form, Typography } from "antd";
+import { Button, Input, Form, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { getFormResponses } from "../../utils/nostr";
+import { getFormResponses, getUserKind0s } from "../../utils/nostr";
 import Analytics from "./Analytics";
 import { useParams } from "react-router";
+import Response from "./Responses";
 
-function ViewResponses(props) {
+function ViewResponses() {
   const [nsecState, setNsecState] = useState("");
   const [responses, setResponses] = useState([]);
+  const [userInfo, setUserInfo] = useState({});
   const { nsec } = useParams();
   const { Text } = Typography;
 
@@ -14,12 +16,23 @@ function ViewResponses(props) {
     if (nsec) {
       getResponses(nsec);
     }
-  }, [nsec]);
+  });
 
   async function getResponses(nsecInput) {
     let resp = await getFormResponses(nsecInput);
-    console.log("fetching", resp);
     setResponses(resp);
+    let pubkeysList = resp.map((r) => {
+      return r.pubkey;
+    });
+    let userKind0 = await getUserKind0s(pubkeysList);
+    let userInf = {};
+    userKind0.forEach((kind0) => {
+      userInf[kind0.pubkey] = JSON.parse(kind0.content);
+    });
+    console.log("UI", userInfo);
+    if (Object.keys(userInfo).length === 0) {
+      setUserInfo(userInf);
+    }
   }
   function handleInputchange(event) {
     setNsecState(event.target.value);
@@ -72,12 +85,19 @@ function ViewResponses(props) {
         </Form>
       )}
       {responses.length !== 0 && <Analytics responses={responses} />}
+      <Response allResponses={responses} userInfo={userInfo} />
+      {/* {responses.length !== 0 && <Title level={3}> Responses</Title>}
       {responses.map((response, index) => {
         let questions = JSON.parse(response.plaintext);
         console.log("r", response);
         return (
           <>
-            <Card title={"Response " + (index + 1)}>
+            <Card
+              title={
+                userInfo[response.pubkey]?.name ||
+                "Anonymous Response " + (index + 1)
+              }
+            >
               {questions.map((question) => {
                 console.log(question);
                 return (
@@ -97,7 +117,7 @@ function ViewResponses(props) {
             </Card>
           </>
         );
-      })}
+      })} */}
       {nsec && responses.length === 0 && (
         <Text>
           {" "}
