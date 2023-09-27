@@ -23,19 +23,19 @@ export async function createForm(form: any, showOnGlobal = true) {
   const sk = generatePrivateKey();
   const pk = getPublicKey(sk);
   let content = JSON.stringify(form);
-  let baseEvent = {
+  let baseKind0Event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
     tags: tags,
     content: content,
     pubkey: pk,
   };
-  const event = {
-    id: getEventHash(baseEvent),
-    sig: getSignature(baseEvent, sk),
-    ...baseEvent
+  const kind0Event = {
+    id: getEventHash(baseKind0Event),
+    sig: getSignature(baseKind0Event, sk),
+    ...baseKind0Event
   }
-  await pool.publish(relays, event);
+  await pool.publish(relays, kind0Event);
   console.log("Published!!!");
   pool.close(relays);
   return [pk, sk];
