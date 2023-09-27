@@ -172,5 +172,25 @@ export const fetchGlobalFeed = async () => {
     limit: 20,
   };
   let pool = new SimplePool();
-  return await pool.list(relays, [filter]);
+  let responses = await pool.list(relays, [filter]);
+  pool.close(relays);
+  return responses;
+};
+
+export const getUserKind0s = async (pubkeysList: Array<string>) => {
+  const relays = [
+    "wss://relay.damus.io/",
+    "wss://offchain.pub/",
+    "wss://nos.lol/",
+    "wss://relay.nostr.wirednet.jp/",
+    "wss://nostr.wine/",
+  ];
+  let filter = {
+    kinds: [0],
+    authors: pubkeysList,
+  };
+  let pool = new SimplePool();
+  let responses = await pool.list(relays, [filter]);
+  pool.close(relays);
+  return responses;
 };
