@@ -8,11 +8,16 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.7.0",
+    "@types/react": "^18.2.23",
+    "@types/react-dom": "^18.2.8",
     "antd": "^5.8.4",
     "nostr-tools": "^1.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "typescript": "^5.2.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -31,6 +36,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
+    "@tsconfig/create-react-app": "^2.0.1",
     "gh-pages": "^6.0.0",
     "react-router-dom": "^6.15.0"
   },

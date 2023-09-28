@@ -1,20 +1,20 @@
-import {
-  SimplePool,
-  generatePrivateKey,
-  getPublicKey,
-  getEventHash,
-  getSignature,
-  nip04,
-} from "nostr-tools";
+import {generatePrivateKey, getEventHash, getPublicKey, getSignature, nip04, SimplePool,} from "nostr-tools";
 
-export async function createForm(form, showOnGlobal = true) {
+declare global {
+  interface Window {
+    nostr: any
+  }
+}
+
+// TODO: create Form Model
+export async function createForm(form: any, showOnGlobal = true) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
   ];
-  let tags = [];
+  let tags:string[][] = [];
   if (showOnGlobal) {
     tags = [["l", "formstr"]];
   }
@@ -23,23 +23,25 @@ export async function createForm(form, showOnGlobal = true) {
   const sk = generatePrivateKey();
   const pk = getPublicKey(sk);
   let content = JSON.stringify(form);
-  let event = {
+  let baseKind0Event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
     tags: tags,
     content: content,
     pubkey: pk,
   };
-
-  event.id = getEventHash(event);
-  event.sig = getSignature(event, sk);
-  await pool.publish(relays, event);
+  const kind0Event = {
+    id: getEventHash(baseKind0Event),
+    sig: getSignature(baseKind0Event, sk),
+    ...baseKind0Event
+  }
+  await pool.publish(relays, kind0Event);
   console.log("Published!!!");
   pool.close(relays);
   return [pk, sk];
 }
 
-export const getFormTemplate = async (npub) => {
+export const getFormTemplate = async (npub: string) => {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
@@ -60,10 +62,11 @@ export const getFormTemplate = async (npub) => {
 };
 
 export const sendFormResponse = async (
-  npub,
-  answers,
+  npub: string,
+  // TODO: create Answers Model
+  answers: any,
   nip07 = false,
-  onReadPubkey = (publicKey) => {
+  onReadPubkey = (publicKey: string) => {
     return publicKey;
   },
   onEncryptedResponse = () => {},
@@ -97,22 +100,29 @@ export const sendFormResponse = async (
   }
   publicKey = publicKey || newPk;
   ciphertext = ciphertext || (await nip04.encrypt(newSk, npub, message));
-  let kind4Event = {
+  let baseKind4Event = {
     kind: 4,
     pubkey: publicKey,
     tags: [["p", npub]],
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
   };
+  let kind4Event: typeof baseKind4Event & {id:string, sig: string}
   if (nip07) {
-    kind4Event = await window.nostr.signEvent(kind4Event);
+    // @ts-ignore
+    kind4Event = await window.nostr.signEvent(baseKind4Event);
     if (!kind4Event) {
       alert("Error signing event");
     }
     onEventSigned();
   } else {
-    kind4Event.id = getEventHash(kind4Event);
-    kind4Event.sig = getSignature(kind4Event, newSk);
+    let id = getEventHash(baseKind4Event);
+    let sig = getSignature(baseKind4Event, newSk);
+    kind4Event = {
+      ...baseKind4Event,
+      id,
+      sig
+    }
   }
 
   let pool = new SimplePool();
@@ -121,7 +131,7 @@ export const sendFormResponse = async (
   pool.close(relays);
 };
 
-export const getFormResponses = async (nsec) => {
+export const getFormResponses = async (nsec: string) => {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
@@ -134,9 +144,8 @@ export const getFormResponses = async (nsec) => {
     "#p": [getPublicKey(nsec)],
   };
   let pool = new SimplePool();
-  let responses = await pool.list(relays, [filter]);
-  responses = Promise.all(
-    responses.map(async (response) => {
+  let responses = Promise.all(
+      (await pool.list(relays, [filter])).map(async (response) => {
       let plaintext = await nip04.decrypt(
         nsec,
         response.pubkey,
@@ -163,6 +172,5 @@ export const fetchGlobalFeed = async () => {
     limit: 20,
   };
   let pool = new SimplePool();
-  let responses = await pool.list(relays, [filter]);
-  return responses;
+  return await pool.list(relays, [filter]);
 };

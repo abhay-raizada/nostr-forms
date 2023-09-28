@@ -1,4 +1,4 @@
-export function makeTag(length) {
+export function makeTag(length: number) {
   let result = "";
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -11,20 +11,19 @@ export function makeTag(length) {
   return result;
 }
 
-export function constructFormUrl(publicKey) {
+export function constructFormUrl(publicKey: string) {
   let hostname = window.location.host;
   if (hostname.includes("abhay-raizada")) {
     hostname += "/nostr-forms";
   }
 
-  return "http://" + hostname + "/#/forms/" + publicKey;
+  return `http://${hostname}/#/forms/${publicKey}`;
 }
 
-export function constructResponseUrl(privateKey) {
+export function constructResponseUrl(privateKey: string) {
   let hostname = window.location.host;
   if (hostname.includes("abhay-raizada")) {
     hostname += "/nostr-forms";
   }
-
-  return "http://" + hostname + "/#/forms/" + privateKey + "/responses";
+  return `http://${hostname}/#/forms/${privateKey}/responses`;
 }
