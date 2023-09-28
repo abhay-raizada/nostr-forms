@@ -47,7 +47,7 @@ function NewForm() {
 
   async function handleSaveForm(values) {
     let showOnGlobal =
-      settingsForm.getFieldValue("showOnGlobal") === undefined ? true : false;
+      settingsForm.getFieldValue("showOnGlobal") ?? true;
     let formspec = {
       name: settingsForm.getFieldValue("name"),
       description: settingsForm.getFieldValue("description"),
