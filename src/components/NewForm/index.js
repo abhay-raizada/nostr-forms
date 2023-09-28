@@ -158,7 +158,7 @@ function NewForm() {
                   >
                     {questions.length >= 1 && (
                       <Button type="primary" onClick={submitSettingsForm}>
-                        Finish
+                        Submit Form
                       </Button>
                     )}
                   </div>
