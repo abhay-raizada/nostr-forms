@@ -1,19 +1,31 @@
-import { Button, Input, Form, Typography } from "antd";
+import { Button, Input, Form, Typography, Card, Select } from "antd";
 import { useEffect, useState } from "react";
-import { getFormResponses, getUserKind0s } from "../../utils/nostr";
+import {
+  getFormResponses,
+  getUserKind0s,
+  getFormTemplatByNsec,
+} from "../../utils/nostr";
 import Analytics from "./Analytics";
 import { useParams } from "react-router";
 import Response from "./Responses";
+import { ResponseFilters } from "../../constants";
+
+const { Text } = Typography;
 
 function ViewResponses() {
   const [nsecState, setNsecState] = useState("");
-  const [responses, setResponses] = useState([]);
+  const [responses, setResponses] = useState(null);
   const [userInfo, setUserInfo] = useState({});
+  const [selfSignedResponses, setSelfSignedResponses] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("");
+  const [defaultFilter, setDefaultFilter] = useState(
+    ResponseFilters.allResponses
+  );
+
   const { nsec } = useParams();
-  const { Text } = Typography;
 
   useEffect(() => {
-    if (nsec) {
+    if (nsec && !responses) {
       getResponses(nsec);
     }
   });
@@ -29,14 +41,36 @@ function ViewResponses() {
     userKind0.forEach((kind0) => {
       userInf[kind0.pubkey] = JSON.parse(kind0.content);
     });
-    console.log("UI", userInfo);
     if (Object.keys(userInfo).length === 0) {
       setUserInfo(userInf);
     }
+    const nonAnonymousResponses = (resp || []).filter((response) => {
+      return userInf[response.pubkey] !== undefined;
+    });
+    setSelfSignedResponses(nonAnonymousResponses);
+    const formKind0 = await getFormTemplatByNsec(nsec);
+    if (!selectedFilter && formKind0.settings?.selfSignForms) {
+      setDefaultFilter(ResponseFilters.selfSignedResponses);
+    } else if (!selectedFilter) {
+      setDefaultFilter(ResponseFilters.allResponses);
+    }
   }
+
+  function getDisplayedResponses() {
+    if (selectedFilter === ResponseFilters.selfSignedResponses) {
+      return selfSignedResponses;
+    }
+    return responses;
+  }
+
   function handleInputchange(event) {
     setNsecState(event.target.value);
   }
+
+  function handleResponseFilterChange(value) {
+    setSelectedFilter(value);
+  }
+
   return (
     <div
       style={{
@@ -84,41 +118,34 @@ function ViewResponses() {
           </Form.Item>
         </Form>
       )}
-      {responses.length !== 0 && <Analytics responses={responses} />}
-      <Response allResponses={responses} userInfo={userInfo} />
-      {/* {responses.length !== 0 && <Title level={3}> Responses</Title>}
-      {responses.map((response, index) => {
-        let questions = JSON.parse(response.plaintext);
-        console.log("r", response);
-        return (
-          <>
-            <Card
-              title={
-                userInfo[response.pubkey]?.name ||
-                "Anonymous Response " + (index + 1)
-              }
-            >
-              {questions.map((question) => {
-                console.log(question);
-                return (
-                  <Card type="inner" title={question.question}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <div>{question.inputValue}</div>
-                      {question.otherMessage && (
-                        <div>
-                          User Input:
-                          {question.otherMessage}
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
-            </Card>
-          </>
-        );
-      })} */}
-      {nsec && responses.length === 0 && (
+      {responses?.length ? (
+        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
+          <Text style={{ margin: "5px" }}>Filter Responses</Text>
+          <Select
+            key={defaultFilter}
+            defaultValue={defaultFilter}
+            onChange={handleResponseFilterChange}
+            options={[
+              { value: ResponseFilters.allResponses, label: "All Responses" },
+              {
+                value: ResponseFilters.selfSignedResponses,
+                label: "Self-Signed Responses",
+              },
+            ]}
+          />
+        </div>
+      ) : null}
+      {responses?.length ? (
+        <Card>
+          <Analytics responses={getDisplayedResponses()} />
+        </Card>
+      ) : null}
+      {responses?.length ? (
+        <Card>
+          <Response responses={getDisplayedResponses()} userInfo={userInfo} />
+        </Card>
+      ) : null}
+      {nsec && !responses?.length && (
         <Text>
           {" "}
           Searching for responses... If it takes a while there are probably no

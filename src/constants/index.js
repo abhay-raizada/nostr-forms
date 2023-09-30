@@ -4,4 +4,9 @@ const CreateFormTab = {
   settings: "Settings",
 };
 
-module.exports = { CreateFormTab };
+const ResponseFilters = {
+  allResponses: "allResponses",
+  selfSignedResponses: "selfSignedResponses",
+};
+
+module.exports = { CreateFormTab, ResponseFilters };
