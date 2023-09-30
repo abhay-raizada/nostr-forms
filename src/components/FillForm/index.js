@@ -20,13 +20,10 @@ const FillForm = (props) => {
   }, [npub]);
 
   async function fetchFormTemplate(npubInput) {
-    console.log("npub", npubInput);
-
     const template = await getFormTemplate(npubInput);
     setFormTemplate(template[0]?.content);
   }
   function handleInput(event) {
-    console.log("event", event);
     setNpubState(event.target.value);
   }
   return (

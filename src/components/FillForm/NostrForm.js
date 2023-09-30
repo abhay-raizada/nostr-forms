@@ -40,6 +40,7 @@ function NostrForm(props) {
   };
 
   const handleSubmit = async (
+    selfSignForm = selfSign,
     onReadPubkey = (_) => {},
     onEncryptedResponse = () => {},
     onEventSigned = () => {}
@@ -57,7 +58,7 @@ function NostrForm(props) {
     await sendFormResponse(
       npub,
       answerObject,
-      selfSign,
+      selfSignForm,
       onReadPubkey,
       onEncryptedResponse,
       onEventSigned
@@ -180,9 +181,25 @@ function NostrForm(props) {
         })}
         {fields ? (
           !selfSign ? (
-            <Button type="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                gap: "10px",
+                maxWidth: "100%",
+              }}
+            >
+              <Button type="primary" onClick={handleSubmit}>
+                Submit
+              </Button>
+              <Text> or </Text>
+              <SignAndSubmit
+                onSubmit={() => {
+                  handleSubmit(true);
+                }}
+              />
+            </div>
           ) : (
             <SignAndSubmit onSubmit={handleSubmit} />
           )
