@@ -1,9 +1,10 @@
 import { Typography, Card } from "antd";
 import "./index.css";
 
+const { Title, Text } = Typography;
+
 const Analytics = (props) => {
   const { responses } = props;
-  const { Title } = Typography;
   let responsesJSON = responses.map((response) => {
     return JSON.parse(response.plaintext);
   });
@@ -44,6 +45,9 @@ const Analytics = (props) => {
     <div>
       <Title level={2}> Analytics</Title>
       {/* {console.log("aggregates", aggregates)} */}
+      {aggregations.length === 0 && (
+        <Text> No suitable data to show analytics </Text>
+      )}
       {aggregations.map((ag) => {
         let { question, aggregations, total } = ag;
         return (

@@ -1,43 +1,47 @@
 import { Card, Typography } from "antd";
 
-const Response = (props) => {
-  let { allResponses, userInfo } = props;
+const { Title, Text } = Typography;
 
-  const { Title } = Typography;
-  allResponses && allResponses.length !== 0 && (
-    <Title level={3}> Responses</Title>
+const Response = (props) => {
+  let { responses, userInfo } = props;
+
+  return (
+    <>
+      <Title level={3}> Responses</Title>
+
+      {!responses?.length ? (
+        <Text level={3}> No responses matching this filter</Text>
+      ) : null}
+
+      {responses.map((response, index) => {
+        let questions = JSON.parse(response.plaintext);
+        return (
+          <Card
+            title={
+              userInfo[response.pubkey]?.name ||
+              `Anonymous Response  ${index + 1}`
+            }
+          >
+            {questions.map((question) => {
+              return (
+                <Card type="inner" title={question.question}>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div>{question.inputValue}</div>
+                    {question.otherMessage && (
+                      <div>
+                        User Input:
+                        {question.otherMessage}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
+          </Card>
+        );
+      })}
+    </>
   );
-  allResponses.map((response, index) => {
-    let questions = JSON.parse(response.plaintext);
-    console.log("r", response);
-    return (
-      <>
-        <Card
-          title={
-            userInfo[response.pubkey]?.name ||
-            "Anonymous Response " + (index + 1)
-          }
-        >
-          {questions.map((question) => {
-            console.log(question);
-            return (
-              <Card type="inner" title={question.question}>
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <div>{question.inputValue}</div>
-                  {question.otherMessage && (
-                    <div>
-                      User Input:
-                      {question.otherMessage}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </Card>
-      </>
-    );
-  });
 };
 
 export default Response;

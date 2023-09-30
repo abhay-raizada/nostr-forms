@@ -56,7 +56,6 @@ export const getFormTemplate = async (npub: string) => {
     authors: [npub],
   };
   let kind0 = await pool.list(relays, [filter]);
-  console.log("KIND0", kind0);
   pool.close(relays);
   return kind0;
 };
@@ -194,3 +193,27 @@ export const getUserKind0s = async (pubkeysList: Array<string>) => {
   pool.close(relays);
   return responses;
 };
+
+export const getFormTemplatByNsec = async (nsec: string) => {
+  const relays = [
+    "wss://relay.damus.io/",
+    "wss://offchain.pub/",
+    "wss://nos.lol/",
+    "wss://relay.nostr.wirednet.jp/",
+    "wss://nostr.wine/",
+  ];
+  const pubkey = getPublicKey(nsec);
+  let filter = {
+    kinds: [0],
+    authors:[pubkey]
+  }
+  let pool = new SimplePool();
+  let responses = await pool.list(relays, [filter]);
+  let template = {}
+  if(responses.length!==0){
+    template = JSON.parse(responses[0].content)
+  }
+  pool.close(relays);
+  return template;
+
+}
