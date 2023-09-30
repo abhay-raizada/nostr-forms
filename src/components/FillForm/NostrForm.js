@@ -187,7 +187,7 @@ function NostrForm(props) {
                 flexDirection: "row",
                 justifyContent: "space-between",
                 gap: "10px",
-                maxWidth: "100%",
+                maxWidth: "80%",
               }}
             >
               <Button type="primary" onClick={handleSubmit}>
