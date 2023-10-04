@@ -193,7 +193,7 @@ function NostrForm(props) {
               <Button type="primary" onClick={handleSubmit}>
                 Submit
               </Button>
-              <Text> or </Text>
+              <Text style={{ minWidth: "15px" }}> or </Text>
               <SignAndSubmit
                 onSubmit={() => {
                   handleSubmit(true);
