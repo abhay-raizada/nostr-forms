@@ -36,7 +36,6 @@ export async function createForm(form: any, showOnGlobal = true) {
     ...baseKind0Event
   }
   await pool.publish(relays, kind0Event);
-  console.log("Published!!!");
   pool.close(relays);
   return [pk, sk];
 }

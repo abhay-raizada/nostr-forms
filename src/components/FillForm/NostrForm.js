@@ -13,7 +13,6 @@ function NostrForm(props) {
   if (content.settings?.selfSignForms) {
     selfSign = content.settings.selfSignForms;
   }
-
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
     fields?.forEach((field) => {
@@ -40,11 +39,13 @@ function NostrForm(props) {
   };
 
   const handleSubmit = async (
-    selfSignForm = selfSign,
+    submitEvent,
+    selfSignForm = false,
     onReadPubkey = (_) => {},
     onEncryptedResponse = () => {},
     onEventSigned = () => {}
   ) => {
+    console.log("HANDLE SUBMIT", selfSignForm);
     let answerObject = fields.map((field) => {
       let { question, tag, answerType } = field;
       return {
@@ -195,8 +196,8 @@ function NostrForm(props) {
               </Button>
               <Text style={{ minWidth: "15px" }}> or </Text>
               <SignAndSubmit
-                onSubmit={() => {
-                  handleSubmit(true);
+                onSubmit={(event) => {
+                  handleSubmit(event, true);
                 }}
               />
             </div>
