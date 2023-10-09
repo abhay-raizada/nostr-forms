@@ -8,8 +8,14 @@ export const SignAndSubmit = (props) => {
   const [responseEncrypted, setResponseEncrypted] = useState(false);
   const [signedEvent, setSignedEvent] = useState(false);
 
-  function showModal() {
-    props.onSubmit(onReadPubkey, onEncryptedResponse, onEventSigned);
+  function showModal(event) {
+    props.onSubmit(
+      event,
+      true,
+      onReadPubkey,
+      onEncryptedResponse,
+      onEventSigned
+    );
     setIsModalOpen(true);
   }
 
