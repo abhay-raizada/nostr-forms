@@ -1,8 +1,8 @@
 import { Button, Input, Radio, Typography } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { makeTag } from "../../utils/utility";
 
-const Choices = (props) => {
+const Choices = ({ onChoice, choiceList }) => {
   const [choices, setChoices] = useState([]);
   const [other, setOther] = useState(false);
   const [newChoice, setNewChoice] = useState(true);
@@ -10,6 +10,10 @@ const Choices = (props) => {
   const [inputStatus, setInputStatus] = useState("");
 
   const { Title, Text } = Typography;
+
+  useEffect(() => {
+    setChoices(choiceList || []);
+  }, [choiceList]);
 
   function handleCurrentInput(event) {
     setInputStatus("");
@@ -24,7 +28,7 @@ const Choices = (props) => {
     setChoices(newChoices);
     setNewChoice(false);
     setCurrentInput("");
-    props.onChoice(newChoices);
+    onChoice(newChoices);
     setOther(true);
   }
 
@@ -37,7 +41,7 @@ const Choices = (props) => {
     setChoices(newChoices);
     setNewChoice(false);
     setCurrentInput("");
-    props.onChoice(newChoices);
+    onChoice(newChoices);
   }
 
   return (

@@ -9,4 +9,24 @@ const ResponseFilters = {
   selfSignedResponses: "selfSignedResponses",
 };
 
-module.exports = { CreateFormTab, ResponseFilters };
+const AnswerTypes = {
+  string: "string",
+  text: "text",
+  singleChoice: "singleChoice",
+  multipleChoice: "multipleChoice",
+  number: "number",
+  date: "date",
+};
+
+const tabList = [
+  {
+    key: CreateFormTab.addQuestion,
+    label: "Add Questions",
+  },
+  {
+    key: CreateFormTab.settings,
+    label: "Settings",
+  },
+];
+
+module.exports = { CreateFormTab, ResponseFilters, AnswerTypes, tabList };

@@ -1,0 +1,71 @@
+import { Button, Card, Form, Input, Select } from "antd";
+import { AnswerTypes } from "../../constants/index";
+import Choices from "./Choices";
+const initialQuesObj = {
+  question: "",
+  answerType: "",
+};
+
+const QuestionCard = ({
+  showOptions,
+  handleSaveQuestion = null,
+  handleQuestionNameChange,
+  handleInputType,
+  handleChoices,
+  handleEditQuestion = null,
+  form,
+  question = initialQuesObj,
+  editIndex = -1,
+}) => {
+  const { Option } = Select;
+
+  const handleSave = () => {
+    if (handleSaveQuestion) {
+      handleSaveQuestion();
+    } else {
+      handleEditQuestion(editIndex);
+    }
+  };
+
+  return (
+    <Card type="inner" style={{ maxWidth: "100%", margin: "10px" }}>
+      <Form form={form} onFinish={handleSave}>
+        <Form.Item
+          name="question"
+          label="Question"
+          rules={[{ required: true }]}
+        >
+          <Input type="text" onChange={handleQuestionNameChange} />
+        </Form.Item>
+        <Form.Item name="inputType" label="Input type">
+          <Select defaultValue="string" onSelect={handleInputType}>
+            <Option value={AnswerTypes.string}>Short Answer</Option>
+            <Option value={AnswerTypes.text}>Paragraph</Option>
+            <Option value={AnswerTypes.singleChoice}>
+              Choice{"("}Radio Button{")"}
+            </Option>
+            <Option value={AnswerTypes.multipleChoice} disabled>
+              Choice{"("}Checkbox{")"}
+            </Option>
+            <Option value={AnswerTypes.number} disabled>
+              Number
+            </Option>
+            <Option value={AnswerTypes.date} disabled>
+              Date
+            </Option>
+          </Select>
+        </Form.Item>
+        {showOptions && (
+          <Form.Item name="choices">
+            <Choices onChoice={handleChoices} choiceList={question.choices} />
+          </Form.Item>
+        )}
+        <Button htmlType="submit">
+          {editIndex !== -1 ? "Update Question" : "Add Question"}
+        </Button>
+      </Form>
+    </Card>
+  );
+};
+
+export default QuestionCard;
