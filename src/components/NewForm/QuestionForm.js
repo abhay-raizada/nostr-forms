@@ -65,9 +65,7 @@ const QuestionForm = (props) => {
   }
 
   function handleNumberConstraints(constraints) {
-    console.log(constraints)
     form.setFieldValue("numberConstraints", constraints);
-    console.log(form.getFieldValue("numberConstraints"));
   }
 
   return (
