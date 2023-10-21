@@ -1,7 +1,13 @@
 import { Button, Card, Form, Input, Select } from "antd";
 import { makeTag } from "../../utils/utility";
 import Choices from "./Choices";
+import {NumberConstraints} from "./NumberConstraints";
 import { useEffect, useState } from "react";
+
+const OPTION_TYPES = {
+  CHOICE_OPTIONS: 1,
+  NUMBER_OPTIONS: 2
+}
 
 const QuestionForm = (props) => {
   const { questions, form, onAddQuestion } = props;
@@ -26,6 +32,7 @@ const QuestionForm = (props) => {
   function handleSaveQuestion() {
     let inputType = form.getFieldValue("inputType");
     let choices = form.getFieldValue("choices");
+    let numberConstraints = form.getFieldValue("numberConstraints");
     let newQuestion = {
       question: form.getFieldValue("question"),
       answerType: inputType,
@@ -33,6 +40,9 @@ const QuestionForm = (props) => {
     };
     if (["singleChoice", "multipleChoice"].includes(inputType)) {
       newQuestion.choices = choices;
+    }
+    if(['number'].includes(inputType)) {
+      newQuestion.numberConstraints = numberConstraints
     }
     onAddQuestion(newQuestion);
     form.setFieldValue("question", null);
@@ -42,12 +52,22 @@ const QuestionForm = (props) => {
   }
 
   function handleInputType(value, _) {
-    setShowOptions(["singleChoice", "multipleChoice"].includes(value));
+    const showOptions =
+        ["singleChoice", "multipleChoice"].includes(value) ?
+            OPTION_TYPES.CHOICE_OPTIONS : ["number"].includes(value) ?
+                OPTION_TYPES.NUMBER_OPTIONS : false
+    setShowOptions(showOptions);
     form.setFieldValue("inputType", value);
   }
 
   function handleChoices(options) {
     form.setFieldValue("choices", options);
+  }
+
+  function handleNumberConstraints(constraints) {
+    console.log(constraints)
+    form.setFieldValue("numberConstraints", constraints);
+    console.log(form.getFieldValue("numberConstraints"));
   }
 
   return (
@@ -87,21 +107,28 @@ const QuestionForm = (props) => {
                 <Option value="singleChoice">
                   Choice{"("}Radio Button{")"}
                 </Option>
+                <Option value="number">
+                  Number
+                </Option>
                 <Option value="multipleChoice" disabled>
                   Choice{"("}Checkbox{")"}
-                </Option>
-                <Option value="number" disabled>
-                  Number
                 </Option>
                 <Option value="date" disabled>
                   Date
                 </Option>
               </Select>
             </Form.Item>
-            {showOptions && (
+            {showOptions === OPTION_TYPES.CHOICE_OPTIONS && (
               <Form.Item name="choices">
                 <Choices onChoice={handleChoices} />
               </Form.Item>
+            )}
+            {showOptions === OPTION_TYPES.NUMBER_OPTIONS && (
+                <Form.Item name="numberConstraints">
+                  <NumberConstraints
+                      onConstraintsChange={handleNumberConstraints}
+                  />
+                </Form.Item>
             )}
             <Button htmlType="submit">Add Question</Button>
           </Form>

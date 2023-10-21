@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Button, Input, Form, Radio, Space } from "antd";
+import React, { useState } from "react";
+import {Button, Input, Form, Radio, Space, Row, Col, Divider} from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 import { SignAndSubmit } from "./SignAndSubmit";
@@ -13,6 +13,7 @@ function NostrForm(props) {
   if (content.settings?.selfSignForms) {
     selfSign = content.settings.selfSignForms;
   }
+  const formRef = React.useRef(null)
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
     fields?.forEach((field) => {
@@ -38,6 +39,7 @@ function NostrForm(props) {
     setFormInputs({ ...formInputs, [name]: value });
   };
 
+
   const handleSubmit = async (
     submitEvent,
     selfSignForm = false,
@@ -56,6 +58,8 @@ function NostrForm(props) {
         otherMessage: otherMessage,
       };
     });
+    await formRef.current?.validateFields()
+
     await sendFormResponse(
       npub,
       answerObject,
@@ -68,7 +72,7 @@ function NostrForm(props) {
   };
 
   const getField = (field) => {
-    let { answerType, question, tag } = field;
+    let { answerType, question, tag, numberConstraints } = field;
     switch (answerType) {
       case "string":
         return (
@@ -145,6 +149,43 @@ function NostrForm(props) {
             />
           </Form.Item>
         );
+      case 'number':
+        return (
+            <Col>
+              <Row>
+          <Form.Item
+              label={<strong>{question}</strong>}
+              name={tag}
+              layout="vertical"
+              rules={[{
+                validator: ({message}, value, cb) => {
+                  if(value > numberConstraints?.max) {
+                    cb(message)
+                  } else if(value < numberConstraints?.min) {
+                    cb(message)
+                  } else {
+                    cb()
+                  }
+                },
+                message: 'Please enter the numbers in the correct range'
+              }]}
+            >
+              <Input
+                name={tag}
+                type={'number'}
+                value={formInputs[tag]}
+                onChange={onFieldChange}
+              />
+            </Form.Item>
+              </Row>
+              <Row>
+                {typeof numberConstraints?.max === 'number' && <div>Maximum Allowed Value: {numberConstraints?.max}</div>}
+              </Row>
+              <Row>
+                {typeof numberConstraints?.min  === 'number' && <div>Minimum Allowed Value: {numberConstraints?.min}</div>}
+              </Row>
+            </Col>
+        )
       default:
         return null;
     }
@@ -157,6 +198,7 @@ function NostrForm(props) {
       <Title label="Form Name:">{name}</Title>
       <Text label="Form Description">{description}</Text>
       <Form
+          ref={formRef}
         name="basic"
         labelCol={{
           span: 15,
@@ -178,7 +220,7 @@ function NostrForm(props) {
         layout="vertical"
       >
         {fields?.map((field) => {
-          return getField(field);
+          return <Row>{getField(field)}<Divider /></Row>;
         })}
         {fields ? (
           !selfSign ? (
