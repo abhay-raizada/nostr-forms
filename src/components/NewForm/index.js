@@ -4,7 +4,7 @@ import Constants from "../../constants";
 import { Button, Card, Form, Input } from "antd";
 import FormSubmitted from "./FormSubmitted";
 import FormSettings from "./FormSettings";
-import QuestionForm from "./QuestionForm";
+import QuestionsController from "./QuestionsController";
 
 function NewForm() {
   const [questions, setQuestions] = useState([]);
@@ -13,22 +13,10 @@ function NewForm() {
     Constants.CreateFormTab.addQuestion
   );
   const [settingsForm] = Form.useForm();
-  const [questionsForm] = Form.useForm();
 
   function handleNameChange(event) {
     settingsForm.setFieldValue("name", event.target.value);
   }
-
-  const tabList = [
-    {
-      key: Constants.CreateFormTab.addQuestion,
-      label: "Add Questions",
-    },
-    {
-      key: Constants.CreateFormTab.settings,
-      label: "Settings",
-    },
-  ];
 
   function handleTabChange(key) {
     setActiveTab(key);
@@ -45,9 +33,14 @@ function NewForm() {
     settingsForm.onFinish();
   }
 
+  function handleEditQuestion(index, editedQuestion) {
+    const questionsList = [...questions];
+    questionsList[index] = editedQuestion;
+    setQuestions(questionsList);
+  }
+
   async function handleSaveForm(values) {
-    let showOnGlobal =
-      settingsForm.getFieldValue("showOnGlobal") ?? true;
+    let showOnGlobal = settingsForm.getFieldValue("showOnGlobal") ?? true;
     let formspec = {
       name: settingsForm.getFieldValue("name"),
       description: settingsForm.getFieldValue("description"),
@@ -56,6 +49,7 @@ function NewForm() {
     };
     const [pk, sk] = await createForm(formspec, showOnGlobal);
     setFormCredentials({ publicKey: pk, privateKey: sk });
+    setFormCredentials({ publicKey: 1, privateKey: 1 });
   }
 
   function onFinishFailed(error) {
@@ -87,7 +81,7 @@ function NewForm() {
           >
             <Card
               style={{ maxWidth: "100%", alignContent: "left" }}
-              tabList={tabList}
+              tabList={Constants.tabList}
               activeTabKey={activeTab}
               onTabChange={handleTabChange}
               title={settingsForm.getFieldValue("name") || "New Form"}
@@ -143,10 +137,10 @@ function NewForm() {
                       </Button>
                     </div>
                   </Card>
-                  <QuestionForm
-                    form={questionsForm}
-                    questions={questions}
+                  <QuestionsController
+                    onEditQuestion={handleEditQuestion}
                     onAddQuestion={handleAddQuestion}
+                    questions={questions}
                   />
 
                   <div
