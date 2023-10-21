@@ -79,7 +79,7 @@ const FormSettings = (props) => {
         <Switch
           defaultChecked={
             form.getFieldValue("showOnGlobal") === undefined
-              ? true
+              ? false
               : form.getFieldValue("showOnGlobal")
           }
           onChange={handleShowOnGlobal}
