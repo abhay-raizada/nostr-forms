@@ -28,9 +28,35 @@ function NewForm() {
   }
 
   function submitSettingsForm() {
-    settingsForm.onFinish = handleSaveForm;
     settingsForm.submit();
-    settingsForm.onFinish();
+    handleSaveForm();
+  }
+
+  const getFromSpec = () => {
+    return {
+      name: settingsForm.getFieldValue("name"),
+      description: settingsForm.getFieldValue("description"),
+      settings: { selfSignForms: settingsForm.getFieldValue("selfSign") },
+      fields: questions,
+    };
+  };
+
+  async function saveDraft() {
+    try {
+      await settingsForm.validateFields();
+    } catch (e) {
+      console.log("ill thro you", e);
+    }
+    const isFormValid = () =>
+      settingsForm.getFieldsError().some((item) => item.errors.length === 0);
+
+    if (isFormValid) {
+      const formSpec = getFromSpec();
+      const json = JSON.stringify(formSpec);
+      const draftArr = JSON.parse(localStorage.getItem("formstr:drafts")) || [];
+      draftArr.push(json);
+      localStorage.setItem(`formstr:drafts`, JSON.stringify(draftArr));
+    }
   }
 
   function handleEditQuestion(index, editedQuestion) {
@@ -55,12 +81,7 @@ function NewForm() {
 
   async function handleSaveForm(values) {
     let showOnGlobal = settingsForm.getFieldValue("showOnGlobal");
-    let formspec = {
-      name: settingsForm.getFieldValue("name"),
-      description: settingsForm.getFieldValue("description"),
-      settings: { selfSignForms: settingsForm.getFieldValue("selfSign") },
-      fields: questions,
-    };
+    let formspec = getFromSpec();
     const [pk, sk] = await createForm(formspec, showOnGlobal);
     setFormCredentials({ publicKey: pk, privateKey: sk });
   }
@@ -101,10 +122,10 @@ function NewForm() {
               extra={
                 <Button
                   type="primary"
-                  disabled={questions.length < 1}
-                  onClick={submitSettingsForm}
+                  onClick={saveDraft}
+                  title="This will be saved locally"
                 >
-                  Submit Form
+                  Save Draft
                 </Button>
               }
             >
