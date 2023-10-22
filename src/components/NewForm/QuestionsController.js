@@ -3,18 +3,15 @@ import { Button, Card, Form } from "antd";
 import NewQuestionForm from "./NewQuestionForm";
 import QuestionsList from "./QuestionsList";
 
-const QuestionsPage = (props) => {
-  const { questions, onAddQuestion, onEditQuestion } = props;
+const QuestionsController = (props) => {
+  const { questions, actionHandlers } = props;
+  const { onAddQuestion, ...rest } = actionHandlers;
   const [questionsForm] = Form.useForm();
 
   const [isNewQuestion, setIsNewQuestion] = useState(false);
 
   function addQuestion() {
     setIsNewQuestion(true);
-  }
-
-  function handleEditQuestion(index, editedQuestion) {
-    onEditQuestion(index, editedQuestion);
   }
 
   function handleAddQuestion(question) {
@@ -24,10 +21,7 @@ const QuestionsPage = (props) => {
 
   return (
     <>
-      <QuestionsList
-        onEditQuestion={handleEditQuestion}
-        questions={questions}
-      />
+      <QuestionsList {...rest} questions={questions} />
       {isNewQuestion && (
         <NewQuestionForm
           form={questionsForm}
@@ -49,4 +43,4 @@ const QuestionsPage = (props) => {
   );
 };
 
-export default QuestionsPage;
+export default QuestionsController;

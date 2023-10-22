@@ -57,8 +57,7 @@ const Choices = ({ onChoice, choiceList }) => {
       <Title level={3}>Options</Title>
       {choices.map((choice) => {
         return (
-          <div style={{ margin: "10px" }}>
-            {" "}
+          <div style={{ margin: "10px" }} key={choice.tag}>
             <Radio disabled>{choice.message}</Radio>
           </div>
         );

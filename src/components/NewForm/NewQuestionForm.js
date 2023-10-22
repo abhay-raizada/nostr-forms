@@ -1,11 +1,12 @@
 import { makeTag } from "../../utils/utility";
 import { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
+import { isChoiceType, isNumberType } from "./util";
 
 const OPTION_TYPES = {
   CHOICE_OPTIONS: 1,
-  NUMBER_OPTIONS: 2
-}
+  NUMBER_OPTIONS: 2,
+};
 
 const NewQuestionForm = (props) => {
   const { form, onAddQuestion } = props;
@@ -30,10 +31,10 @@ const NewQuestionForm = (props) => {
       answerType: inputType,
       tag: makeTag(6),
     };
-    if (["singleChoice", "multipleChoice"].includes(inputType)) {
+    if (isChoiceType(inputType)) {
       newQuestion.choices = choices;
     }
-    if (["number"].includes(inputType)) {
+    if (isNumberType(inputType)) {
       newQuestion.numberConstraints = numberConstraints;
     }
     onAddQuestion(newQuestion);
@@ -43,9 +44,9 @@ const NewQuestionForm = (props) => {
   }
 
   function handleInputType(value, _) {
-    const showOptions = ["singleChoice", "multipleChoice"].includes(value)
+    const showOptions = isChoiceType(value)
       ? OPTION_TYPES.CHOICE_OPTIONS
-      : ["number"].includes(value)
+      : isNumberType(value)
       ? OPTION_TYPES.NUMBER_OPTIONS
       : false;
     setShowOptions(showOptions);

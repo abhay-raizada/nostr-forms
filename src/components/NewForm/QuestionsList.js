@@ -1,8 +1,10 @@
 import { Card, Form } from "antd";
 import { makeTag } from "../../utils/utility";
 import { useState } from "react";
-import { EditFilled } from "@ant-design/icons";
 import QuestionCard from "./QuestionCard";
+import React from "react";
+import { isChoiceType, isNumberType } from "./util";
+import QuestionActions from "./QuestionActions";
 
 const initialQuesObj = {
   question: "",
@@ -11,11 +13,12 @@ const initialQuesObj = {
 
 const OPTION_TYPES = {
   CHOICE_OPTIONS: 1,
-  NUMBER_OPTIONS: 2
-}
+  NUMBER_OPTIONS: 2,
+};
 
 const QuestionList = (props) => {
-  const { questions, onEditQuestion } = props;
+  const { questions, onEditQuestion, onCloneQuestion, onDeleteQuestion } =
+    props;
   const [showOptions, setShowOptions] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
   const [editQuestionForm] = Form.useForm();
@@ -33,10 +36,10 @@ const QuestionList = (props) => {
       answerType: inputType,
       tag: makeTag(6),
     };
-    if (["singleChoice", "multipleChoice"].includes(inputType)) {
+    if (isChoiceType(inputType)) {
       newQuestion.choices = choices;
     }
-    if (["number"].includes(inputType)) {
+    if (isNumberType(inputType)) {
       newQuestion.numberConstraints = numberConstraints;
     }
     onEditQuestion(index, newQuestion);
@@ -47,9 +50,9 @@ const QuestionList = (props) => {
   }
 
   function handleInputType(value, _) {
-    const showOptions = ["singleChoice", "multipleChoice"].includes(value)
+    const showOptions = isChoiceType(value)
       ? OPTION_TYPES.CHOICE_OPTIONS
-      : ["number"].includes(value)
+      : isNumberType(value)
       ? OPTION_TYPES.NUMBER_OPTIONS
       : false;
     setShowOptions(showOptions);
@@ -68,14 +71,11 @@ const QuestionList = (props) => {
     setCurrentQuestionIndex(index);
     editQuestionForm.setFieldValue("question", questions[index].question);
     editQuestionForm.setFieldValue("inputType", questions[index].answerType);
-    if (
-      ["singleChoice", "multipleChoice"].includes(questions[index].answerType)
-    ) {
+    if (isChoiceType(questions[index].answerType)) {
       setShowOptions(OPTION_TYPES.CHOICE_OPTIONS);
-
       editQuestionForm.setFieldValue("choices", questions[index].choices);
     }
-    if (["number"].includes(questions[index].answerType)) {
+    if (isNumberType(questions[index].answerType)) {
       setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
       editQuestionForm.setFieldValue(
         "numberConstraints",
@@ -84,24 +84,58 @@ const QuestionList = (props) => {
     }
   };
 
-  const questionAction = (index) => {
-    return (
-      <div title="edit">
-        <EditFilled onClick={() => handleQuestionEdit(index)} />
-      </div>
+  const handleQuestionClone = (index) => {
+    setCurrentQuestionIndex(index);
+    const cloneTag = makeTag(6);
+    editQuestionForm.setFieldValue(
+      "question",
+      `${questions[index].question} clone`
     );
+    editQuestionForm.setFieldValue("inputType", questions[index].answerType);
+    editQuestionForm.setFieldValue("tag", cloneTag);
+    const cloneObject = {
+      question: questions[index].question,
+      answerType: questions[index].answerType,
+      tag: cloneTag,
+    };
+    // Update choices (if any)
+    if (isChoiceType(questions[index].answerType)) {
+      setShowOptions(OPTION_TYPES.CHOICE_OPTIONS);
+      editQuestionForm.setFieldValue("choices", questions[index].choices);
+      cloneObject["choices"] = questions[index].choices;
+    }
+    // Update number contraints (if any)
+    if (isNumberType(questions[index].answerType)) {
+      setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
+      editQuestionForm.setFieldValue(
+        "numberConstraints",
+        questions[index].numberConstraints
+      );
+      cloneObject["numberConstraints"] = questions[index].numberConstraints;
+    }
+    onCloneQuestion(index, cloneObject);
+    setCurrentQuestionIndex(index + 1);
   };
 
   return (
     <>
       {questions?.map((question, index) => {
         return (
-          <>
+          <React.Fragment key={question.tag}>
             {currentQuestionIndex !== index ? (
+              // added question card
               <Card
                 type="inner"
                 title={question.question}
-                extra={questionAction(index)}
+                extra={
+                  <QuestionActions
+                    handleQuestionEdit={handleQuestionEdit}
+                    handleQuestionClone={handleQuestionClone}
+                    handleQuestionDelete={onDeleteQuestion}
+                    index={index}
+                  />
+                }
+                key={question.tag}
               >
                 <ul
                   style={{
@@ -117,7 +151,9 @@ const QuestionList = (props) => {
                 </ul>
               </Card>
             ) : (
+              // Edit question form
               <QuestionCard
+                key={question.tag}
                 handleEditQuestion={handleQuestionUpdate}
                 handleQuestionNameChange={(e) =>
                   handleQuestionNameChange(e, editQuestionForm)
@@ -136,7 +172,7 @@ const QuestionList = (props) => {
                 editIndex={currentQuestionIndex}
               />
             )}
-          </>
+          </React.Fragment>
         );
       })}
     </>

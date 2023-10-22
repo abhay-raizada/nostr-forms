@@ -39,6 +39,20 @@ function NewForm() {
     setQuestions(questionsList);
   }
 
+  function handleCloneQuestion(index, cloneQuestion) {
+    const questionsList = [...questions];
+    questionsList.splice(index + 1, 0, cloneQuestion);
+    setQuestions(questionsList);
+  }
+
+  function handleDeleteQuestion(index) {
+    let questionsList = [...questions];
+    questionsList = questionsList.filter(
+      (ques) => ques.tag !== questionsList[index].tag
+    );
+    setQuestions(questionsList);
+  }
+
   async function handleSaveForm(values) {
     let showOnGlobal = settingsForm.getFieldValue("showOnGlobal") ?? true;
     let formspec = {
@@ -138,8 +152,12 @@ function NewForm() {
                     </div>
                   </Card>
                   <QuestionsController
-                    onEditQuestion={handleEditQuestion}
-                    onAddQuestion={handleAddQuestion}
+                    actionHandlers={{
+                      onEditQuestion: handleEditQuestion,
+                      onAddQuestion: handleAddQuestion,
+                      onCloneQuestion: handleCloneQuestion,
+                      onDeleteQuestion: handleDeleteQuestion,
+                    }}
                     questions={questions}
                   />
 
