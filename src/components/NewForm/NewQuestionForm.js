@@ -2,6 +2,11 @@ import { makeTag } from "../../utils/utility";
 import { useEffect, useState } from "react";
 import QuestionCard from "./QuestionCard";
 
+const OPTION_TYPES = {
+  CHOICE_OPTIONS: 1,
+  NUMBER_OPTIONS: 2
+}
+
 const NewQuestionForm = (props) => {
   const { form, onAddQuestion } = props;
   const [showOptions, setShowOptions] = useState(false);
@@ -19,6 +24,7 @@ const NewQuestionForm = (props) => {
   function handleSaveQuestion() {
     let inputType = form.getFieldValue("inputType");
     let choices = form.getFieldValue("choices");
+    let numberConstraints = form.getFieldValue("numberConstraints");
     let newQuestion = {
       question: form.getFieldValue("question"),
       answerType: inputType,
@@ -27,8 +33,8 @@ const NewQuestionForm = (props) => {
     if (["singleChoice", "multipleChoice"].includes(inputType)) {
       newQuestion.choices = choices;
     }
-    if(['number'].includes(inputType)) {
-      newQuestion.numberConstraints = numberConstraints
+    if (["number"].includes(inputType)) {
+      newQuestion.numberConstraints = numberConstraints;
     }
     onAddQuestion(newQuestion);
     form.setFieldValue("question", null);
@@ -37,7 +43,12 @@ const NewQuestionForm = (props) => {
   }
 
   function handleInputType(value, _) {
-    setShowOptions(["singleChoice", "multipleChoice"].includes(value));
+    const showOptions = ["singleChoice", "multipleChoice"].includes(value)
+      ? OPTION_TYPES.CHOICE_OPTIONS
+      : ["number"].includes(value)
+      ? OPTION_TYPES.NUMBER_OPTIONS
+      : false;
+    setShowOptions(showOptions);
     form.setFieldValue("inputType", value);
   }
 

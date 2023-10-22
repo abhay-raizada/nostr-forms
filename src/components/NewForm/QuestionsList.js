@@ -9,6 +9,11 @@ const initialQuesObj = {
   answerType: "",
 };
 
+const OPTION_TYPES = {
+  CHOICE_OPTIONS: 1,
+  NUMBER_OPTIONS: 2
+}
+
 const QuestionList = (props) => {
   const { questions, onEditQuestion } = props;
   const [showOptions, setShowOptions] = useState(false);
@@ -22,6 +27,7 @@ const QuestionList = (props) => {
   function handleQuestionUpdate(index) {
     let inputType = editQuestionForm.getFieldValue("inputType");
     let choices = editQuestionForm.getFieldValue("choices");
+    let numberConstraints = editQuestionForm.getFieldValue("numberConstraints");
     let newQuestion = {
       question: editQuestionForm.getFieldValue("question"),
       answerType: inputType,
@@ -29,6 +35,9 @@ const QuestionList = (props) => {
     };
     if (["singleChoice", "multipleChoice"].includes(inputType)) {
       newQuestion.choices = choices;
+    }
+    if (["number"].includes(inputType)) {
+      newQuestion.numberConstraints = numberConstraints;
     }
     onEditQuestion(index, newQuestion);
     editQuestionForm.setFieldValue("question", null);
@@ -38,7 +47,12 @@ const QuestionList = (props) => {
   }
 
   function handleInputType(value, _) {
-    setShowOptions(["singleChoice", "multipleChoice"].includes(value));
+    const showOptions = ["singleChoice", "multipleChoice"].includes(value)
+      ? OPTION_TYPES.CHOICE_OPTIONS
+      : ["number"].includes(value)
+      ? OPTION_TYPES.NUMBER_OPTIONS
+      : false;
+    setShowOptions(showOptions);
     editQuestionForm.setFieldValue("inputType", value);
   }
 
@@ -57,9 +71,16 @@ const QuestionList = (props) => {
     if (
       ["singleChoice", "multipleChoice"].includes(questions[index].answerType)
     ) {
-      setShowOptions(true);
+      setShowOptions(OPTION_TYPES.CHOICE_OPTIONS);
 
       editQuestionForm.setFieldValue("choices", questions[index].choices);
+    }
+    if (["number"].includes(questions[index].answerType)) {
+      setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
+      editQuestionForm.setFieldValue(
+        "numberConstraints",
+        questions[index].numberConstraints
+      );
     }
   };
 
@@ -70,7 +91,6 @@ const QuestionList = (props) => {
       </div>
     );
   };
- 
 
   return (
     <>

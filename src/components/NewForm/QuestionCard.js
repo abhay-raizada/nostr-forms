@@ -1,10 +1,18 @@
 import { Button, Card, Form, Input, Select } from "antd";
 import { AnswerTypes } from "../../constants/index";
+import {NumberConstraints} from "./NumberConstraints";
 import Choices from "./Choices";
+
+
 const initialQuesObj = {
   question: "",
   answerType: "",
 };
+
+const OPTION_TYPES = {
+  CHOICE_OPTIONS: 1,
+  NUMBER_OPTIONS: 2
+}
 
 const QuestionCard = ({
   showOptions,
@@ -48,7 +56,7 @@ const QuestionCard = ({
             <Option value={AnswerTypes.multipleChoice} disabled>
               Choice{"("}Checkbox{")"}
             </Option>
-            <Option value={AnswerTypes.number} disabled>
+            <Option value={AnswerTypes.number}>
               Number
             </Option>
             <Option value={AnswerTypes.date} disabled>
