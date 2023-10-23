@@ -126,7 +126,7 @@ const QuestionList = (props) => {
               // added question card
               <Card
                 type="inner"
-                title={question.question}
+                title="Question"
                 extra={
                   <QuestionActions
                     handleQuestionEdit={handleQuestionEdit}
@@ -146,7 +146,7 @@ const QuestionList = (props) => {
                   }}
                 >
                   <li>
-                    <h3>Question:</h3> {question.question}
+                    {question.question}
                   </li>
                 </ul>
               </Card>

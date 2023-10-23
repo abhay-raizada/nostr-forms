@@ -29,4 +29,20 @@ const tabList = [
   },
 ];
 
-module.exports = { CreateFormTab, ResponseFilters, AnswerTypes, tabList };
+const MyFormTab = {
+  drafts: "drafts",
+  savedForms: "savedForms"
+}
+
+const MyFormTabsList = [
+  {
+    key: MyFormTab.drafts,
+    label: "Drafts"
+  },
+  {
+    key: MyFormTab.savedForms,
+    label: "Saved Forms"
+  }
+]
+
+module.exports = { CreateFormTab, ResponseFilters, AnswerTypes, tabList, MyFormTabsList, MyFormTab };
