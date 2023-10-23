@@ -9,7 +9,7 @@ const FormSettings = (props) => {
       form.setFieldValue("selfSign", false);
     }
     if (form.getFieldValue("showOnGlobal") === undefined) {
-      form.setFieldValue("showOnGlobal", true);
+      form.setFieldValue("showOnGlobal", false);
     }
   });
 
@@ -74,14 +74,8 @@ const FormSettings = (props) => {
       <Form.Item
         name="showOnGlobal"
         label="Show your form on the global feed"
-        initialValue={form.getFieldValue("showOnGlobal")}
       >
         <Switch
-          defaultChecked={
-            form.getFieldValue("showOnGlobal") === undefined
-              ? false
-              : form.getFieldValue("showOnGlobal")
-          }
           onChange={handleShowOnGlobal}
         />
       </Form.Item>
