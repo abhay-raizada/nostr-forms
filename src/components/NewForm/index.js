@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { createForm } from "../../utils/nostr";
 import Constants from "../../constants";
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, notification } from "antd";
 import FormSubmitted from "./FormSubmitted";
 import FormSettings from "./FormSettings";
 import QuestionsController from "./QuestionsController";
+import { makeTag } from "../../utils/utility";
 
 function NewForm() {
   const [questions, setQuestions] = useState([]);
+  const [formTempId, setFormTempId] = useState(null);
   const [formCredentials, setFormCredentials] = useState("");
   const [activeTab, setActiveTab] = useState(
     Constants.CreateFormTab.addQuestion
   );
   const [settingsForm] = Form.useForm();
+  const [api, contextHolder] = notification.useNotification();
 
   function handleNameChange(event) {
     settingsForm.setFieldValue("name", event.target.value);
@@ -41,22 +44,46 @@ function NewForm() {
     };
   };
 
+  function createOrUpdateDrafts(draftObject, drafts) {
+    let draftIndex = drafts
+      .map((draft) => draft.tempId)
+      .indexOf(draftObject.tempId);
+    if (draftIndex === -1) {
+      drafts.push(draftObject);
+    } else {
+      drafts[draftIndex] = draftObject;
+    }
+    localStorage.setItem(`formstr:drafts`, JSON.stringify(drafts));
+    api.info({
+      message: `Draft ${draftIndex === -1 ? "Saved" : "Updated"} Succesfully`,
+    });
+  }
+
   async function saveDraft() {
+    let tag = makeTag(6);
+    if (!formTempId) {
+      setFormTempId(tag);
+    } else {
+      tag = formTempId;
+    }
     try {
       await settingsForm.validateFields();
     } catch (e) {
-      console.log("ill thro you", e);
+      console.log("Form Validations Failed", e);
     }
     const isFormValid = () =>
       settingsForm.getFieldsError().some((item) => item.errors.length === 0);
 
-    if (isFormValid) {
-      const formSpec = getFromSpec();
-      const json = JSON.stringify(formSpec);
-      const draftArr = JSON.parse(localStorage.getItem("formstr:drafts")) || [];
-      draftArr.push(json);
-      localStorage.setItem(`formstr:drafts`, JSON.stringify(draftArr));
+    console.log("form valid? ", isFormValid());
+    if (!isFormValid()) {
+      api.warning({message: "Form validations failed, unable to save draft"});
+      return;
     }
+
+    const formSpec = getFromSpec();
+    const draftObject = { formSpec, tempId: tag };
+    const draftArr = JSON.parse(localStorage.getItem("formstr:drafts")) || [];
+    createOrUpdateDrafts(draftObject, draftArr);
   }
 
   function handleEditQuestion(index, editedQuestion) {
@@ -102,6 +129,7 @@ function NewForm() {
           maxWidth: "100%",
         }}
       >
+        {contextHolder}
         {!formCredentials && (
           <div
             style={{
@@ -125,7 +153,7 @@ function NewForm() {
                   onClick={saveDraft}
                   title="This will be saved locally"
                 >
-                  Save Draft
+                  {formTempId ? "Update Draft" : "Save Draft"}
                 </Button>
               }
             >
