@@ -7,7 +7,7 @@ declare global {
 }
 
 // TODO: create Form Model
-export async function createForm(form: any, showOnGlobal = true) {
+export async function createForm(form: any, showOnGlobal = false) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",

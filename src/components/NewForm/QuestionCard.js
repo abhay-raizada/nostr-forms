@@ -68,7 +68,7 @@ const QuestionCard = ({
         )}
         {showOptions === OPTION_TYPES.NUMBER_OPTIONS && (
           <Form.Item name="numberConstraints">
-            <NumberConstraints onConstraintsChange={handleNumberConstraints} />
+            <NumberConstraints onConstraintsChange={handleNumberConstraints} numberConstraints={question.numberConstraints} />
           </Form.Item>
         )}
         <Button htmlType="submit">

@@ -54,7 +54,7 @@ function NewForm() {
   }
 
   async function handleSaveForm(values) {
-    let showOnGlobal = settingsForm.getFieldValue("showOnGlobal") ?? true;
+    let showOnGlobal = settingsForm.getFieldValue("showOnGlobal");
     let formspec = {
       name: settingsForm.getFieldValue("name"),
       description: settingsForm.getFieldValue("description"),
@@ -63,7 +63,6 @@ function NewForm() {
     };
     const [pk, sk] = await createForm(formspec, showOnGlobal);
     setFormCredentials({ publicKey: pk, privateKey: sk });
-    setFormCredentials({ publicKey: 1, privateKey: 1 });
   }
 
   function onFinishFailed(error) {
