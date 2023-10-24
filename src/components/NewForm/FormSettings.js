@@ -75,7 +75,7 @@ const FormSettings = (props) => {
         name="showOnGlobal"
         label="Show your form on the global feed"
       >
-        <Switch
+        <Switch defaultChecked={form.getFieldValue("showOnGlobal")}
           onChange={handleShowOnGlobal}
         />
       </Form.Item>
