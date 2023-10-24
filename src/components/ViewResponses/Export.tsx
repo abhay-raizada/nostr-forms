@@ -15,10 +15,10 @@ interface UserInfo {
     }
 }
 
-export const Export: React.FC<{responses: {plaintext: string, pubkey: string}[], userInfo: any}> = (props) => {
+export const Export: React.FC<{responses: {plaintext: string, pubkey: string}[], userInfo: UserInfo, formName: string}> = (props) => {
     const onDownloadClick = async (type: 'csv' | 'excel') => {
         const XLSX = await import('xlsx')
-
+        const SheetName = `Responses for ${props.formName}`
         const responses = props.responses.map(({plaintext}) => JSON.parse(plaintext)) as Response[][]
         const parsedResponse = responses
             .map((response, index) => {
@@ -34,11 +34,11 @@ export const Export: React.FC<{responses: {plaintext: string, pubkey: string}[],
             })
         const workSheet = XLSX.utils.json_to_sheet(parsedResponse)
         const workBook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workBook, workSheet, 'Responses')
+        XLSX.utils.book_append_sheet(workBook, workSheet, `${SheetName}`)
         if(type === 'excel') {
-            XLSX.writeFile(workBook, 'Responses.xlsx')
+            XLSX.writeFile(workBook, `${SheetName}.xlsx`)
         } else {
-            XLSX.writeFile(workBook, 'Responses.csv')
+            XLSX.writeFile(workBook, `${SheetName}.csv`)
         }
     }
     return (
