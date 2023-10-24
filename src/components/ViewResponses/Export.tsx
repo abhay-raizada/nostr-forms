@@ -1,5 +1,4 @@
 import React from 'react'
-import {utils, writeFile} from 'xlsx'
 import {Button, Row} from "antd";
 
 interface Response {
@@ -17,7 +16,9 @@ interface UserInfo {
 }
 
 export const Export: React.FC<{responses: {plaintext: string, pubkey: string}[], userInfo: any}> = (props) => {
-    const onDownloadClick = (type: 'csv' | 'excel') => {
+    const onDownloadClick = async (type: 'csv' | 'excel') => {
+        const XLSX = await import('xlsx')
+
         const responses = props.responses.map(({plaintext}) => JSON.parse(plaintext)) as Response[][]
         const parsedResponse = responses
             .map((response, index) => {
@@ -31,13 +32,13 @@ export const Export: React.FC<{responses: {plaintext: string, pubkey: string}[],
                     }, resp)
                 return resp
             })
-        const workSheet = utils.json_to_sheet(parsedResponse)
-        const workBook = utils.book_new()
-        utils.book_append_sheet(workBook, workSheet, 'Responses')
+        const workSheet = XLSX.utils.json_to_sheet(parsedResponse)
+        const workBook = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(workBook, workSheet, 'Responses')
         if(type === 'excel') {
-            writeFile(workBook, 'Responses.xlsx')
+            XLSX.writeFile(workBook, 'Responses.xlsx')
         } else {
-            writeFile(workBook, 'Responses.csv')
+            XLSX.writeFile(workBook, 'Responses.csv')
         }
     }
     return (
