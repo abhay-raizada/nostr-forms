@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
 import { MyFormTabsList, MyFormTab } from "../../constants";
+import { DeleteFilled, EditFilled } from "@ant-design/icons";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState([]);
@@ -14,6 +15,13 @@ const MyForms = () => {
 
   function handleTabChange(key) {
     setActiveTab(key);
+  }
+
+  function handleDraftDelete(index) {
+    let drafts = [...formDrafts];
+    drafts = drafts.filter((_, ind) => ind !== index);
+    localStorage.setItem("formstr:drafts", JSON.stringify(drafts));
+    setFormDrafts(drafts);
   }
 
   useEffect(() => {
@@ -63,17 +71,46 @@ const MyForms = () => {
         onTabChange={handleTabChange}
       >
         {activeTab === MyFormTab.drafts && (
-          <>
-            {formDrafts.map((draft) => {
-              console.log("Draft", draft, draft["name"]);
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              alignContent: "center",
+              justifyContent: "center",
+              justifyItems: "center",
+            }}
+          >
+            {formDrafts.map((draft, index) => {
               return (
                 <Card
                   title={draft.formSpec.name}
                   style={gridStyle}
                   type="inner"
-                  hoverable={true}
+                  key={draft.tempId}
+                  extra={
+                    <div style={{ display: "flex" }}>
+                      <div title="edit" style={{marginLeft: "10px"}}>
+                        <Link
+                          to="/forms/new"
+                          state={{
+                            formSpec: draft.formSpec,
+                            tempId: draft.tempId,
+                          }}
+                          style={{ textDecoration: "none", color: "black" }}
+                        >
+                          <EditFilled />
+                        </Link>
+                      </div>
+                      <div title="delete" style={{ marginLeft: "10px" }}>
+                        <DeleteFilled
+                          onClick={() => handleDraftDelete(index)}
+                        />
+                      </div>
+                    </div>
+                  }
                 >
-                  {JSON.stringify(draft)}
+                  {draft.formSpec.description || "No description"}
                 </Card>
               );
             })}
@@ -90,7 +127,7 @@ const MyForms = () => {
                 </Text>
               </div>
             )}
-          </>
+          </div>
         )}
         {activeTab === MyFormTab.savedForms && (
           <div
