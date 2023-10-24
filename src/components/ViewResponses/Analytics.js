@@ -51,12 +51,12 @@ const Analytics = (props) => {
       {aggregations.map((ag) => {
         let { question, aggregations, total } = ag;
         return (
-          <Card title={question}>
+          <Card key={question} title={question}>
             <ul style={{ textAlign: "left" }}>
               {" "}
               {Object.keys(aggregations).map((a) => {
                 return (
-                  <li>
+                  <li key={a}>
                     {" "}
                     <h3>{a}:</h3> {((aggregations[a] / total) * 100).toFixed(2)}{" "}
                     %{"("}

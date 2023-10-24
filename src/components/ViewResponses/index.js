@@ -9,6 +9,7 @@ import Analytics from "./Analytics";
 import { useParams } from "react-router";
 import Response from "./Responses";
 import { ResponseFilters } from "../../constants";
+import {Export} from "./Export";
 
 const { Text } = Typography;
 
@@ -135,6 +136,7 @@ function ViewResponses() {
           />
         </div>
       ) : null}
+      {responses?.length && <Export responses={responses} userInfo={userInfo} />}
       {responses?.length ? (
         <Card>
           <Analytics responses={getDisplayedResponses()} />

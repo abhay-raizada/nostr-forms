@@ -17,6 +17,7 @@ const Response = (props) => {
         let questions = JSON.parse(response.plaintext);
         return (
           <Card
+            key={index}
             title={
               userInfo[response.pubkey]?.name ||
               `Anonymous Response  ${index + 1}`
@@ -24,7 +25,7 @@ const Response = (props) => {
           >
             {questions.map((question) => {
               return (
-                <Card type="inner" title={question.question}>
+                <Card key={question.tag} type="inner" title={question.question}>
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <div>{question.inputValue}</div>
                     {question.otherMessage && (
