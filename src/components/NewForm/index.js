@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createForm } from "../../utils/nostr";
 import Constants from "../../constants";
 import { Button, Card, Form, Input, notification } from "antd";
@@ -6,6 +6,7 @@ import FormSubmitted from "./FormSubmitted";
 import FormSettings from "./FormSettings";
 import QuestionsController from "./QuestionsController";
 import { makeTag } from "../../utils/utility";
+import { useLocation } from "react-router";
 
 function NewForm() {
   const [questions, setQuestions] = useState([]);
@@ -16,6 +17,7 @@ function NewForm() {
   );
   const [settingsForm] = Form.useForm();
   const [api, contextHolder] = notification.useNotification();
+  const { state } = useLocation();
 
   function handleNameChange(event) {
     settingsForm.setFieldValue("name", event.target.value);
@@ -34,6 +36,21 @@ function NewForm() {
     settingsForm.submit();
     handleSaveForm();
   }
+
+  function fillFormFields(formSpec, tempId) {
+    settingsForm.setFieldValue("name", formSpec.name);
+    settingsForm.setFieldValue("description", formSpec.description);
+    settingsForm.setFieldValue("selfSign", formSpec.settings?.selfSign);
+    setQuestions(formSpec.fields);
+    setFormTempId(tempId)
+  }
+
+  useEffect(() => {
+    let name = settingsForm.getFieldValue("name");
+    if (state && !name) {
+      fillFormFields(state.formSpec, state.tempId);
+    }
+  });
 
   const getFromSpec = () => {
     return {
@@ -76,7 +93,7 @@ function NewForm() {
 
     console.log("form valid? ", isFormValid());
     if (!isFormValid()) {
-      api.warning({message: "Form validations failed, unable to save draft"});
+      api.warning({ message: "Form validations failed, unable to save draft" });
       return;
     }
 
