@@ -184,13 +184,13 @@ function NostrForm(props) {
               </Form.Item>
             </Row>
             <Row>
-              {typeof numberConstraints?.max === "number" && (
-                <div>Maximum Allowed Value: {numberConstraints?.max}</div>
+              {typeof numberConstraints?.min === "number" && (
+                <div>Minimum Allowed Value: {numberConstraints?.min}</div>
               )}
             </Row>
             <Row>
-              {typeof numberConstraints?.min === "number" && (
-                <div>Minimum Allowed Value: {numberConstraints?.min}</div>
+              {typeof numberConstraints?.max === "number" && (
+                <div>Maximum Allowed Value: {numberConstraints?.max}</div>
               )}
             </Row>
           </Col>
