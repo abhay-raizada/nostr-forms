@@ -3,7 +3,6 @@ import { Button, Input, Form, Radio, Space, Row, Col, Divider } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 import { SignAndSubmit } from "./SignAndSubmit";
-import { ShowPastResponses } from "./ShowPastResponses";
 
 const { Title, Text } = Typography;
 
@@ -269,12 +268,6 @@ function NostrForm(props) {
           )
         ) : null}
       </Form>
-      <ShowPastResponses
-        open={showPastResponses}
-        onCancel={() => {
-          setShowPastResponses(false);
-        }}
-      />
     </div>
   );
 }
