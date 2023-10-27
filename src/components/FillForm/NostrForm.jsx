@@ -7,7 +7,7 @@ import { SignAndSubmit } from "./SignAndSubmit";
 const { Title, Text } = Typography;
 
 function NostrForm(props) {
-  const { content, npub } = props;
+  const { content, npub, existingResponses } = props;
   const { description, name, fields } = content;
   let selfSign = false;
   if (content.settings?.selfSignForms) {
@@ -28,14 +28,9 @@ function NostrForm(props) {
     return fieldInputs;
   });
   const [otherMessage, setOtherMessage] = useState("");
-  const [showPastResponses, setShowPastResponses] = useState(false);
 
   function onOtherChange(event) {
     setOtherMessage(event.target.value);
-  }
-
-  function handleShowPastResponses(event) {
-    setShowPastResponses(true);
   }
 
   const onFieldChange = (event) => {
@@ -209,9 +204,6 @@ function NostrForm(props) {
     >
       <Title label="Form Name:">{name}</Title>
       <Text label="Form Description">{description}</Text>
-      <Button type="primary" onClick={handleShowPastResponses}>
-        Show Past Reponses
-      </Button>
       <Form
         ref={formRef}
         name="basic"
@@ -261,10 +253,11 @@ function NostrForm(props) {
                 onSubmit={(event) => {
                   handleSubmit(event, true);
                 }}
+                edit={existingResponses}
               />
             </div>
           ) : (
-            <SignAndSubmit onSubmit={handleSubmit} />
+            <SignAndSubmit onSubmit={handleSubmit} edit={existingResponses} />
           )
         ) : null}
       </Form>
