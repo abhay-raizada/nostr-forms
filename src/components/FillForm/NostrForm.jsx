@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import {Button, Input, Form, Radio, Space, Row, Col, Divider} from "antd";
+import { Button, Input, Form, Radio, Space, Row, Col, Divider } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
 import { SignAndSubmit } from "./SignAndSubmit";
+import { ShowPastResponses } from "./ShowPastResponses";
 
 const { Title, Text } = Typography;
 
@@ -13,7 +14,7 @@ function NostrForm(props) {
   if (content.settings?.selfSignForms) {
     selfSign = content.settings.selfSignForms;
   }
-  const formRef = React.useRef(null)
+  const formRef = React.useRef(null);
   const [formInputs, setFormInputs] = useState(() => {
     let fieldInputs = {};
     fields?.forEach((field) => {
@@ -28,9 +29,14 @@ function NostrForm(props) {
     return fieldInputs;
   });
   const [otherMessage, setOtherMessage] = useState("");
+  const [showPastResponses, setShowPastResponses] = useState(false);
 
   function onOtherChange(event) {
     setOtherMessage(event.target.value);
+  }
+
+  function handleShowPastResponses(event) {
+    setShowPastResponses(true);
   }
 
   const onFieldChange = (event) => {
@@ -38,7 +44,6 @@ function NostrForm(props) {
     console.log(name, value);
     setFormInputs({ ...formInputs, [name]: value });
   };
-
 
   const handleSubmit = async (
     submitEvent,
@@ -58,7 +63,7 @@ function NostrForm(props) {
         otherMessage: otherMessage,
       };
     });
-    await formRef.current?.validateFields()
+    await formRef.current?.validateFields();
 
     await sendFormResponse(
       npub,
@@ -149,45 +154,51 @@ function NostrForm(props) {
             />
           </Form.Item>
         );
-      case 'number':
+      case "number":
         return (
-            <Col>
-              <Row>
-          <Form.Item
-              label={<strong>{question}</strong>}
-              name={tag}
-              layout="vertical"
-              rules={[{
-                validator: ({message}, value, cb) => {
-                  const dotCount = (value.match(/\./g) || []).length;
-                  if(value > numberConstraints?.max) {
-                    cb(message)
-                  } else if(value < numberConstraints?.min) {
-                    cb(message)
-                  } else if(!/^[\d.]+$/.test(value) || dotCount > 1) {
-                    cb(message)
-                  } else {
-                    cb()
-                  }
-                },
-                message: 'Only numbers allowed in the given range'
-              }]}
-            >
-              <Input
+          <Col>
+            <Row>
+              <Form.Item
+                label={<strong>{question}</strong>}
                 name={tag}
-                value={formInputs[tag]}
-                onChange={onFieldChange}
-              />
-            </Form.Item>
-              </Row>
-              <Row>
-                {typeof numberConstraints?.max === 'number' && <div>Maximum Allowed Value: {numberConstraints?.max}</div>}
-              </Row>
-              <Row>
-                {typeof numberConstraints?.min  === 'number' && <div>Minimum Allowed Value: {numberConstraints?.min}</div>}
-              </Row>
-            </Col>
-        )
+                layout="vertical"
+                rules={[
+                  {
+                    validator: ({ message }, value, cb) => {
+                      const dotCount = (value.match(/\./g) || []).length;
+                      if (value > numberConstraints?.max) {
+                        cb(message);
+                      } else if (value < numberConstraints?.min) {
+                        cb(message);
+                      } else if (!/^[\d.]+$/.test(value) || dotCount > 1) {
+                        cb(message);
+                      } else {
+                        cb();
+                      }
+                    },
+                    message: "Only numbers allowed in the given range",
+                  },
+                ]}
+              >
+                <Input
+                  name={tag}
+                  value={formInputs[tag]}
+                  onChange={onFieldChange}
+                />
+              </Form.Item>
+            </Row>
+            <Row>
+              {typeof numberConstraints?.max === "number" && (
+                <div>Maximum Allowed Value: {numberConstraints?.max}</div>
+              )}
+            </Row>
+            <Row>
+              {typeof numberConstraints?.min === "number" && (
+                <div>Minimum Allowed Value: {numberConstraints?.min}</div>
+              )}
+            </Row>
+          </Col>
+        );
       default:
         return null;
     }
@@ -199,8 +210,11 @@ function NostrForm(props) {
     >
       <Title label="Form Name:">{name}</Title>
       <Text label="Form Description">{description}</Text>
+      <Button type="primary" onClick={handleShowPastResponses}>
+        Show Past Reponses
+      </Button>
       <Form
-          ref={formRef}
+        ref={formRef}
         name="basic"
         labelCol={{
           span: 15,
@@ -222,7 +236,12 @@ function NostrForm(props) {
         layout="vertical"
       >
         {fields?.map((field) => {
-          return <Row>{getField(field)}<Divider /></Row>;
+          return (
+            <Row>
+              {getField(field)}
+              <Divider />
+            </Row>
+          );
         })}
         {fields ? (
           !selfSign ? (
@@ -250,6 +269,12 @@ function NostrForm(props) {
           )
         ) : null}
       </Form>
+      <ShowPastResponses
+        open={showPastResponses}
+        onCancel={() => {
+          setShowPastResponses(false);
+        }}
+      />
     </div>
   );
 }

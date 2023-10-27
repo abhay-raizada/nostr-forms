@@ -13,6 +13,7 @@ export async function createForm(form: any, showOnGlobal = false) {
     "wss://offchain.pub/",
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
+    "wss://hllo.live"
   ];
   let tags:string[][] = [];
   if (showOnGlobal) {
@@ -47,6 +48,7 @@ export const getFormTemplate = async (npub: string) => {
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
     "wss://nostr.wine/",
+    "wss://hllo.live"
   ];
   console.log("received npub", npub);
   let pool = new SimplePool();
@@ -75,6 +77,7 @@ export const sendFormResponse = async (
     "wss://offchain.pub/",
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
+    "wss://hllo.live"
   ];
   const newSk = generatePrivateKey();
   const newPk = getPublicKey(newSk);
@@ -136,6 +139,7 @@ export const getFormResponses = async (nsec: string) => {
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
     "wss://nostr.wine/",
+    "wss://hllo.live"
   ];
   let filter = {
     kinds: [4],
@@ -163,6 +167,7 @@ export const fetchGlobalFeed = async () => {
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
     "wss://nostr.wine/",
+    "wss://hllo.live"
   ];
   let filter = {
     kinds: [0],
@@ -182,6 +187,7 @@ export const getUserKind0s = async (pubkeysList: Array<string>) => {
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
     "wss://nostr.wine/",
+    "wss://hllo.live"
   ];
   let filter = {
     kinds: [0],
@@ -193,6 +199,11 @@ export const getUserKind0s = async (pubkeysList: Array<string>) => {
   return responses;
 };
 
+export const getUserNpubByNip07 = async () => {
+  return await window.nostr.getPublicKey();
+
+}
+
 export const getFormTemplatByNsec = async (nsec: string) => {
   const relays = [
     "wss://relay.damus.io/",
@@ -200,6 +211,7 @@ export const getFormTemplatByNsec = async (nsec: string) => {
     "wss://nos.lol/",
     "wss://relay.nostr.wirednet.jp/",
     "wss://nostr.wine/",
+    "wss://hllo.live"
   ];
   const pubkey = getPublicKey(nsec);
   let filter = {
@@ -215,4 +227,26 @@ export const getFormTemplatByNsec = async (nsec: string) => {
   pool.close(relays);
   return template;
 
+}
+
+export const getResponsesByNpub = async (npub: string, formNpub: string) =>{
+  const relays = [
+    "wss://relay.damus.io/",
+    "wss://offchain.pub/",
+    "wss://nos.lol/",
+    "wss://relay.nostr.wirednet.jp/",
+    "wss://nostr.wine/",
+    "wss://hllo.live"
+  ];
+  let filter = {
+    authors: [npub],
+    "#p": [formNpub],
+    kinds: [4]
+  }
+
+  let pool = new SimplePool();
+ let responses = await pool.list(relays, [filter]);
+ console.log(responses);
+ pool.close(relays);
+ return responses;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 // import { Button, Input } from "antd";
-import { getFormTemplate } from "../../utils/nostr";
+import { getFormTemplate, getUserNpubByNip07 } from "../../utils/nostr";
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ const FillForm = (props) => {
   const [npubState, setNpubState] = useState("");
   const [formTemplate, setFormTemplate] = useState("");
   const [finished, setFinished] = useState(false);
+  const [userNpub, setUserNpub] = useState("");
   const { npub } = useParams();
   const { Text } = Typography;
 
@@ -17,7 +18,10 @@ const FillForm = (props) => {
     if (npub) {
       fetchFormTemplate(npub);
     }
-  }, [npub]);
+    if (userNpub?.length === 0){
+      setUserNpub(getUserNpubByNip07());
+    }
+  }, [npub, userNpub]);
 
   async function fetchFormTemplate(npubInput) {
     const template = await getFormTemplate(npubInput);
