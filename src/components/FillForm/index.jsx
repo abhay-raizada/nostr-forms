@@ -10,7 +10,8 @@ const FillForm = (props) => {
   const [npubState, setNpubState] = useState("");
   const [formTemplate, setFormTemplate] = useState("");
   const [finished, setFinished] = useState(false);
-  const [userNpub, setUserNpub] = useState("");
+  const [userNpub, setUserNpub] = useState(null);
+  const [pastResponses, setPastResponses] = useState(null);
   const { npub } = useParams();
   const { Text } = Typography;
 
@@ -18,10 +19,14 @@ const FillForm = (props) => {
     if (npub) {
       fetchFormTemplate(npub);
     }
-    if (userNpub?.length === 0){
+    if (userNpub === null) {
       setUserNpub(getUserNpubByNip07());
     }
-  }, [npub, userNpub]);
+
+    if (pastResponses === null) {
+      setPastResponses(getResponsesByNpub(npub, userNpub));
+    }
+  }, [npub, userNpub, pastResponses]);
 
   async function fetchFormTemplate(npubInput) {
     const template = await getFormTemplate(npubInput);
@@ -42,54 +47,56 @@ const FillForm = (props) => {
             alignItems: "center",
           }}
         >
-          <Form
-            name="basic"
-            labelCol={{
-              span: 8,
-            }}
-            labelWrap
-            wrapperCol={{
-              span: 16,
-            }}
-            style={{
-              maxWidth: 600,
-              alignContent: "center",
-              flexDirection: "column",
-            }}
-            onFinish={() => {
-              fetchFormTemplate(npubState);
-            }}
-            onFinishFailed={() => {
-              fetchFormTemplate(npubState);
-            }}
-            autoComplete="off"
-          >
-            <Form.Item
-              label="enter form public key"
-              name="npub"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your npub!",
-                },
-              ]}
-            >
-              <Input
-                placeholder="Please input your npub"
-                onChange={handleInput}
-              />
-            </Form.Item>
-            <Form.Item
+          <Card>
+            <Form
+              name="basic"
+              labelCol={{
+                span: 8,
+              }}
+              labelWrap
               wrapperCol={{
-                offset: 8,
                 span: 16,
               }}
+              style={{
+                maxWidth: 600,
+                alignContent: "center",
+                flexDirection: "column",
+              }}
+              onFinish={() => {
+                fetchFormTemplate(npubState);
+              }}
+              onFinishFailed={() => {
+                fetchFormTemplate(npubState);
+              }}
+              autoComplete="off"
             >
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
+              <Form.Item
+                label="enter form public key"
+                name="npub"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your npub!",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Please input your npub"
+                  onChange={handleInput}
+                />
+              </Form.Item>
+              <Form.Item
+                wrapperCol={{
+                  offset: 8,
+                  span: 16,
+                }}
+              >
+                <Button type="primary" htmlType="submit">
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
         </div>
       )}
       {formTemplate && !finished && (
@@ -101,11 +108,9 @@ const FillForm = (props) => {
           }}
         />
       )}
-
       {!formTemplate && npub && (
         <Text> Please wait while form is being fetched..</Text>
       )}
-
       {finished && <Text> Form has been submitted! </Text>}
     </>
   );
