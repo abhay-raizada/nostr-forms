@@ -1,113 +1,95 @@
 import { useEffect, useState } from "react";
-// import { Button, Input } from "antd";
-import { getFormTemplate, getUserNpubByNip07 } from "../../utils/nostr";
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+import {
+  getFormTemplate,
+  getUserNpubByNip07,
+  getResponsesByNpub,
+} from "../../utils/nostr";
+import { Button, Typography, Card } from "antd";
 import { useParams } from "react-router-dom";
 import NostrForm from "./NostrForm";
+import { ShowPastResponses } from "./ShowPastResponses";
 
 const FillForm = (props) => {
-  const [npubState, setNpubState] = useState("");
   const [formTemplate, setFormTemplate] = useState("");
   const [finished, setFinished] = useState(false);
   const [userNpub, setUserNpub] = useState(null);
   const [pastResponses, setPastResponses] = useState(null);
+  const [showPastResponses, setShowPastResponses] = useState(false);
+  const [isEdit, setIsEdit] = useState(null);
   const { npub } = useParams();
   const { Text } = Typography;
 
   useEffect(() => {
+    const fetchFormTemplate = async (npubInput) => {
+      const template = await getFormTemplate(npubInput);
+      setFormTemplate(template[0]?.content);
+    };
+    const initializeForm = async (npub) => {
+      if (!formTemplate) fetchFormTemplate(npub);
+      if (isEdit === null) fetchPastResponses(npub);
+    };
+    const fetchPastResponses = async (formNpub) => {
+      let userPub = await initializeNpub();
+      console.log("userpub", userPub);
+      let responses = await initializeResponses(userPub, formNpub);
+      let hasResponses = responses.length > 0;
+      console.log("hash responses", hasResponses);
+      setIsEdit(hasResponses);
+    };
+
+    const initializeResponses = async (userPub, formNpub) => {
+      console.log("user form", userPub, formNpub);
+      if (!userPub || !formNpub) {
+        return;
+      }
+      let resp = await getResponsesByNpub(userPub, formNpub);
+      setPastResponses(resp);
+      return resp;
+    };
+
+    const initializeNpub = async () => {
+      let pub = await getUserNpubByNip07();
+      setUserNpub(pub);
+      return pub;
+    };
     if (npub) {
-      fetchFormTemplate(npub);
+      initializeForm(npub);
     }
-    if (userNpub === null) {
-      setUserNpub(getUserNpubByNip07());
-    }
+  }, [npub, userNpub, pastResponses, formTemplate, isEdit]);
 
-    if (pastResponses === null) {
-      setPastResponses(getResponsesByNpub(npub, userNpub));
-    }
-  }, [npub, userNpub, pastResponses]);
-
-  async function fetchFormTemplate(npubInput) {
-    const template = await getFormTemplate(npubInput);
-    setFormTemplate(template[0]?.content);
-  }
-  function handleInput(event) {
-    setNpubState(event.target.value);
+  function handleShowPastResponses(event) {
+    console.log("currently", showPastResponses);
+    setShowPastResponses(!showPastResponses);
   }
   return (
     <>
-      {!npub && !formTemplate && !finished && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignContent: "center",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Card>
-            <Form
-              name="basic"
-              labelCol={{
-                span: 8,
-              }}
-              labelWrap
-              wrapperCol={{
-                span: 16,
-              }}
-              style={{
-                maxWidth: 600,
-                alignContent: "center",
-                flexDirection: "column",
-              }}
-              onFinish={() => {
-                fetchFormTemplate(npubState);
-              }}
-              onFinishFailed={() => {
-                fetchFormTemplate(npubState);
-              }}
-              autoComplete="off"
-            >
-              <Form.Item
-                label="enter form public key"
-                name="npub"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your npub!",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Please input your npub"
-                  onChange={handleInput}
-                />
-              </Form.Item>
-              <Form.Item
-                wrapperCol={{
-                  offset: 8,
-                  span: 16,
-                }}
-              >
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-          </Card>
-        </div>
-      )}
       {formTemplate && !finished && (
-        <NostrForm
-          content={JSON.parse(formTemplate)}
-          npub={npub || npubState}
-          onSubmit={() => {
-            setFinished(true);
-          }}
-        />
+        <Card
+          extra={
+            <Button
+              type="primary"
+              onClick={handleShowPastResponses}
+              icon={<EditOutlined />}
+            ></Button>
+          }
+        >
+          <NostrForm
+            content={JSON.parse(formTemplate)}
+            npub={npub}
+            onSubmit={() => {
+              setFinished(true);
+            }}
+            existingResponses={isEdit}
+          />
+        </Card>
       )}
+
+      <ShowPastResponses
+        showPastResponses={showPastResponses}
+        userResponses={pastResponses}
+        onCancel={handleShowPastResponses}
+      />
       {!formTemplate && npub && (
         <Text> Please wait while form is being fetched..</Text>
       )}

@@ -39,7 +39,7 @@ export const SignAndSubmit = (props) => {
   return (
     <>
       <Button type="primary" onClick={showModal}>
-        Sign and Submit
+        {props.edit ? "Edit and submit" : "Sign and submit"}
       </Button>
       <Modal
         open={isModalOpen}

@@ -6,8 +6,8 @@ import { MyFormTabsList, MyFormTab } from "../../constants";
 import { DeleteFilled, EditFilled } from "@ant-design/icons";
 
 const MyForms = () => {
-  const [tableForms, setTableForms] = useState([]);
-  const [formDrafts, setFormDrafts] = useState([]);
+  const [tableForms, setTableForms] = useState(null);
+  const [formDrafts, setFormDrafts] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentForm, setCurrentForm] = useState({});
   const [activeTab, setActiveTab] = useState(MyFormTab.drafts);
@@ -27,7 +27,7 @@ const MyForms = () => {
   useEffect(() => {
     let forms = localStorage.getItem("formstr:forms");
     let drafts = localStorage.getItem("formstr:drafts");
-    if (tableForms.length !== 0 || formDrafts.length !== 0) {
+    if (tableForms && formDrafts) {
       return;
     }
     if (forms) {
@@ -54,8 +54,10 @@ const MyForms = () => {
       .sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-    setFormDrafts(drafts);
-    setTableForms(forms);
+    if (formDrafts) {
+      setFormDrafts(drafts);
+    }
+    if (tableForms) setTableForms(forms);
   }, [tableForms, formDrafts]);
 
   const gridStyle = {
@@ -81,7 +83,7 @@ const MyForms = () => {
               justifyItems: "center",
             }}
           >
-            {formDrafts.map((draft, index) => {
+            {(formDrafts || []).map((draft, index) => {
               return (
                 <Card
                   title={draft.formSpec.name}
@@ -90,7 +92,7 @@ const MyForms = () => {
                   key={draft.tempId}
                   extra={
                     <div style={{ display: "flex" }}>
-                      <div title="edit" style={{marginLeft: "10px"}}>
+                      <div title="edit" style={{ marginLeft: "10px" }}>
                         <Link
                           to="/forms/new"
                           state={{
@@ -114,7 +116,7 @@ const MyForms = () => {
                 </Card>
               );
             })}
-            {formDrafts.length === 0 && (
+            {!formDrafts && (
               <div>
                 {" "}
                 <Text>
@@ -140,7 +142,7 @@ const MyForms = () => {
               justifyItems: "center",
             }}
           >
-            {tableForms.map((form) => {
+            {(tableForms || []).map((form) => {
               return (
                 <Card
                   title={form.name}
@@ -156,7 +158,7 @@ const MyForms = () => {
                 </Card>
               );
             })}
-            {tableForms.length === 0 && (
+            {!tableForms && (
               <div>
                 {" "}
                 <Text>
