@@ -148,6 +148,8 @@ function NostrForm(props) {
             />
           </Form.Item>
         );
+      case "label":
+        return <Text>{<strong>{question}</strong>}</Text>;
       case "number":
         return (
           <Col>

@@ -59,6 +59,7 @@ const QuestionCard = ({
             <Option value={AnswerTypes.date} disabled>
               Date
             </Option>
+            <Option value={AnswerTypes.label}>Label(No Input)</Option>
           </Select>
         </Form.Item>
         {showOptions === OPTION_TYPES.CHOICE_OPTIONS && (
@@ -68,7 +69,10 @@ const QuestionCard = ({
         )}
         {showOptions === OPTION_TYPES.NUMBER_OPTIONS && (
           <Form.Item name="numberConstraints">
-            <NumberConstraints onConstraintsChange={handleNumberConstraints} numberConstraints={question.numberConstraints} />
+            <NumberConstraints
+              onConstraintsChange={handleNumberConstraints}
+              numberConstraints={question.numberConstraints}
+            />
           </Form.Item>
         )}
         <Button htmlType="submit">

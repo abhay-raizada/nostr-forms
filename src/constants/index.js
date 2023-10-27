@@ -16,6 +16,7 @@ const AnswerTypes = {
   multipleChoice: "multipleChoice",
   number: "number",
   date: "date",
+  label: "label",
 };
 
 const tabList = [
@@ -31,18 +32,25 @@ const tabList = [
 
 const MyFormTab = {
   drafts: "drafts",
-  savedForms: "savedForms"
-}
+  savedForms: "savedForms",
+};
 
 const MyFormTabsList = [
   {
     key: MyFormTab.drafts,
-    label: "Drafts"
+    label: "Drafts",
   },
   {
     key: MyFormTab.savedForms,
-    label: "Saved Forms"
-  }
-]
+    label: "Saved Forms",
+  },
+];
 
-module.exports = { CreateFormTab, ResponseFilters, AnswerTypes, tabList, MyFormTabsList, MyFormTab };
+module.exports = {
+  CreateFormTab,
+  ResponseFilters,
+  AnswerTypes,
+  tabList,
+  MyFormTabsList,
+  MyFormTab,
+};
