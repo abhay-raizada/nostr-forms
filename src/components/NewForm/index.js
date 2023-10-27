@@ -42,7 +42,7 @@ function NewForm() {
     settingsForm.setFieldValue("description", formSpec.description);
     settingsForm.setFieldValue("selfSign", formSpec.settings?.selfSign);
     setQuestions(formSpec.fields);
-    setFormTempId(tempId)
+    setFormTempId(tempId);
   }
 
   useEffect(() => {
@@ -91,7 +91,6 @@ function NewForm() {
     const isFormValid = () =>
       settingsForm.getFieldsError().some((item) => item.errors.length === 0);
 
-    console.log("form valid? ", isFormValid());
     if (!isFormValid()) {
       api.warning({ message: "Form validations failed, unable to save draft" });
       return;
