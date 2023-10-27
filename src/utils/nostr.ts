@@ -50,7 +50,6 @@ export const getFormTemplate = async (npub: string) => {
     "wss://nostr.wine/",
     "wss://relay.hllo.live"
   ];
-  console.log("received npub", npub);
   let pool = new SimplePool();
   let filter = {
     kinds: [0],
@@ -201,7 +200,6 @@ export const getUserKind0s = async (pubkeysList: Array<string>) => {
 
 export const getUserNpubByNip07 = async () => {
   let npub = await window.nostr.getPublicKey();
-  console.log("pub", npub)
   return npub
 
 }
@@ -247,9 +245,7 @@ export const getResponsesByNpub = async (npub: string, formNpub: string) =>{
   }
 
   let pool = new SimplePool();
-  console.log("FILTEEEEEER", filter)
  let responses = await pool.list(relays, [filter]);
- console.log(responses);
  pool.close(relays);
  return responses;
 }

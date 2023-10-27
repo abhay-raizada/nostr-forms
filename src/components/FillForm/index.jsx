@@ -31,15 +31,12 @@ const FillForm = (props) => {
     };
     const fetchPastResponses = async (formNpub) => {
       let userPub = await initializeNpub();
-      console.log("userpub", userPub);
       let responses = await initializeResponses(userPub, formNpub);
       let hasResponses = responses.length > 0;
-      console.log("hash responses", hasResponses);
       setIsEdit(hasResponses);
     };
 
     const initializeResponses = async (userPub, formNpub) => {
-      console.log("user form", userPub, formNpub);
       if (!userPub || !formNpub) {
         return;
       }
@@ -59,7 +56,6 @@ const FillForm = (props) => {
   }, [npub, userNpub, pastResponses, formTemplate, isEdit]);
 
   function handleShowPastResponses(event) {
-    console.log("currently", showPastResponses);
     setShowPastResponses(!showPastResponses);
   }
   return (
