@@ -42,7 +42,6 @@ const MyForms = () => {
     if (drafts) {
       drafts = JSON.parse(drafts);
     }
-    console.log("Drafts 2222", drafts);
     drafts = drafts || [];
     forms = forms || [];
     forms = forms
