@@ -3,6 +3,8 @@ import { AnswerTypes } from "../../constants/index";
 import { NumberConstraints } from "./NumberConstraints";
 import Choices from "./Choices";
 
+const { TextArea } = Input
+
 const initialQuesObj = {
   question: "",
   answerType: "",
@@ -43,7 +45,7 @@ const QuestionCard = ({
           label="Question"
           rules={[{ required: true }]}
         >
-          <Input type="text" onChange={handleQuestionNameChange} />
+          <TextArea type="text" onChange={handleQuestionNameChange} autoSize />
         </Form.Item>
         <Form.Item name="inputType" label="Input type">
           <Select defaultValue="string" onSelect={handleInputType}>

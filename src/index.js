@@ -9,6 +9,7 @@ import FillForm from "./components/FillForm";
 import ViewResponses from "./components/ViewResponses";
 import MyForms from "./components/MyForms";
 import { GlobalForms } from "./components/GlobalForms";
+import  {DraftsController} from "./components/MyForms/DraftsController"
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -23,6 +24,7 @@ root.render(
           <Route path="forms/fill" element={<FillForm />} />
           <Route path="forms/:npub" element={<FillForm />} />
           <Route path="forms/:nsec/responses" element={<ViewResponses />} />
+          <Route path="forms/:encodedForm/drafts" element={<DraftsController />} />
           <Route path="forms/responses" element={<ViewResponses />} />
           <Route path="*" element={<NewForm />} />
           <Route index element={<MyForms />} />

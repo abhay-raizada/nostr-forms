@@ -20,6 +20,12 @@ export function constructFormUrl(publicKey: string) {
   return `http://${hostname}/#/forms/${publicKey}`;
 }
 
+export function constructDraftUrl(draftHash: string) {
+  let hostname = window.location.host;
+
+  return `http://${hostname}/#/forms/${draftHash}/drafts`;
+}
+
 export function constructResponseUrl(privateKey: string) {
   let hostname = window.location.host;
   if (hostname.includes("abhay-raizada")) {
