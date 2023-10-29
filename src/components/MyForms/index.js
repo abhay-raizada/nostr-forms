@@ -1,16 +1,22 @@
 import { Card, Typography, Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
+import {
+  constructDraftUrl,
+  constructFormUrl,
+  constructResponseUrl,
+} from "../../utils/utility";
 import { MyFormTabsList, MyFormTab } from "../../constants";
-import { DeleteFilled, EditFilled } from "@ant-design/icons";
+import { DeleteFilled, EditFilled, ShareAltOutlined } from "@ant-design/icons";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState(null);
   const [formDrafts, setFormDrafts] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [currentForm, setCurrentForm] = useState({});
   const [activeTab, setActiveTab] = useState(MyFormTab.drafts);
+  const [shareDraft, setShareDraft] = useState(null);
   const { Text, Title } = Typography;
 
   function handleTabChange(key) {
@@ -36,6 +42,7 @@ const MyForms = () => {
     if (drafts) {
       drafts = JSON.parse(drafts);
     }
+    console.log("Drafts 2222", drafts);
     drafts = drafts || [];
     forms = forms || [];
     forms = forms
@@ -54,10 +61,10 @@ const MyForms = () => {
       .sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-    if (formDrafts) {
+    if (!formDrafts) {
       setFormDrafts(drafts);
     }
-    if (tableForms) setTableForms(forms);
+    if (!tableForms) setTableForms(forms);
   }, [tableForms, formDrafts]);
 
   const gridStyle = {
@@ -92,6 +99,19 @@ const MyForms = () => {
                   key={draft.tempId}
                   extra={
                     <div style={{ display: "flex" }}>
+                      <div
+                        title="share"
+                        style={{ marginLeft: "10px", marginBottom: "15px" }}
+                      >
+                        <Button
+                          icon={<ShareAltOutlined />}
+                          onClick={() => {
+                            setIsShareModalOpen(true);
+                            setShareDraft(draft);
+                          }}
+                          size="small"
+                        />
+                      </div>
                       <div title="edit" style={{ marginLeft: "10px" }}>
                         <Link
                           to="/forms/new"
@@ -174,6 +194,18 @@ const MyForms = () => {
           </div>
         )}
       </Card>
+      <Modal
+        title="Share Draft"
+        open={isShareModalOpen}
+        onCancel={() => {
+          setIsShareModalOpen(false);
+        }}
+        onOk={() => {
+          setIsShareModalOpen(false);
+        }}
+      >
+        <a href={constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))}> {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))} </a>
+      </Modal>
       <Modal
         title={currentForm.name}
         open={isModalOpen}

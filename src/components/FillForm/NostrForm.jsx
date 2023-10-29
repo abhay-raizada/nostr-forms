@@ -80,6 +80,7 @@ function NostrForm(props) {
             name={tag}
             rules={[{ message: "Please Enter.." }]}
           >
+            <Text></Text>
             <Input
               name={tag}
               value={formInputs[tag]}
@@ -149,7 +150,14 @@ function NostrForm(props) {
           </Form.Item>
         );
       case "label":
-        return <Text>{<strong>{question}</strong>}</Text>;
+        const questionLines = question.split("\n");
+        return (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {questionLines.map((line) => {
+              return <Text>{line}</Text>;
+            })}
+          </div>
+        );
       case "number":
         return (
           <Col>
