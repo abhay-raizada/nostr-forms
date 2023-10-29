@@ -47,7 +47,6 @@ function NewForm() {
 
   useEffect(() => {
     let name = settingsForm.getFieldValue("name");
-    console.log("STAAAATE", state);
     if (state && !name) {
       fillFormFields(state.formSpec, state.tempId);
     }

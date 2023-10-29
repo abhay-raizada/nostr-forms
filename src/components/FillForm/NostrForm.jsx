@@ -80,7 +80,6 @@ function NostrForm(props) {
             name={tag}
             rules={[{ message: "Please Enter.." }]}
           >
-            <Text></Text>
             <Input
               name={tag}
               value={formInputs[tag]}
