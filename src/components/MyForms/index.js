@@ -203,7 +203,7 @@ const MyForms = () => {
           setIsShareModalOpen(false);
         }}
       >
-        <a href={constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))}> {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))} </a>
+        <a href={constructDraftUrl(shareDraft)}> {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))} </a>
       </Modal>
       <Modal
         title={currentForm.name}
