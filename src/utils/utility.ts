@@ -23,7 +23,7 @@ export function constructFormUrl(publicKey: string) {
 export function constructDraftUrl(draftHash: string) {
   let hostname = window.location.host;
 
-  return `http://${hostname}/#/forms/${draftHash}/drafts`;
+  return `http://${hostname}/#/drafts/${draftHash}`;
 }
 
 export function constructResponseUrl(privateKey: string) {
