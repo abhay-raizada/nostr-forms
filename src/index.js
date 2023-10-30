@@ -24,7 +24,7 @@ root.render(
           <Route path="forms/fill" element={<FillForm />} />
           <Route path="forms/:npub" element={<FillForm />} />
           <Route path="forms/:nsec/responses" element={<ViewResponses />} />
-          <Route path="forms/:encodedForm/drafts" element={<DraftsController />} />
+          <Route path="drafts/:encodedForm" element={<DraftsController />} />
           <Route path="forms/responses" element={<ViewResponses />} />
           <Route path="*" element={<NewForm />} />
           <Route index element={<MyForms />} />
