@@ -1,21 +1,30 @@
-import {generatePrivateKey, getEventHash, getPublicKey, getSignature, nip04, SimplePool,} from "nostr-tools";
+import { AnyAaaaRecord } from "dns";
+import {
+  generatePrivateKey,
+  getEventHash,
+  getPublicKey,
+  getSignature,
+  nip04,
+  SimplePool,
+} from "nostr-tools";
 
 declare global {
   interface Window {
-    nostr: any
+    nostr: any;
   }
 }
 
+const relays = [
+  "wss://relay.damus.io/",
+  "wss://offchain.pub/",
+  "wss://nos.lol/",
+  "wss://relay.nostr.wirednet.jp/",
+  "wss://relay.hllo.live",
+];
+
 // TODO: create Form Model
 export async function createForm(form: any, showOnGlobal = false) {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://relay.hllo.live"
-  ];
-  let tags:string[][] = [];
+  let tags: string[][] = [];
   if (showOnGlobal) {
     tags = [["l", "formstr"]];
   }
@@ -34,22 +43,14 @@ export async function createForm(form: any, showOnGlobal = false) {
   const kind0Event = {
     id: getEventHash(baseKind0Event),
     sig: getSignature(baseKind0Event, sk),
-    ...baseKind0Event
-  }
+    ...baseKind0Event,
+  };
   await pool.publish(relays, kind0Event);
   pool.close(relays);
   return [pk, sk];
 }
 
 export const getFormTemplate = async (npub: string) => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
   let pool = new SimplePool();
   let filter = {
     kinds: [0],
@@ -71,13 +72,6 @@ export const sendFormResponse = async (
   onEncryptedResponse = () => {},
   onEventSigned = () => {}
 ) => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://relay.hllo.live"
-  ];
   const newSk = generatePrivateKey();
   const newPk = getPublicKey(newSk);
   const message = JSON.stringify(answers);
@@ -107,7 +101,7 @@ export const sendFormResponse = async (
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
   };
-  let kind4Event: typeof baseKind4Event & {id:string, sig: string}
+  let kind4Event: typeof baseKind4Event & { id: string; sig: string };
   if (nip07) {
     // @ts-ignore
     kind4Event = await window.nostr.signEvent(baseKind4Event);
@@ -121,8 +115,8 @@ export const sendFormResponse = async (
     kind4Event = {
       ...baseKind4Event,
       id,
-      sig
-    }
+      sig,
+    };
   }
 
   let pool = new SimplePool();
@@ -132,21 +126,13 @@ export const sendFormResponse = async (
 };
 
 export const getFormResponses = async (nsec: string) => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
   let filter = {
     kinds: [4],
     "#p": [getPublicKey(nsec)],
   };
   let pool = new SimplePool();
   let responses = Promise.all(
-      (await pool.list(relays, [filter])).map(async (response) => {
+    (await pool.list(relays, [filter])).map(async (response) => {
       let plaintext = await nip04.decrypt(
         nsec,
         response.pubkey,
@@ -160,14 +146,6 @@ export const getFormResponses = async (nsec: string) => {
 };
 
 export const fetchGlobalFeed = async () => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
   let filter = {
     kinds: [0],
     "#l": ["formstr"],
@@ -180,14 +158,6 @@ export const fetchGlobalFeed = async () => {
 };
 
 export const getUserKind0s = async (pubkeysList: Array<string>) => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
   let filter = {
     kinds: [0],
     authors: pubkeysList,
@@ -200,52 +170,82 @@ export const getUserKind0s = async (pubkeysList: Array<string>) => {
 
 export const getUserNpubByNip07 = async () => {
   let npub = await window.nostr.getPublicKey();
-  return npub
-
-}
+  return npub;
+};
 
 export const getFormTemplatByNsec = async (nsec: string) => {
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
   const pubkey = getPublicKey(nsec);
   let filter = {
     kinds: [0],
-    authors:[pubkey]
-  }
+    authors: [pubkey],
+  };
   let pool = new SimplePool();
   let responses = await pool.list(relays, [filter]);
-  let template = {}
-  if(responses.length!==0){
-    template = JSON.parse(responses[0].content)
+  let template = {};
+  if (responses.length !== 0) {
+    template = JSON.parse(responses[0].content);
   }
   pool.close(relays);
   return template;
+};
 
-}
-
-export const getResponsesByNpub = async (npub: string, formNpub: string) =>{
-  const relays = [
-    "wss://relay.damus.io/",
-    "wss://offchain.pub/",
-    "wss://nos.lol/",
-    "wss://relay.nostr.wirednet.jp/",
-    "wss://nostr.wine/",
-    "wss://relay.hllo.live"
-  ];
+export const getResponsesByNpub = async (npub: string, formNpub: string) => {
   let filter = {
     authors: [npub],
     "#p": [formNpub],
-    kinds: [4]
-  }
+    kinds: [4],
+  };
 
   let pool = new SimplePool();
- let responses = await pool.list(relays, [filter]);
- pool.close(relays);
- return responses;
-}
+  let responses = await pool.list(relays, [filter]);
+  pool.close(relays);
+  return responses;
+};
+
+export const getPastNostrForms = async (npub: string) => {
+  let filters = {
+    kinds: [30001],
+    "#d": ["forms"],
+    "#p": [npub],
+  };
+  let pool = new SimplePool();
+  let responses = await pool.list(relays, [filters]);
+  let plaintext_responses = responses.map(async(response) => {
+    let new_response = {...response}
+    new_response.content = JSON.parse(await window.nostr.nip04.decrypt(response.content));
+  })
+  let mergedForms: Array<string> = [];
+  let finalForms = plaintext_responses.reduce((accumulator: any, response: any)=>{
+    let currentValue:Array<any> = [...accumulator];
+    response.content.map((t: Array<string>) => {
+      if(t[0] === "form") {
+        if(!mergedForms.includes(t[1])){
+          mergedForms.push(t[1]);
+          currentValue.push(response)
+        }
+      }
+    })
+
+    // if(!mergedForms.includes(response.pubkey)){
+    //   mergedForms.push(response.pubkey);
+    //   currentValue.push(response);
+    }
+    return currentValue;
+
+  }, [])
+  return finalForms;
+};
+export const saveFormOnNostr = async (formCredentials: any) => {
+  let publicKey = await window.nostr.getPublicKey();
+  let pastForms = await getPastNostrForms(publicKey) || [];
+  let message = pastForms.push(["form", window.btoa(JSON.stringify(formCredentials))])
+  let ciphertext = await window.nostr.nip04.encrypt(publicKey, message);
+  let baseNip51Event = {
+    kind: 30001,
+    pubkey: publicKey,
+    tags: [],
+    content: ciphertext,
+    created_at: Math.floor(Date.now() / 1000)
+  };
+  return "";
+};
