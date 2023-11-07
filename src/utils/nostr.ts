@@ -1,4 +1,3 @@
-import { AnyAaaaRecord } from "dns";
 import {
   generatePrivateKey,
   getEventHash,
@@ -202,11 +201,19 @@ export const getResponsesByNpub = async (npub: string, formNpub: string) => {
   return responses;
 };
 
-export const getPastNostrForms = async (npub: string) => {
+export const getPastNostrForms = async (npub: string) => {  
+  let pubKey = null;
+  if(!npub){
+    pubKey = await window?.nostr?.getPublicKey();
+    console.log("pubKey is", pubKey)
+  }
+  if(pubKey){
+    npub = pubKey;
+  }
   let filters = {
     kinds: [30001],
     "#d": ["forms"],
-    "#p": [npub],
+    authors: [npub],
   };
   let pool = new SimplePool();
   let responses = await pool.list(relays, [filters]);
@@ -215,24 +222,22 @@ export const getPastNostrForms = async (npub: string) => {
     new_response.content = JSON.parse(await window.nostr.nip04.decrypt(response.content));
   })
   let mergedForms: Array<string> = [];
-  let finalForms = plaintext_responses.reduce((accumulator: any, response: any)=>{
+  let finalForms = plaintext_responses.reduce((accumulator: any, response:any)=>{
     let currentValue:Array<any> = [...accumulator];
     response.content.map((t: Array<string>) => {
-      if(t[0] === "form") {
-        if(!mergedForms.includes(t[1])){
-          mergedForms.push(t[1]);
-          currentValue.push(response)
-        }
+      if(!mergedForms.includes(t[1])){
+        mergedForms.push(t[1]);
+        currentValue.push(response)
       }
-    })
+      return null;
+    });
 
     // if(!mergedForms.includes(response.pubkey)){
     //   mergedForms.push(response.pubkey);
     //   currentValue.push(response);
-    }
+    
     return currentValue;
-
-  }, [])
+},[])
   return finalForms;
 };
 export const saveFormOnNostr = async (formCredentials: any) => {
@@ -243,9 +248,15 @@ export const saveFormOnNostr = async (formCredentials: any) => {
   let baseNip51Event = {
     kind: 30001,
     pubkey: publicKey,
-    tags: [],
+    tags: [["d", "forms"]],
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000)
   };
-  return "";
+
+  let nip51event: typeof baseNip51Event & { id: string; sig: string };
+  nip51event = await window.nostr.signEvent(baseNip51Event);
+  let pool = new SimplePool();
+  pool.publish(relays, nip51event);
+  console.log("Message Published");
+  pool.close(relays);
 };

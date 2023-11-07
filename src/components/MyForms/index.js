@@ -8,6 +8,7 @@ import {
 } from "../../utils/utility";
 import { MyFormTabsList, MyFormTab } from "../../constants";
 import { DeleteFilled, EditFilled, ShareAltOutlined } from "@ant-design/icons";
+import { getPastNostrForms } from "../../utils/nostr";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState(null);
@@ -17,6 +18,7 @@ const MyForms = () => {
   const [currentForm, setCurrentForm] = useState({});
   const [activeTab, setActiveTab] = useState(MyFormTab.drafts);
   const [shareDraft, setShareDraft] = useState(null);
+  const [nostrForms, setNostrForms] = useState(null);
   const { Text, Title } = Typography;
 
   function handleTabChange(key) {
@@ -31,8 +33,17 @@ const MyForms = () => {
   }
 
   useEffect(() => {
+
+    async function getNostrforms(){
+      let forms=await getPastNostrForms();
+      console.log("Nostr Forms", forms)
+      setNostrForms(forms);
+    }
     let forms = localStorage.getItem("formstr:forms");
     let drafts = localStorage.getItem("formstr:drafts");
+    if(nostrForms === null){
+      getNostrforms();
+    }
     if (tableForms && formDrafts) {
       return;
     }
