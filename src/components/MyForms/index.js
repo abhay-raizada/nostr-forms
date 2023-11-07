@@ -75,7 +75,7 @@ const MyForms = () => {
       setFormDrafts(drafts);
     }
     if (!tableForms) setTableForms(forms);
-  }, [tableForms, formDrafts]);
+  }, [tableForms, formDrafts, nostrForms]);
 
   const gridStyle = {
     textAlign: "center",
