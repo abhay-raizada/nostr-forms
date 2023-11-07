@@ -27,8 +27,8 @@ export const Export: React.FC<{
     const XLSX = await import("xlsx");
     const SheetName = `Responses for ${props.formName}`.substring(0, 20);
     console.log("Sheet name", SheetName, SheetName.length);
-    const responses = props.responses.map(({ plaintext }) =>
-      JSON.parse(plaintext)
+    const responses = props.responses.map(
+      ({ plaintext }) => JSON.parse(plaintext) as unknown,
     ) as Response[][];
     const parsedResponse = responses.map((response, index) => {
       const resp = {
@@ -56,8 +56,20 @@ export const Export: React.FC<{
   };
   return (
     <Row>
-      <Button onClick={() => onDownloadClick("excel")}>Export as Excel</Button>
-      <Button onClick={() => onDownloadClick("csv")}>Export as CSV</Button>
+      <Button
+        onClick={() => {
+          onDownloadClick("excel");
+        }}
+      >
+        Export as Excel
+      </Button>
+      <Button
+        onClick={() => {
+          onDownloadClick("csv");
+        }}
+      >
+        Export as CSV
+      </Button>
     </Row>
   );
 };

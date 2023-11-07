@@ -20,10 +20,10 @@ export function constructFormUrl(publicKey: string) {
   return `http://${hostname}/#/forms/${publicKey}`;
 }
 
-export function constructDraftUrl(draft: Object) {
- let draftHash = window.btoa(JSON.stringify(draft));
+export function constructDraftUrl(draft: Record<string, unknown>) {
+  let draftHash = window.btoa(JSON.stringify(draft));
   draftHash = window.encodeURIComponent(draftHash);
-  let hostname = window.location.host;
+  const hostname = window.location.host;
 
   return `http://${hostname}/#/drafts/${draftHash}`;
 }
