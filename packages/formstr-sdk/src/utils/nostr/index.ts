@@ -1,4 +1,4 @@
-import * as Nostr, {
+import {
   generatePrivateKey,
   getEventHash,
   getPublicKey,
@@ -8,8 +8,21 @@ import * as Nostr, {
 } from "nostr-tools";
 
 declare global {
+  // TODO: make this better
   interface Window {
-    nostr: any;
+    nostr: {
+      getPublicKey: () => Promise<string>;
+      // TODO: add constraints on Event type
+      signEvent: <Event>(
+        event: Event,
+      ) => Promise<Event & { id: string; sig: string }>;
+      nip04: {
+        encrypt: (
+          pubKey: string,
+          message: string,
+        ) => ReturnType<typeof nip04.encrypt>;
+      };
+    };
   }
 }
 
@@ -42,7 +55,9 @@ export async function createForm(form: any, showOnGlobal = false) {
     sig: getSignature(baseKind0Event, sk),
     ...baseKind0Event,
   };
-  await pool.publish(relays, kind0Event);
+  // form creation par fat ta tha is vajah se
+  // linting se bug mila :)
+  await Promise.all(pool.publish(relays, kind0Event));
   pool.close(relays);
   return [pk, sk];
 }
@@ -74,8 +89,8 @@ export const sendFormResponse = async (
   onReadPubkey = (publicKey: string) => {
     return publicKey;
   },
-  onEncryptedResponse = () => {},
-  onEventSigned = () => {},
+  onEncryptedResponse?: () => void,
+  onEventSigned?: () => void,
 ) => {
   const relays = [
     "wss://relay.damus.io/",
@@ -100,7 +115,7 @@ export const sendFormResponse = async (
     if (!ciphertext) {
       alert("Please encrypt your response");
     }
-    onEncryptedResponse();
+    onEncryptedResponse?.();
     // async window.nostr.signEvent(event)
   }
   publicKey = publicKey || newPk;
@@ -114,12 +129,11 @@ export const sendFormResponse = async (
   };
   let kind4Event: typeof baseKind4Event & { id: string; sig: string };
   if (nip07) {
-    // @ts-ignore
     kind4Event = await window.nostr.signEvent(baseKind4Event);
     if (!kind4Event) {
       alert("Error signing event");
     }
-    onEventSigned();
+    onEventSigned?.();
   } else {
     const id = getEventHash(baseKind4Event);
     const sig = getSignature(baseKind4Event, newSk);
@@ -217,7 +231,7 @@ export const getFormTemplatByNsec = async (nsec: string) => {
   const responses = await pool.list(relays, [filter]);
   let template = {};
   if (responses.length !== 0) {
-    template = JSON.parse(responses[0].content);
+    template = JSON.parse(responses[0].content) as Record<string, unknown>;
   }
   pool.close(relays);
   return template;
