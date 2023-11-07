@@ -27,7 +27,7 @@ declare global {
 }
 
 // TODO: create Form Model
-export async function createForm(form: any, showOnGlobal = false) {
+export async function createForm(form: unknown, showOnGlobal = false) {
   const relays = [
     "wss://relay.damus.io/",
     "wss://offchain.pub/",
@@ -84,7 +84,7 @@ export const getFormTemplate = async (npub: string) => {
 export const sendFormResponse = async (
   npub: string,
   // TODO: create Answers Model
-  answers: any,
+  answers: unknown,
   nip07 = false,
   onReadPubkey = (publicKey: string) => {
     return publicKey;

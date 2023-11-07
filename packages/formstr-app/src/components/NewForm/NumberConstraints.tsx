@@ -12,7 +12,7 @@ interface NumberConstraintsProps {
 }
 export const NumberConstraints: React.FC<NumberConstraintsProps> = ({
   onConstraintsChange,
-  numberConstraints = null
+  numberConstraints = null,
 }) => {
   const [error, showError] = React.useState(false);
   const maxRef = React.useRef<InputRef | null>();
@@ -45,10 +45,10 @@ export const NumberConstraints: React.FC<NumberConstraintsProps> = ({
         <Row>
           <Form.Item label={"Enter the minimum allowed number(optional)"}>
             <Input
-            defaultValue={numberConstraints?.min}
+              defaultValue={numberConstraints?.min}
               ref={(elem) => (minRef.current = elem)}
               type={"number"}
-              onChange={({ target: { value } }) => {
+              onChange={() => {
                 handleOnChange();
               }}
             />
@@ -57,10 +57,10 @@ export const NumberConstraints: React.FC<NumberConstraintsProps> = ({
         <Row>
           <Form.Item label={"Enter the maximum allowed number(optional)"}>
             <Input
-            defaultValue={numberConstraints?.max}
+              defaultValue={numberConstraints?.max}
               ref={(elem) => (maxRef.current = elem)}
               type={"number"}
-              onChange={({ target: { value } }) => {
+              onChange={() => {
                 handleOnChange();
               }}
             />
