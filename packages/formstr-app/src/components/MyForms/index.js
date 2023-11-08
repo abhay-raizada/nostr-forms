@@ -60,10 +60,10 @@ const MyForms = () => {
       .sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
-    if (!formDrafts) {
+    if (!formDrafts && drafts.length !== 0) {
       setFormDrafts(drafts);
     }
-    if (!tableForms) setTableForms(forms);
+    if (!tableForms && forms.length !== 0) setTableForms(forms);
   }, [tableForms, formDrafts]);
 
   const gridStyle = {
@@ -203,7 +203,10 @@ const MyForms = () => {
           setIsShareModalOpen(false);
         }}
       >
-        <a href={constructDraftUrl(shareDraft)}> {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))} </a>
+        <a href={constructDraftUrl(shareDraft)}>
+          {" "}
+          {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))}{" "}
+        </a>
       </Modal>
       <Modal
         title={currentForm.name}
