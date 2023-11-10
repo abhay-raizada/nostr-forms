@@ -17,7 +17,7 @@ export interface V0FormSpec {
 export enum AnswerTypes {
   shortText = "shortText",
   paragraph = "paragraph",
-  radioButtons = "radioButton",
+  radioButton = "radioButton",
   checkboxes = "checkboxes",
   number = "number",
   date = "date",

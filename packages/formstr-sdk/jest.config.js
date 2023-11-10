@@ -2,7 +2,7 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   transform: {
-    "^.+\\.ts?$": "ts-jest",
+    "^.+\\.(t|j)s?$": "ts-jest",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/"],
 };

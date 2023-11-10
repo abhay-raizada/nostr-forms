@@ -12,16 +12,15 @@ export function makeTag(length: number) {
 }
 
 export function constructFormUrl(publicKey: string) {
+  if (!publicKey) {
+    throw Error("public key is required");
+  }
   return `http://formstr.app/#/forms/${publicKey}`;
 }
 
-export function constructDraftUrl(draft: Record<string, unknown>) {
-  let draftHash = window.btoa(JSON.stringify(draft));
-  draftHash = window.encodeURIComponent(draftHash);
-
-  return `http://formstr.app/#/drafts/${draftHash}`;
-}
-
 export function constructResponseUrl(privateKey: string) {
+  if (!privateKey) {
+    throw Error("public key is required");
+  }
   return `http://formstr.app/#/forms/${privateKey}/responses`;
 }

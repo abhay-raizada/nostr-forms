@@ -17,7 +17,7 @@ jest.mock("nostr-tools", () => {
     getSignature: jest.fn((_) => "1"),
     SimplePool: jest.fn(() => {
       return {
-        publish: jest.fn((relays): Promise<void> => {
+        publish: jest.fn((relays) => {
           return relays.map(() => {
             new Promise((resolve) => {
               return resolve(null);
@@ -38,6 +38,10 @@ jest.mock("../utils/utils", () => {
   };
 });
 
+afterEach(() => {
+  makeTag.mockReset();
+});
+
 test("works with a valid formSpec", async () => {
   let creds = await createForm({ name: "vale" });
   expect(creds).toEqual(["1", "1"]);
@@ -54,4 +58,37 @@ test("adds question id for each question", async () => {
     ],
   });
   expect(makeTag).toHaveBeenCalledTimes(2);
+});
+
+test("adds choice id for each choice", async () => {
+  await createForm({
+    name: "vale",
+    fields: [
+      {
+        question: "Short question",
+        answerType: AnswerTypes.radioButton,
+        choices: [
+          {
+            message: "choice1",
+          },
+          {
+            message: "choice2",
+          },
+        ],
+      },
+    ],
+  });
+  expect(makeTag).toHaveBeenCalledTimes(3);
+});
+
+test("throws error if bad answer type is added", async () => {
+  await expect(
+    createForm({
+      name: "vale",
+      fields: [
+        { question: "Short question", answerType: AnswerTypes.shortText },
+        { question: "Wrong question", answerType: "i don't exist" },
+      ],
+    })
+  ).rejects.toThrow(Error);
 });
