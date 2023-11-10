@@ -1,6 +1,7 @@
 {
   "name": "@formstr/sdk",
-  "version": "0.1.0",
+  "private": true,
+  "version": "0.0.1-beta",
   "dependencies": {
     "@types/jest": "^29.5.8",
     "@types/node": "^16.7.13",
@@ -9,6 +10,7 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
+  "main": "src/formstr/formstr.ts",
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
