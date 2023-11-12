@@ -1,17 +1,18 @@
 import { AnswerTypes } from "../interfaces";
 import { makeTag } from "../utils/utils";
-import { createForm } from "./formstr";
-import { getEventHash } from "nostr-tools";
+import * as formstr from "./formstr";
+import * as nostrTools from "nostr-tools";
 
 jest.mock("nostr-tools", () => {
   let nostrTools = jest.requireActual("nostr-tools");
   return {
+    __esModule: true,
     ...nostrTools,
     generatePrivateKey: jest.fn(() => {
-      return "1";
+      return "priv";
     }),
     getPublicKey: jest.fn((sk) => {
-      return "1";
+      return "pub";
     }),
     getEventHash: jest.fn((event) => 1),
     getSignature: jest.fn((_) => "1"),
@@ -24,12 +25,16 @@ jest.mock("nostr-tools", () => {
             });
           });
         }),
+        list: jest.fn((relays) => {
+          return new Promise((resolve) =>
+            resolve([{ content: '{"name": "test"}' }])
+          );
+        }),
         close: jest.fn(),
       };
     }),
   };
 });
-
 jest.mock("../utils/utils", () => {
   const utils = jest.requireActual("../utils/utils");
   return {
@@ -38,19 +43,55 @@ jest.mock("../utils/utils", () => {
   };
 });
 
+const mockWindow = {
+  nostr: {
+    nip04: {
+      encrypt: jest.fn(),
+      decrypt: jest.fn(() => {
+        return new Promise((resolve) =>
+          resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+        );
+      }),
+    },
+    getPublicKey: jest.fn(),
+    signEvent: jest.fn(),
+  },
+};
+
+// For Node.js environment
+if (typeof window === "undefined") {
+  global.window = mockWindow;
+}
+beforeEach(() => {
+  const mockedNip04 = {
+    encrypt: jest.fn(),
+    decrypt: jest.fn(() => {
+      return new Promise((resolve) =>
+        resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+      );
+    }),
+  };
+  jest.replaceProperty(nostrTools, "nip04", mockedNip04);
+});
 afterEach(() => {
+  jest.clearAllMocks();
   makeTag.mockReset();
+  nostrTools.nip04.encrypt.mockReset();
+  nostrTools.nip04.decrypt.mockReset();
+  if (typeof window === "undefined") {
+    global.window = undefined;
+  }
 });
 
 test("works with a valid formSpec", async () => {
-  let creds = await createForm({ name: "vale" });
-  expect(creds).toEqual(["1", "1"]);
-  expect(getEventHash).toHaveBeenCalled();
+  let creds = await formstr.createForm({ name: "vale" });
+  expect(creds).toEqual(["pub", "priv"]);
+  expect(nostrTools.getEventHash).toHaveBeenCalled();
   expect(makeTag).toHaveBeenCalledTimes(0);
 });
 
 test("adds question id for each question", async () => {
-  await createForm({
+  await formstr.createForm({
     name: "vale",
     fields: [
       { question: "Short question", answerType: AnswerTypes.shortText },
@@ -61,7 +102,7 @@ test("adds question id for each question", async () => {
 });
 
 test("adds choice id for each choice", async () => {
-  await createForm({
+  await formstr.createForm({
     name: "vale",
     fields: [
       {
@@ -83,7 +124,7 @@ test("adds choice id for each choice", async () => {
 
 test("throws error if bad answer type is added", async () => {
   await expect(
-    createForm({
+    formstr.createForm({
       name: "vale",
       fields: [
         { question: "Short question", answerType: AnswerTypes.shortText },
@@ -91,4 +132,73 @@ test("throws error if bad answer type is added", async () => {
       ],
     })
   ).rejects.toThrow(Error);
+});
+
+test("saves form on nostr if flag is set", async () => {
+  let spy = jest
+    .spyOn(formstr, "saveFormOnNostr")
+    .mockImplementationOnce(async () => {
+      return Promise.resolve(null);
+    });
+  await formstr.createForm(
+    {
+      name: "vale",
+    },
+    true
+  );
+  expect(spy).toHaveBeenCalledTimes(1);
+});
+
+describe("Testing getPastUserForms", () => {
+  test("should fetch and parse user forms", async () => {
+    const userPublicKey = "publicKey";
+    const savedForms = await formstr.getPastUserForms(userPublicKey);
+    expect(savedForms).toEqual([["form", ["pub", "priv"]]]);
+  });
+
+  test("should handle missing window.nostr", async () => {
+    delete global.window;
+    await expect(formstr.getPastUserForms("publicKey")).rejects.toThrow();
+    //global.window = mockWindow;
+  });
+
+  test("should handle invalid data from pool.list", async () => {
+    await expect(formstr.getPastUserForms("publicKey")).rejects.toThrow();
+  });
+
+  test("should handle JSON.parse error", async () => {
+    await expect(formstr.getPastUserForms("publicKey")).rejects.toThrow();
+  });
+
+  test("should decrypt retrieved forms", async () => {
+    global.window = mockWindow;
+    const savedForms = await formstr.getPastUserForms("publicKey");
+    expect(savedForms).toEqual([["form", ["pub", "priv"]]]);
+  });
+});
+
+describe("saveFormOnNostr", () => {
+  test("should save form on Nostr with userSecretKey", async () => {
+    const formCredentials = ["pub1", "priv1"];
+
+    await formstr.saveFormOnNostr(formCredentials, "userPriv");
+
+    expect(nostrTools.getEventHash).toHaveBeenCalledTimes(1);
+    expect(nostrTools.nip04.encrypt).toHaveBeenCalledTimes(1);
+    expect(nostrTools.nip04.decrypt).toHaveBeenCalledTimes(1);
+  });
+
+  test("should save form on Nostr without userSecretKey and with window.nostr", async () => {
+    const formCredentials = ["pub1", "priv1"];
+    await formstr.saveFormOnNostr(formCredentials);
+
+    expect(global.window.nostr.signEvent).toHaveBeenCalledTimes(1);
+  });
+
+  test("should handle missing methods for encryption", async () => {
+    const formCredentials = ["pub1", "priv1"];
+    delete global.window;
+
+    await expect(formstr.saveFormOnNostr(formCredentials)).rejects.toThrow();
+  });
 });
