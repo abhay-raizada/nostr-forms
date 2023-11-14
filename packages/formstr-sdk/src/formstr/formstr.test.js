@@ -1,3 +1,4 @@
+import { resetWarningCache } from "prop-types";
 import { AnswerTypes } from "../interfaces";
 import { makeTag } from "../utils/utils";
 import * as formstr from "./formstr";
@@ -31,6 +32,11 @@ jest.mock("nostr-tools", () => {
           );
         }),
         close: jest.fn(),
+        get: jest.fn(() => {
+          return new Promise((resolve) => {
+            resolve({content: '{"name": "test"}'})
+          })
+        })
       };
     }),
   };
@@ -200,5 +206,24 @@ describe("saveFormOnNostr", () => {
     delete global.window;
 
     await expect(formstr.saveFormOnNostr(formCredentials)).rejects.toThrow();
+  });
+});
+
+describe('getFormTemplate', () => {
+  it('should return the form template when it exists', async () => {
+
+    const formTemplate = await formstr.getFormTemplate("npub");
+
+    expect(formTemplate).toEqual({ name: 'test' });
+  });
+
+  it('should throw an error when the form template is not found', async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+      return {
+        get: jest.fn(()=> new Promise((resolve) => resolve(null))),
+        close: jest.fn()
+      }
+    } );
+    await expect(formstr.getFormTemplate("npub")).rejects.toThrow();
   });
 });

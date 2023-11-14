@@ -75,6 +75,23 @@ function constructV0Form(formSpec: FormSpec): V0FormSpec {
   return { ...formSpec, fields };
 }
 
+export const getFormTemplate = async (npub: string) => {
+  const pool = new SimplePool();
+  const filter = {
+    kinds: [0],
+    authors: [npub],
+  };
+  const kind0 = await pool.get(relays, filter);
+  pool.close(relays);
+  let formTemplate;
+  if(kind0)
+    formTemplate = JSON.parse(kind0.content)
+  else {
+    throw Error("Form template not found")
+  }
+  return formTemplate;
+};
+
 function checkWindowNostr() {
   if (!window?.nostr) {
     throw Error("No method provided to access nostr");
