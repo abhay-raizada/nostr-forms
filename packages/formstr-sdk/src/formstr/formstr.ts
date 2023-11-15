@@ -23,16 +23,16 @@ declare global {
     nostr: {
       getPublicKey: () => Promise<string>;
       signEvent: <Event>(
-        event: Event
+        event: Event,
       ) => Promise<Event & { id: string; sig: string }>;
       nip04: {
         encrypt: (
           pubKey: string,
-          message: string
+          message: string,
         ) => ReturnType<typeof nip04.encrypt>;
         decrypt: (
           pubkey: string,
-          nessage: string
+          nessage: string,
         ) => ReturnType<typeof nip04.decrypt>;
       };
     };
@@ -48,9 +48,9 @@ const relays = [
 ];
 
 function transformAnswerType(field: Field): V0AnswerTypes {
-  let answerTypes = Object.keys(AnswerTypes);
+  const answerTypes = Object.keys(AnswerTypes);
   for (let index = 0; index < answerTypes.length; index += 1) {
-    let key = answerTypes[index];
+    const key = answerTypes[index];
     if (field.answerType === <AnswerTypes>key) {
       return <V0AnswerTypes>Object.keys(V0AnswerTypes)[index];
     }
@@ -59,15 +59,16 @@ function transformAnswerType(field: Field): V0AnswerTypes {
 }
 
 function constructV0Form(formSpec: FormSpec): V0FormSpec {
-  let fields = formSpec.fields?.map((field: Field): V0Field => {
-    let choices = field.choices?.map((choice) => {
+  const fields = formSpec.fields?.map((field: Field): V0Field => {
+    const choices = field.choices?.map((choice) => {
       return {
         ...choice,
         tag: makeTag(6),
       };
     });
-    let answerType: V0AnswerTypes = transformAnswerType(field);
-    let v0Field: V0Field = { ...field, answerType, choices, tag: makeTag(6) };
+
+    const answerType: V0AnswerTypes = transformAnswerType(field);
+    const v0Field: V0Field = { ...field, answerType, choices, tag: makeTag(6) };
     return v0Field;
   });
 
@@ -82,9 +83,9 @@ function checkWindowNostr() {
 
 async function encryptSavedForms(
   savedForms: string,
-  userSecretKey: string | null
+  userSecretKey: string | null,
 ) {
-  let userPublicKey = await getUserPublicKey(userSecretKey);
+  const userPublicKey = await getUserPublicKey(userSecretKey);
   let ciphertext;
   if (userSecretKey) {
     ciphertext = await nip04.encrypt(userSecretKey, userPublicKey, savedForms);
@@ -97,9 +98,9 @@ async function encryptSavedForms(
 
 async function decryptPastForms(
   ciphertext: string,
-  userSecretKey: string | null
+  userSecretKey: string | null,
 ) {
-  let publicKey = await getUserPublicKey(userSecretKey);
+  const publicKey = await getUserPublicKey(userSecretKey);
   let decryptedForms;
   if (userSecretKey) {
     decryptedForms = await nip04.decrypt(userSecretKey, publicKey, ciphertext);
@@ -121,36 +122,35 @@ async function getUserPublicKey(userSecretKey: string | null) {
   return userPublicKey;
 }
 
-export async function getPastUserForms(
+export async function getPastUserForms<FormStructure = unknown>(
   userPublicKey: string,
-  userSecretKey: string | null = null
+  userSecretKey: string | null = null,
 ) {
-  let filters = {
+  const filters = {
     kinds: [30001],
     "#d": ["forms"],
     authors: [userPublicKey],
   };
-  let pool = new SimplePool();
-  let saveEvent = await pool.list(relays, [filters]);
-  let decryptedForms = await decryptPastForms(
+  const pool = new SimplePool();
+  const saveEvent = await pool.list(relays, [filters]);
+  const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
-    userSecretKey
+    userSecretKey,
   );
-  let savedForms: Array<unknown> = JSON.parse(decryptedForms);
-  return savedForms;
+  return JSON.parse(decryptedForms) as FormStructure[];
 }
 
 export const saveFormOnNostr = async (
-  formCredentials: Array<Object>,
-  userSecretKey: string | null = null
+  formCredentials: Array<string>,
+  userSecretKey: string | null = null,
 ) => {
-  let userPublicKey = await getUserPublicKey(userSecretKey);
-  let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
+  const userPublicKey = await getUserPublicKey(userSecretKey);
+  const pastForms = await getPastUserForms(userPublicKey, userSecretKey);
 
   pastForms.push(["form", formCredentials]);
-  let message = JSON.stringify(pastForms);
-  let ciphertext = await encryptSavedForms(message, userSecretKey);
-  let baseNip51Event = {
+  const message = JSON.stringify(pastForms);
+  const ciphertext = await encryptSavedForms(message, userSecretKey);
+  const baseNip51Event = {
     kind: 30001,
     pubkey: userPublicKey,
     tags: [["d", "forms"]], //don't overwrite tags reuse previous tags
@@ -168,22 +168,22 @@ export const saveFormOnNostr = async (
     checkWindowNostr();
     nip51event = await window.nostr.signEvent(baseNip51Event);
   }
-  let pool = new SimplePool();
+  const pool = new SimplePool();
   await Promise.all(pool.publish(relays, nip51event));
 };
 
 export const createForm = async (
   form: FormSpec,
-  saveOnNostr: boolean = false,
-  userSecretKey: string | null = null
+  saveOnNostr = false,
+  userSecretKey: string | null = null,
 ) => {
-  let tags: string[][] = [];
+  const tags: string[][] = [];
 
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
   const formId = getPublicKey(formSecret);
 
-  let v0Form = constructV0Form(form);
+  const v0Form = constructV0Form(form);
   const content = JSON.stringify(v0Form);
 
   const baseKind0Event: Event = {
@@ -200,8 +200,8 @@ export const createForm = async (
     id: getEventHash(baseKind0Event),
     sig: getSignature(baseKind0Event, formSecret),
   };
-  Promise.all(pool.publish(relays, kind0Event));
-  let formCredentials = [formId, formSecret];
+  await Promise.all(pool.publish(relays, kind0Event));
+  const formCredentials = [formId, formSecret];
   if (saveOnNostr) {
     await saveFormOnNostr(formCredentials, userSecretKey);
   }
