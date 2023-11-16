@@ -1,12 +1,12 @@
 import { FormSpec } from "../interfaces";
 import { Schema, Validator } from "jsonschema";
 
-export async function getSchema(version: number): Promise<Schema> {
-  return (await import(`../form-schemas/v${version}/form-spec.json`))
+export async function getSchema(version: string): Promise<Schema> {
+  return (await import(`../form-schemas/${version}/form-spec.json`))
     .default as Promise<Schema>;
 }
 
-export function isValidV1Schema(
+export function isValidSpec(
   formSchema: Schema,
   formSpec: unknown,
 ): formSchema is FormSpec {

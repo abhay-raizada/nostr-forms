@@ -1,4 +1,4 @@
-import { makeTag, constructFormUrl, constructResponseUrl } from "./utils";
+import { makeTag, constructFormUrl, constructResponseUrl, detectFormVersion } from "./utils";
 
 describe("makeTag", () => {
   test("should generate a tag with the specified length", () => {
@@ -58,5 +58,23 @@ describe("constructResponseUrl function", () => {
     expect(() => constructResponseUrl(privateKey)).toThrowError(
       "public key is required"
     );
+  });
+});
+
+
+describe('detectFormVersion', () => {
+  it('returns form.schemaVersion if available', () => {
+    const formWithSchemaVersion = { schemaVersion: 'v1', otherProperty: 'value' };
+    expect(detectFormVersion(formWithSchemaVersion)).toBe('v1');
+  });
+
+  it('returns form.schemaLink if schemaVersion is not available', () => {
+    const formWithSchemaLink = { schemaLink: 'v2', otherProperty: 'value' };
+    expect(detectFormVersion(formWithSchemaLink)).toBe('v2');
+  });
+
+  it('returns "v0" if both schemaVersion and schemaLink are not available', () => {
+    const formWithoutSchemaInfo = { otherProperty: 'value' };
+    expect(detectFormVersion(formWithoutSchemaInfo)).toBe('v0');
   });
 });

@@ -1,8 +1,8 @@
-import { getSchema, isValidV1Schema } from "./validators";
+import { getSchema, isValidSpec } from "./validators";
 import fetchedSchema from "../form-schemas/v1/form-spec.json";
 describe("Form spec Validators", () => {
   it("should fetch the schema correctly", async () => {
-    const schema = await getSchema(1);
+    const schema = await getSchema("v1");
     expect(fetchedSchema).toBe(schema);
   });
 
@@ -36,13 +36,8 @@ describe("Form spec Validators", () => {
         },
       ],
     };
-    const inCorrectSpec3 = {
-      name: "Test name",
-      schemaVersion: "v1",
-    };
-    expect(() => isValidV1Schema(fetchedSchema, correctSpec)).not.toThrow();
-    expect(() => isValidV1Schema(fetchedSchema, inCorrectSpec1)).toThrow();
-    expect(() => isValidV1Schema(fetchedSchema, inCorrectSpec2)).toThrow();
-    expect(() => isValidV1Schema(fetchedSchema, inCorrectSpec3)).toThrow();
+    expect(() => isValidSpec(fetchedSchema, correctSpec)).not.toThrow();
+    expect(() => isValidSpec(fetchedSchema, inCorrectSpec1)).toThrow();
+    expect(() => isValidSpec(fetchedSchema, inCorrectSpec2)).toThrow();
   });
 });

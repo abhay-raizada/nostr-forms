@@ -1,3 +1,5 @@
+import { FormSpec, V0FormSpec } from "../interfaces";
+
 export function makeTag(length: number) {
   let result = "";
   const characters =
@@ -23,4 +25,14 @@ export function constructResponseUrl(privateKey: string) {
     throw Error("public key is required");
   }
   return `http://formstr.app/#/forms/${privateKey}/responses`;
+}
+
+export function detectFormVersion(form: FormSpec & V0FormSpec){
+  if(form.schemaVersion){
+    return form.schemaVersion
+  }
+  else if(form.schemaLink){
+    return form.schemaLink
+  }
+  return "v0";
 }

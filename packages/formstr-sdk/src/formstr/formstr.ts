@@ -7,7 +7,8 @@ import {
   getSignature,
   nip04,
 } from "nostr-tools";
-import { makeTag } from "../utils/utils";
+import { detectFormVersion, makeTag } from "../utils/utils";
+import { getSchema, isValidSpec } from "../utils/validators";
 import {
   AnswerTypes,
   Field,
@@ -15,6 +16,8 @@ import {
   V0AnswerTypes,
   V0Field,
   V0FormSpec,
+  V1Field,
+  V1FormSpec,
 } from "../interfaces";
 
 declare global {
@@ -47,32 +50,50 @@ const relays = [
   "wss://relay.hllo.live",
 ];
 
-function transformAnswerType(field: Field): V0AnswerTypes {
-  const answerTypes = Object.keys(AnswerTypes);
+function transformAnswerType(field: V0Field): AnswerTypes {
+  const answerTypes = Object.keys(V0AnswerTypes);
   for (let index = 0; index < answerTypes.length; index += 1) {
     const key = answerTypes[index];
-    if (field.answerType === <AnswerTypes>key) {
-      return <V0AnswerTypes>Object.keys(V0AnswerTypes)[index];
+    if (field.answerType === <V0AnswerTypes>key) {
+      return <AnswerTypes>Object.keys(AnswerTypes)[index];
     }
   }
   throw Error("Uknown Answer Type");
 }
 
-function constructV0Form(formSpec: FormSpec): V0FormSpec {
-  const fields = formSpec.fields?.map((field: Field): V0Field => {
+function generateIds(formSpec: FormSpec) : V1FormSpec {
+  const fields = formSpec.fields?.map((field: Field): V1Field => {
     const choices = field.choices?.map((choice) => {
+      return {...choice, choiceId: makeTag(6)}
+    })
+    return {...field, questionId: makeTag(6)}
+  })
+  return {...formSpec, fields}
+}
+
+function convertV1Form(formSpec: V0FormSpec): V1FormSpec {
+  const fields = formSpec.fields?.map((field: V0Field): V1Field => {
+    const choices = field.choices?.map((choice) => {
+      let newChoice:any = {...choice}
+      let newId = choice.tag
+      delete newChoice.tag
       return {
-        ...choice,
-        tag: makeTag(6),
+        ...newChoice,
+        choiceId: newId,
       };
     });
-
-    const answerType: V0AnswerTypes = transformAnswerType(field);
-    const v0Field: V0Field = { ...field, answerType, choices, tag: makeTag(6) };
-    return v0Field;
+    const newField: any = {...field}
+    delete newField.tag
+    const answerType: AnswerTypes = transformAnswerType(field);
+    const v1Field: V1Field = { ...newField, answerType, choices, questionId: field.tag };
+    return v1Field;
   });
 
-  return { ...formSpec, fields };
+  let finalSchema:any =  { ...formSpec, schemaVersion: "v1" };
+  if(fields){
+    finalSchema = { ...finalSchema, fields}
+  }
+  return finalSchema;
 }
 
 export const getFormTemplate = async (npub: string) => {
@@ -84,8 +105,13 @@ export const getFormTemplate = async (npub: string) => {
   const kind0 = await pool.get(relays, filter);
   pool.close(relays);
   let formTemplate;
-  if(kind0)
-    formTemplate = JSON.parse(kind0.content)
+  if(kind0){
+    formTemplate = JSON.parse(kind0.content);
+    let formVersion = detectFormVersion(formTemplate);
+    if(formVersion === "v0"){
+     formTemplate = convertV1Form(formTemplate)
+    }
+  }
   else {
     throw Error("Form template not found")
   }
@@ -199,9 +225,14 @@ export const createForm = async (
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
   const formId = getPublicKey(formSecret);
-
-  const v0Form = constructV0Form(form);
-  const content = JSON.stringify(v0Form);
+  try{
+  let isvalid = isValidSpec(await getSchema("v1"), form);
+  }
+  catch(e){
+    throw Error("Invalid form spec")
+  }
+  const v1form = generateIds(form)
+  const content = JSON.stringify(v1form);
 
   const baseKind0Event: Event = {
     kind: 0,
