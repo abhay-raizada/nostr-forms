@@ -27,7 +27,7 @@ jest.mock("nostr-tools", () => {
         }),
         list: jest.fn((relays) => {
           return new Promise((resolve) =>
-            resolve([{ content: '{"name": "test"}' }])
+            resolve([{ content: '{"name": "test"}' }]),
           );
         }),
         close: jest.fn(),
@@ -49,7 +49,7 @@ const mockWindow = {
       encrypt: jest.fn(),
       decrypt: jest.fn(() => {
         return new Promise((resolve) =>
-          resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+          resolve(JSON.stringify([["form", ["pub", "priv"]]])),
         );
       }),
     },
@@ -67,7 +67,7 @@ beforeEach(() => {
     encrypt: jest.fn(),
     decrypt: jest.fn(() => {
       return new Promise((resolve) =>
-        resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+        resolve(JSON.stringify([["form", ["pub", "priv"]]])),
       );
     }),
   };
@@ -130,7 +130,7 @@ test("throws error if bad answer type is added", async () => {
         { question: "Short question", answerType: AnswerTypes.shortText },
         { question: "Wrong question", answerType: "i don't exist" },
       ],
-    })
+    }),
   ).rejects.toThrow(Error);
 });
 
@@ -144,7 +144,7 @@ test("saves form on nostr if flag is set", async () => {
     {
       name: "vale",
     },
-    true
+    true,
   );
   expect(spy).toHaveBeenCalledTimes(1);
 });

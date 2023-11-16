@@ -12,9 +12,9 @@ let formCredentials = formstrSDK.createForm(formSpec);
 
 form-spec: A form object that holds the information, example spec:
 
-```json
+```json5
 {
-  "schemaVersion": "v0",
+  "schemaVersion": "interfaces",
   "name": "Pets Survey",
   "description": "A survey about your pets",
   "settings": {

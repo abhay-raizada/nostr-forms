@@ -9,7 +9,7 @@
     },
     "name": {
       "type": "string",
-      "description": "The name of the form",
+      "description": "The name of the form"
     },
     "description": {
       "type": "string",
