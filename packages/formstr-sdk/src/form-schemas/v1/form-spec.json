@@ -87,7 +87,6 @@
   },
   "required": [
     "schemaVersion",
-    "name",
-    "fields"
+    "name"
   ]
 }

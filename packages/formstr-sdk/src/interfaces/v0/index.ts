@@ -1,7 +1,6 @@
 export interface V0FormSpec {
-  schemaVersion: string;
   name: string;
-  fields: Array<V0Field>;
+  fields?: Array<V0Field>;
   description?: string;
   settings?: unknown;
 }

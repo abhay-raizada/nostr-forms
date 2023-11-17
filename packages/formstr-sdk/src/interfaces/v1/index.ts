@@ -1,9 +1,21 @@
 export interface FormSpec {
   schemaVersion: string;
+  schemaLink?: string;
   name: string;
-  fields: Array<Field>;
+  fields?: Array<Field>;
   description?: string;
   settings?: unknown;
+  metadata?: unknown;
+}
+
+export interface V1FormSpec {
+  schemaVersion: string;
+  schemaLink?: string;
+  name: string;
+  fields?: Array<V1Field>;
+  description?: string;
+  settings?: unknown;
+  metadata?: unknown;
 }
 
 export enum AnswerTypes {
@@ -21,6 +33,12 @@ export interface Choice {
   otherMessage?: boolean;
 }
 
+export interface V1Choice {
+  choiceId: string;
+  message: string;
+  otherMessage?: boolean;
+}
+
 export interface NumberConstraint {
   min: number;
   max: number;
@@ -28,6 +46,14 @@ export interface NumberConstraint {
 
 export interface Field {
   question: string;
+  answerType: AnswerTypes;
+  choices?: Array<Choice>;
+  numberConstraints?: NumberConstraint;
+}
+
+export interface V1Field {
+  question: string;
+  questionId: string;
   answerType: AnswerTypes;
   choices?: Array<Choice>;
   numberConstraints?: NumberConstraint;

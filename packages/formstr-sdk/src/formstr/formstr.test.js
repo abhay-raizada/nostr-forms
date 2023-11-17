@@ -31,6 +31,11 @@ jest.mock("nostr-tools", () => {
           );
         }),
         close: jest.fn(),
+        get: jest.fn(() => {
+          return new Promise((resolve) => {
+            resolve({content: '{"name": "test"}'})
+          })
+        })
       };
     }),
   };
@@ -84,7 +89,7 @@ afterEach(() => {
 });
 
 test("works with a valid formSpec", async () => {
-  let creds = await formstr.createForm({ name: "vale" });
+  let creds = await formstr.createForm({ name: "vale", schemaVersion: "v1" });
   expect(creds).toEqual(["pub", "priv"]);
   expect(nostrTools.getEventHash).toHaveBeenCalled();
   expect(makeTag).toHaveBeenCalledTimes(0);
@@ -93,6 +98,7 @@ test("works with a valid formSpec", async () => {
 test("adds question id for each question", async () => {
   await formstr.createForm({
     name: "vale",
+    schemaVersion: "v1",
     fields: [
       { question: "Short question", answerType: AnswerTypes.shortText },
       { question: "Long question", answerType: AnswerTypes.paragraph },
@@ -104,6 +110,7 @@ test("adds question id for each question", async () => {
 test("adds choice id for each choice", async () => {
   await formstr.createForm({
     name: "vale",
+    schemaVersion: "v1",
     fields: [
       {
         question: "Short question",
@@ -143,6 +150,7 @@ test("saves form on nostr if flag is set", async () => {
   await formstr.createForm(
     {
       name: "vale",
+      schemaVersion: "v1"
     },
     true,
   );
@@ -200,5 +208,82 @@ describe("saveFormOnNostr", () => {
     delete global.window;
 
     await expect(formstr.saveFormOnNostr(formCredentials)).rejects.toThrow();
+  });
+});
+
+describe('getFormTemplate', () => {
+  it('should return the form template when it exists', async () => {
+
+    const formTemplate = await formstr.getFormTemplate("npub");
+
+    expect(formTemplate).toEqual({ name: 'test', schemaVersion: "v1" });
+  });
+
+  it('should convert old templates to v1', async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+      return {
+        get: jest.fn(()=> new Promise((resolve) => resolve(
+          {content: 
+          JSON.stringify({
+            name: "Heyo",
+            fields: [ {
+              question: "Question1",
+              answerType: "singleChoice",
+              tag: "asdasd",
+              choices: [
+                {
+                  message: "choice",
+                  tag: "tfsdfg"
+                }
+              ]
+            }]
+          })}
+        ))),
+        close: jest.fn()
+      }
+    } );
+    const formTemplate = await formstr.getFormTemplate("npub");
+
+    expect(formTemplate).toEqual({ name: 'Heyo', schemaVersion: "v1", fields: [ {
+      question: "Question1",
+      answerType: "radioButton",
+      questionId: "asdasd",
+      choices: [
+        {
+          message: "choice",
+          choiceId: "tfsdfg"
+        }
+      ]
+    }] });
+  });
+
+  it('should raise error if theres a problem in converting', async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+      return {
+        get: jest.fn(()=> new Promise((resolve) => resolve(
+          {content: 
+          JSON.stringify({
+            name: "Heyo",
+            fields: [ {
+              question: "Question1",
+              answerType: "random question type",
+              tag: "asdasd",
+            }]
+          })}
+        ))),
+        close: jest.fn()
+      }
+    } );
+    await expect(formstr.getFormTemplate("npub")).rejects.toThrow();
+  });
+
+  it('should throw an error when the form template is not found', async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+      return {
+        get: jest.fn(()=> new Promise((resolve) => resolve(null))),
+        close: jest.fn()
+      }
+    } );
+    await expect(formstr.getFormTemplate("npub")).rejects.toThrow();
   });
 });
