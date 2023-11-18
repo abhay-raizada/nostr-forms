@@ -15,6 +15,7 @@
       "type": "string",
       "description": "Some description about the form"
     },
+    "metadata": {},
     "settings": {
       "type": "object",
       "description": "Various settings to be used in the form.",
