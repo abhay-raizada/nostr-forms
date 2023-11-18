@@ -1,6 +1,6 @@
 {
   "name": "@formstr/sdk",
-  "version": "0.0.2-beta",
+  "version": "0.0.2-delta",
   "repository": {
     "type": "git",
     "url": "https://github.com/abhay-raizada/nostr-forms"
@@ -14,7 +14,7 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
   },
-  "main": "formstr/formstr.js",
+  "main": "dist/formstr/formstr.js",
   "files": [
     "dist/**"
   ],
