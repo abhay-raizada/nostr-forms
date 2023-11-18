@@ -1,6 +1,6 @@
 {
   "name": "@formstr/sdk",
-  "version": "0.0.2-delta",
+  "version": "0.0.2-gamma",
   "repository": {
     "type": "git",
     "url": "https://github.com/abhay-raizada/nostr-forms"
