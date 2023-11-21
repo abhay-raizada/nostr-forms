@@ -9,7 +9,7 @@ import FillForm from "./components/FillForm";
 import ViewResponses from "./components/ViewResponses";
 import MyForms from "./components/MyForms";
 import { GlobalForms } from "./components/GlobalForms";
-import  {DraftsController} from "./components/MyForms/DraftsController"
+import { DraftsController } from "./components/MyForms/DraftsController";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -31,7 +31,7 @@ root.render(
         </Route>
       </Routes>
     </HashRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 // If you want to start measuring performance in your app, pass a function

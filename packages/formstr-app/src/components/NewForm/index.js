@@ -13,7 +13,7 @@ function NewForm() {
   const [formTempId, setFormTempId] = useState(null);
   const [formCredentials, setFormCredentials] = useState("");
   const [activeTab, setActiveTab] = useState(
-    Constants.CreateFormTab.addQuestion
+    Constants.CreateFormTab.addQuestion,
   );
   const [settingsForm] = Form.useForm();
   const [api, contextHolder] = notification.useNotification();
@@ -46,7 +46,7 @@ function NewForm() {
   }
 
   useEffect(() => {
-    console.log("state is", state)
+    console.log("state is", state);
     let name = settingsForm.getFieldValue("name");
     if (state && !name) {
       fillFormFields(state.formSpec, state.tempId);
@@ -118,7 +118,7 @@ function NewForm() {
   function handleDeleteQuestion(index) {
     let questionsList = [...questions];
     questionsList = questionsList.filter(
-      (ques) => ques.tag !== questionsList[index].tag
+      (ques) => ques.tag !== questionsList[index].tag,
     );
     setQuestions(questionsList);
   }
