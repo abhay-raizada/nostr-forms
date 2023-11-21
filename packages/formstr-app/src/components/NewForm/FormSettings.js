@@ -71,11 +71,9 @@ const FormSettings = (props) => {
           onChange={handleSelfSign}
         />
       </Form.Item>
-      <Form.Item
-        name="showOnGlobal"
-        label="Show your form on the global feed"
-      >
-        <Switch defaultChecked={form.getFieldValue("showOnGlobal")}
+      <Form.Item name="showOnGlobal" label="Show your form on the global feed">
+        <Switch
+          defaultChecked={form.getFieldValue("showOnGlobal")}
           onChange={handleShowOnGlobal}
         />
       </Form.Item>

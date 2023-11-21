@@ -79,7 +79,7 @@ const QuestionList = (props) => {
       setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
       editQuestionForm.setFieldValue(
         "numberConstraints",
-        questions[index].numberConstraints
+        questions[index].numberConstraints,
       );
     }
   };
@@ -89,7 +89,7 @@ const QuestionList = (props) => {
     const cloneTag = makeTag(6);
     editQuestionForm.setFieldValue(
       "question",
-      `${questions[index].question} clone`
+      `${questions[index].question} clone`,
     );
     editQuestionForm.setFieldValue("inputType", questions[index].answerType);
     editQuestionForm.setFieldValue("tag", cloneTag);
@@ -109,7 +109,7 @@ const QuestionList = (props) => {
       setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
       editQuestionForm.setFieldValue(
         "numberConstraints",
-        questions[index].numberConstraints
+        questions[index].numberConstraints,
       );
       cloneObject["numberConstraints"] = questions[index].numberConstraints;
     }
@@ -145,9 +145,7 @@ const QuestionList = (props) => {
                     textAlign: "left",
                   }}
                 >
-                  <li>
-                    {question.question}
-                  </li>
+                  <li>{question.question}</li>
                 </ul>
               </Card>
             ) : (

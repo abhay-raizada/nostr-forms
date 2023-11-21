@@ -3,7 +3,7 @@ import { AnswerTypes } from "../../constants/index";
 import { NumberConstraints } from "./NumberConstraints";
 import Choices from "./Choices";
 
-const { TextArea } = Input
+const { TextArea } = Input;
 
 const initialQuesObj = {
   question: "",

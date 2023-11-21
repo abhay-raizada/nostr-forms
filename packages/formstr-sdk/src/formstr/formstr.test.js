@@ -1,3 +1,4 @@
+import { regExpLiteral } from "@babel/types";
 import { AnswerTypes } from "../interfaces";
 import { makeTag } from "../utils/utils";
 import * as formstr from "./formstr";
@@ -33,9 +34,9 @@ jest.mock("nostr-tools", () => {
         close: jest.fn(),
         get: jest.fn(() => {
           return new Promise((resolve) => {
-            resolve({content: '{"name": "test"}'})
-          })
-        })
+            resolve({ content: '{"name": "test"}' });
+          });
+        }),
       };
     }),
   };
@@ -150,7 +151,7 @@ test("saves form on nostr if flag is set", async () => {
   await formstr.createForm(
     {
       name: "vale",
-      schemaVersion: "v1"
+      schemaVersion: "v1",
     },
     true,
   );
@@ -196,6 +197,22 @@ describe("saveFormOnNostr", () => {
     expect(nostrTools.nip04.decrypt).toHaveBeenCalledTimes(1);
   });
 
+  test("should save form on when past forms are bad", async () => {
+    const formCredentials = ["pub1", "priv1"];
+    let pastnip04 = mockWindow.nostr.nip04;
+
+    mockWindow.nostr.nip04.decrypt = jest.fn(() => {
+      return new Promise((resolve) => resolve("1"));
+    });
+    await formstr.saveFormOnNostr(formCredentials, "userPriv");
+
+    expect(nostrTools.getEventHash).toHaveBeenCalledTimes(1);
+    expect(nostrTools.nip04.encrypt).toHaveBeenCalledTimes(1);
+    expect(nostrTools.nip04.decrypt).toHaveBeenCalledTimes(1);
+
+    mockWindow.nostr.nip04 = pastnip04;
+  });
+
   test("should save form on Nostr without userSecretKey and with window.nostr", async () => {
     const formCredentials = ["pub1", "priv1"];
     await formstr.saveFormOnNostr(formCredentials);
@@ -211,79 +228,96 @@ describe("saveFormOnNostr", () => {
   });
 });
 
-describe('getFormTemplate', () => {
-  it('should return the form template when it exists', async () => {
-
+describe("getFormTemplate", () => {
+  it("should return the form template when it exists", async () => {
     const formTemplate = await formstr.getFormTemplate("npub");
 
-    expect(formTemplate).toEqual({ name: 'test', schemaVersion: "v1" });
+    expect(formTemplate).toEqual({ name: "test", schemaVersion: "v1" });
   });
 
-  it('should convert old templates to v1', async () => {
-    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+  it("should convert old templates to v1", async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() => {
       return {
-        get: jest.fn(()=> new Promise((resolve) => resolve(
-          {content: 
-          JSON.stringify({
-            name: "Heyo",
-            fields: [ {
-              question: "Question1",
-              answerType: "singleChoice",
-              tag: "asdasd",
-              choices: [
-                {
-                  message: "choice",
-                  tag: "tfsdfg"
-                }
-              ]
-            }]
-          })}
-        ))),
-        close: jest.fn()
-      }
-    } );
+        get: jest.fn(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                content: JSON.stringify({
+                  name: "Heyo",
+                  fields: [
+                    {
+                      question: "Question1",
+                      answerType: "singleChoice",
+                      tag: "asdasd",
+                      choices: [
+                        {
+                          message: "choice",
+                          tag: "tfsdfg",
+                        },
+                      ],
+                    },
+                  ],
+                }),
+              }),
+            ),
+        ),
+        close: jest.fn(),
+      };
+    });
     const formTemplate = await formstr.getFormTemplate("npub");
 
-    expect(formTemplate).toEqual({ name: 'Heyo', schemaVersion: "v1", fields: [ {
-      question: "Question1",
-      answerType: "radioButton",
-      questionId: "asdasd",
-      choices: [
+    expect(formTemplate).toEqual({
+      name: "Heyo",
+      schemaVersion: "v1",
+      fields: [
         {
-          message: "choice",
-          choiceId: "tfsdfg"
-        }
-      ]
-    }] });
+          question: "Question1",
+          answerType: "radioButton",
+          questionId: "asdasd",
+          choices: [
+            {
+              message: "choice",
+              choiceId: "tfsdfg",
+            },
+          ],
+        },
+      ],
+    });
   });
 
-  it('should raise error if theres a problem in converting', async () => {
-    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+  it("should raise error if theres a problem in converting", async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() => {
       return {
-        get: jest.fn(()=> new Promise((resolve) => resolve(
-          {content: 
-          JSON.stringify({
-            name: "Heyo",
-            fields: [ {
-              question: "Question1",
-              answerType: "random question type",
-              tag: "asdasd",
-            }]
-          })}
-        ))),
-        close: jest.fn()
-      }
-    } );
+        get: jest.fn(
+          () =>
+            new Promise((resolve) =>
+              resolve({
+                content: JSON.stringify({
+                  name: "Heyo",
+                  fields: [
+                    {
+                      question: "Question1",
+                      answerType: "random question type",
+                      tag: "asdasd",
+                    },
+                  ],
+                }),
+              }),
+            ),
+        ),
+        close: jest.fn(),
+      };
+    });
     await expect(formstr.getFormTemplate("npub")).rejects.toThrow();
   });
 
-  it('should throw an error when the form template is not found', async () => {
-    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() =>{
+  it("should throw an error when the form template is not found", async () => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() => {
       return {
-        get: jest.fn(()=> new Promise((resolve) => resolve(null))),
-        close: jest.fn()
-      }
-    } );
+        get: jest.fn(() => new Promise((resolve) => resolve(null))),
+        close: jest.fn(),
+      };
+    });
     await expect(formstr.getFormTemplate("npub")).rejects.toThrow();
   });
 });

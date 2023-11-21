@@ -27,12 +27,11 @@ export function constructResponseUrl(privateKey: string) {
   return `http://formstr.app/#/forms/${privateKey}/responses`;
 }
 
-export function detectFormVersion(form: FormSpec & V0FormSpec){
-  if(form.schemaVersion){
-    return form.schemaVersion
-  }
-  else if(form.schemaLink){
-    return form.schemaLink
+export function detectFormVersion(form: FormSpec & V0FormSpec) {
+  if (form.schemaVersion) {
+    return form.schemaVersion;
+  } else if (form.schemaLink) {
+    return form.schemaLink;
   }
   return "v0";
 }

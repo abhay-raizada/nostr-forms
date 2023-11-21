@@ -61,37 +61,42 @@ function transformAnswerType(field: V0Field): AnswerTypes {
   throw Error("Uknown Answer Type");
 }
 
-function generateIds(formSpec: FormSpec) : V1FormSpec {
+function generateIds(formSpec: FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: Field): V1Field => {
     const choices = field.choices?.map((choice) => {
-      return {...choice, choiceId: makeTag(6)}
-    })
-    return {...field, questionId: makeTag(6)}
-  })
-  return {...formSpec, fields}
+      return { ...choice, choiceId: makeTag(6) };
+    });
+    return { ...field, questionId: makeTag(6) };
+  });
+  return { ...formSpec, fields };
 }
 
 function convertV1Form(formSpec: V0FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: V0Field): V1Field => {
     const choices = field.choices?.map((choice) => {
-      let newChoice:any = {...choice}
-      let newId = choice.tag
-      delete newChoice.tag
+      let newChoice: any = { ...choice };
+      let newId = choice.tag;
+      delete newChoice.tag;
       return {
         ...newChoice,
         choiceId: newId,
       };
     });
-    const newField: any = {...field}
-    delete newField.tag
+    const newField: any = { ...field };
+    delete newField.tag;
     const answerType: AnswerTypes = transformAnswerType(field);
-    const v1Field: V1Field = { ...newField, answerType, choices, questionId: field.tag };
+    const v1Field: V1Field = {
+      ...newField,
+      answerType,
+      choices,
+      questionId: field.tag,
+    };
     return v1Field;
   });
 
-  let finalSchema:any =  { ...formSpec, schemaVersion: "v1" };
-  if(fields){
-    finalSchema = { ...finalSchema, fields}
+  let finalSchema: any = { ...formSpec, schemaVersion: "v1" };
+  if (fields) {
+    finalSchema = { ...finalSchema, fields };
   }
   return finalSchema;
 }
@@ -105,15 +110,14 @@ export const getFormTemplate = async (npub: string) => {
   const kind0 = await pool.get(relays, filter);
   pool.close(relays);
   let formTemplate;
-  if(kind0){
+  if (kind0) {
     formTemplate = JSON.parse(kind0.content);
     let formVersion = detectFormVersion(formTemplate);
-    if(formVersion === "v0"){
-     formTemplate = convertV1Form(formTemplate)
+    if (formVersion === "v0") {
+      formTemplate = convertV1Form(formTemplate);
     }
-  }
-  else {
-    throw Error("Form template not found")
+  } else {
+    throw Error("Form template not found");
   }
   return formTemplate;
 };
@@ -176,6 +180,7 @@ export async function getPastUserForms<FormStructure = unknown>(
   };
   const pool = new SimplePool();
   const saveEvent = await pool.list(relays, [filters]);
+  pool.close(relays);
   const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
     userSecretKey,
@@ -188,8 +193,10 @@ export const saveFormOnNostr = async (
   userSecretKey: string | null = null,
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
-  const pastForms = await getPastUserForms(userPublicKey, userSecretKey);
-
+  let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
+  if (!Array.isArray(pastForms)) {
+    pastForms = [];
+  }
   pastForms.push(["form", formCredentials]);
   const message = JSON.stringify(pastForms);
   const ciphertext = await encryptSavedForms(message, userSecretKey);
@@ -213,6 +220,7 @@ export const saveFormOnNostr = async (
   }
   const pool = new SimplePool();
   await Promise.all(pool.publish(relays, nip51event));
+  pool.close(relays);
 };
 
 export const createForm = async (
@@ -225,13 +233,12 @@ export const createForm = async (
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
   const formId = getPublicKey(formSecret);
-  try{
-  let isvalid = isValidSpec(await getSchema("v1"), form);
+  try {
+    isValidSpec(await getSchema("v1"), form);
+  } catch (e) {
+    throw Error("Invalid form spec");
   }
-  catch(e){
-    throw Error("Invalid form spec")
-  }
-  const v1form = generateIds(form)
+  const v1form = generateIds(form);
   const content = JSON.stringify(v1form);
 
   const baseKind0Event: Event = {

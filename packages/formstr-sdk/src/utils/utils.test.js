@@ -1,4 +1,9 @@
-import { makeTag, constructFormUrl, constructResponseUrl, detectFormVersion } from "./utils";
+import {
+  makeTag,
+  constructFormUrl,
+  constructResponseUrl,
+  detectFormVersion,
+} from "./utils";
 
 describe("makeTag", () => {
   test("should generate a tag with the specified length", () => {
@@ -40,7 +45,7 @@ describe("constructFormUrl function", () => {
   test("Construct URL with an empty public key throws an error", () => {
     const publicKey = "";
     expect(() => constructFormUrl(publicKey)).toThrowError(
-      "public key is required"
+      "public key is required",
     );
   });
 });
@@ -56,25 +61,27 @@ describe("constructResponseUrl function", () => {
   test("Construct URL with an empty private key throws an error", () => {
     const privateKey = "";
     expect(() => constructResponseUrl(privateKey)).toThrowError(
-      "public key is required"
+      "public key is required",
     );
   });
 });
 
-
-describe('detectFormVersion', () => {
-  it('returns form.schemaVersion if available', () => {
-    const formWithSchemaVersion = { schemaVersion: 'v1', otherProperty: 'value' };
-    expect(detectFormVersion(formWithSchemaVersion)).toBe('v1');
+describe("detectFormVersion", () => {
+  it("returns form.schemaVersion if available", () => {
+    const formWithSchemaVersion = {
+      schemaVersion: "v1",
+      otherProperty: "value",
+    };
+    expect(detectFormVersion(formWithSchemaVersion)).toBe("v1");
   });
 
-  it('returns form.schemaLink if schemaVersion is not available', () => {
-    const formWithSchemaLink = { schemaLink: 'v2', otherProperty: 'value' };
-    expect(detectFormVersion(formWithSchemaLink)).toBe('v2');
+  it("returns form.schemaLink if schemaVersion is not available", () => {
+    const formWithSchemaLink = { schemaLink: "v2", otherProperty: "value" };
+    expect(detectFormVersion(formWithSchemaLink)).toBe("v2");
   });
 
   it('returns "v0" if both schemaVersion and schemaLink are not available', () => {
-    const formWithoutSchemaInfo = { otherProperty: 'value' };
-    expect(detectFormVersion(formWithoutSchemaInfo)).toBe('v0');
+    const formWithoutSchemaInfo = { otherProperty: "value" };
+    expect(detectFormVersion(formWithoutSchemaInfo)).toBe("v0");
   });
 });

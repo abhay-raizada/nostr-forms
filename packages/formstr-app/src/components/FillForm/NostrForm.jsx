@@ -44,7 +44,7 @@ function NostrForm(props) {
     selfSignForm = false,
     onReadPubkey = (_) => {},
     onEncryptedResponse = () => {},
-    onEventSigned = () => {}
+    onEventSigned = () => {},
   ) => {
     console.log("HANDLE SUBMIT", selfSignForm);
     let answerObject = fields.map((field) => {
@@ -65,7 +65,7 @@ function NostrForm(props) {
       selfSignForm,
       onReadPubkey,
       onEncryptedResponse,
-      onEventSigned
+      onEventSigned,
     );
     props.onSubmit();
   };

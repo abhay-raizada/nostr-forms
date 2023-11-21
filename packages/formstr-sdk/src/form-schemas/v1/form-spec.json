@@ -25,9 +25,7 @@
           "description": "Whether force users to self sign the form using nostr"
         }
       },
-      "required": [
-        "selfSignForms"
-      ]
+      "required": ["selfSignForms"]
     },
     "fields": {
       "type": "array",
@@ -40,7 +38,15 @@
           },
           "answerType": {
             "type": "string",
-            "enum": ["shortText", "paragraph", "radioButton", "checkboxes", "number", "date", "label"],
+            "enum": [
+              "shortText",
+              "paragraph",
+              "radioButton",
+              "checkboxes",
+              "number",
+              "date",
+              "label"
+            ],
             "description": "Can only be one of the above enums"
           },
           "choices": {
@@ -57,9 +63,7 @@
                   "description": "There should only be one instance of otherMessage in a given question. User will be presented an input box for selection"
                 }
               },
-              "required": [
-                "message"
-              ]
+              "required": ["message"]
             }
           },
           "numberConstraints": {
@@ -73,21 +77,12 @@
                 "type": "number"
               }
             },
-            "required": [
-              "max",
-              "min"
-            ]
+            "required": ["max", "min"]
           }
         },
-        "required": [
-          "question",
-          "answerType"
-        ]
+        "required": ["question", "answerType"]
       }
     }
   },
-  "required": [
-    "schemaVersion",
-    "name"
-  ]
+  "required": ["schemaVersion", "name"]
 }

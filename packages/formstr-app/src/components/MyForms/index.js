@@ -2,35 +2,40 @@ import { Card, Typography, Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  constructDraftUrl,
   constructFormUrl,
   constructResponseUrl,
 } from "../../utils/utility";
 import { MyFormTabsList, MyFormTab } from "../../constants";
-import { DeleteFilled, EditFilled, ShareAltOutlined } from "@ant-design/icons";
+import { getPastUserForms } from "@formstr/sdk";
+import { Draft } from "./Drafts";
 
 const MyForms = () => {
   const [tableForms, setTableForms] = useState(null);
   const [formDrafts, setFormDrafts] = useState(null);
+  const [nostrForms, setNostrForms] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [currentForm, setCurrentForm] = useState({});
   const [activeTab, setActiveTab] = useState(MyFormTab.drafts);
-  const [shareDraft, setShareDraft] = useState(null);
+  const [savedTab, setSavedTab] = useState("local");
   const { Text, Title } = Typography;
+
+  function handleSavedTabChange(key) {
+    setSavedTab(key);
+  }
 
   function handleTabChange(key) {
     setActiveTab(key);
   }
 
-  function handleDraftDelete(index) {
-    let drafts = [...formDrafts];
-    drafts = drafts.filter((_, ind) => ind !== index);
-    localStorage.setItem("formstr:drafts", JSON.stringify(drafts));
-    setFormDrafts(drafts);
-  }
-
   useEffect(() => {
+    async function fetchNostrForms() {
+      if (nostrForms) {
+        return;
+      }
+      let pubKey = await window.nostr.getPublicKey();
+      let nForms = await getPastUserForms(pubKey);
+      setNostrForms(nForms);
+    }
     let forms = localStorage.getItem("formstr:forms");
     let drafts = localStorage.getItem("formstr:drafts");
     if (tableForms && formDrafts) {
@@ -60,11 +65,12 @@ const MyForms = () => {
       .sort((a, b) => {
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
+    fetchNostrForms();
     if (!formDrafts && drafts.length !== 0) {
       setFormDrafts(drafts);
     }
     if (!tableForms && forms.length !== 0) setTableForms(forms);
-  }, [tableForms, formDrafts]);
+  }, [tableForms, formDrafts, nostrForms]);
 
   const gridStyle = {
     textAlign: "center",
@@ -89,65 +95,7 @@ const MyForms = () => {
               justifyItems: "center",
             }}
           >
-            {(formDrafts || []).map((draft, index) => {
-              return (
-                <Card
-                  title={draft.formSpec.name}
-                  style={gridStyle}
-                  type="inner"
-                  key={draft.tempId}
-                  extra={
-                    <div style={{ display: "flex" }}>
-                      <div
-                        title="share"
-                        style={{ marginLeft: "10px", marginBottom: "15px" }}
-                      >
-                        <Button
-                          icon={<ShareAltOutlined />}
-                          onClick={() => {
-                            setIsShareModalOpen(true);
-                            setShareDraft(draft);
-                          }}
-                          size="small"
-                        />
-                      </div>
-                      <div title="edit" style={{ marginLeft: "10px" }}>
-                        <Link
-                          to="/forms/new"
-                          state={{
-                            formSpec: draft.formSpec,
-                            tempId: draft.tempId,
-                          }}
-                          style={{ textDecoration: "none", color: "black" }}
-                        >
-                          <EditFilled />
-                        </Link>
-                      </div>
-                      <div title="delete" style={{ marginLeft: "10px" }}>
-                        <DeleteFilled
-                          onClick={() => handleDraftDelete(index)}
-                        />
-                      </div>
-                    </div>
-                  }
-                >
-                  {draft.formSpec.description || "No description"}
-                </Card>
-              );
-            })}
-            {!formDrafts && (
-              <div>
-                {" "}
-                <Text>
-                  Hi there! You don't have any drafts yet, click{" "}
-                  <Link to="/forms/new">
-                    {" "}
-                    <Button>Here</Button>{" "}
-                  </Link>{" "}
-                  to create one!
-                </Text>
-              </div>
-            )}
+            <Draft drafts={formDrafts} />
           </div>
         )}
         {activeTab === MyFormTab.savedForms && (
@@ -161,53 +109,71 @@ const MyForms = () => {
               justifyItems: "center",
             }}
           >
-            {(tableForms || []).map((form) => {
-              return (
-                <Card
-                  title={form.name}
-                  style={gridStyle}
-                  onClick={() => {
-                    setCurrentForm(form);
-                    setIsModalOpen(true);
-                  }}
-                  hoverable={true}
-                  type="inner"
-                >
-                  {new Date(form.createdAt).toDateString()}
-                </Card>
-              );
-            })}
-            {!tableForms && (
-              <div>
-                {" "}
-                <Text>
-                  Hi there! You don't have any forms yet, click{" "}
-                  <Link to="/forms/new">
-                    {" "}
-                    <Button>Here</Button>{" "}
-                  </Link>{" "}
-                  to create one!
-                </Text>
-              </div>
-            )}
+            <Card
+              tabList={[
+                { key: "local", label: "Local Forms" },
+                { key: "nostr", label: "Forms on Nostr" },
+              ]}
+              activeTabKey={savedTab}
+              onTabChange={handleSavedTabChange}
+              style={{ height: "100%" }}
+            >
+              {savedTab === "local" &&
+                (tableForms || []).map((form) => {
+                  return (
+                    <Card
+                      title={form.name}
+                      style={gridStyle}
+                      onClick={() => {
+                        setCurrentForm(form);
+                        setIsModalOpen(true);
+                      }}
+                      hoverable={true}
+                      type="inner"
+                    >
+                      {new Date(form.createdAt).toDateString()}
+                    </Card>
+                  );
+                })}
+
+              {savedTab === "local" && !tableForms && (
+                <div>
+                  {" "}
+                  <Text>
+                    Hi there! You don't have any forms yet, click{" "}
+                    <Link to="/forms/new">
+                      {" "}
+                      <Button>Here</Button>{" "}
+                    </Link>{" "}
+                    to create one!
+                  </Text>
+                </div>
+              )}
+              {savedTab === "nostr" &&
+                (nostrForms || []).map((form) => {
+                  let formCreds = form[1];
+                  return (<Card
+                    title={formCreds[0]}
+                    style={gridStyle}
+                    onClick={() => {
+                      setCurrentForm({
+                        name: formCreds[0],
+                        formUrl: constructFormUrl(formCreds[0]),
+                        responseUrl: constructResponseUrl(formCreds[1]),
+                      });
+                      setIsModalOpen(true);
+                    }}
+                    hoverable={true}
+                    type="inner"
+                  >
+                    Click to view urls
+                  </Card>
+                  )
+                })}
+            </Card>
           </div>
         )}
       </Card>
-      <Modal
-        title="Share Draft"
-        open={isShareModalOpen}
-        onCancel={() => {
-          setIsShareModalOpen(false);
-        }}
-        onOk={() => {
-          setIsShareModalOpen(false);
-        }}
-      >
-        <a href={constructDraftUrl(shareDraft)}>
-          {" "}
-          {constructDraftUrl(window.btoa(JSON.stringify(shareDraft)))}{" "}
-        </a>
-      </Modal>
       <Modal
         title={currentForm.name}
         open={isModalOpen}

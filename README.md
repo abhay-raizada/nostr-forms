@@ -1,8 +1,8 @@
-this is a repository for Open Source tooling around the formstr-sdk 
+this is a repository for Open Source tooling around the formstr-sdk
 
 In the current state the repo includes:
 
-1. The Formstr SDK: An npm library that interacts with the nostr-protocol. More about it [here](packages/formstr-sdk/docs/design.md)
+1. The Formstr SDK: An npm library that interacts with the nostr-protocol. More about it [here](packages/formstr-sdk/docs/v1/design.md)
 
 2. The Formstr web app: The Forms Instance that runs on top of the formstr sdk more about it [here](packages/formstr-app/README.md).
 
@@ -14,5 +14,6 @@ In the current state the repo includes:
 2. Yarn
 
 ### Setup:
-1. ```yarn install```
-2. ```yarn workspace @formstr/web-app```
+
+1. `yarn install`
+2. `yarn workspace @formstr/web-app`

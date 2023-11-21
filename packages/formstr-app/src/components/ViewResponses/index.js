@@ -21,7 +21,7 @@ function ViewResponses() {
   const [selfSignedResponses, setSelfSignedResponses] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("");
   const [defaultFilter, setDefaultFilter] = useState(
-    ResponseFilters.allResponses
+    ResponseFilters.allResponses,
   );
   const [formName, updateFormName] = React.useState("");
 

@@ -14,7 +14,7 @@ export const SignAndSubmit = (props) => {
       true,
       onReadPubkey,
       onEncryptedResponse,
-      onEventSigned
+      onEventSigned,
     );
     setIsModalOpen(true);
   }

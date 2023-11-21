@@ -1,5 +1,6 @@
 import { Button, notification, Typography } from "antd";
 import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
+import { saveFormOnNostr } from "@formstr/sdk";
 
 const FormSubmitted = (props) => {
   const [api, contextHolder] = notification.useNotification();
@@ -29,6 +30,14 @@ const FormSubmitted = (props) => {
 
     forms.push(saveObject);
     localStorage.setItem("formstr:forms", JSON.stringify(forms));
+    api.info({ message: "Saved Successfully" });
+  }
+
+  async function saveToNostr() {
+    await saveFormOnNostr([
+      props.formCredentials.publicKey,
+      props.formCredentials.privateKey,
+    ]);
     api.info({ message: "Saved Successfully" });
   }
 
@@ -73,7 +82,7 @@ const FormSubmitted = (props) => {
           {" "}
           Save locally{" "}
         </Button>
-        <Button type="primary" disabled style={{ margin: "10px" }}>
+        <Button type="primary" onClick={saveToNostr} style={{ margin: "10px" }}>
           {" "}
           Save to nostr profile{" "}
         </Button>
