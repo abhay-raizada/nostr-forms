@@ -1,0 +1,6 @@
+.header-menu::before {
+    content: none;
+}
+.header-menu {
+    justify-content: space-around;
+}
