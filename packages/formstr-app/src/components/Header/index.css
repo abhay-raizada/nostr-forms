@@ -1,6 +1,13 @@
 .header-menu::before {
-    content: none;
+  content: none;
 }
-.header-menu {
-    justify-content: space-around;
+
+.ant-menu-horizontal,
+.ant-menu-item::after,
+.ant-menu-submenu::after {
+  border: none !important;
+}
+
+.ant-menu-item-selected {
+  color: rgb(255, 42, 0) !important;
 }

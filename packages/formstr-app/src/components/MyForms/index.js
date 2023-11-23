@@ -1,10 +1,7 @@
 import { Card, Typography, Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  constructFormUrl,
-  constructResponseUrl,
-} from "../../utils/utility";
+import { constructFormUrl, constructResponseUrl } from "../../utils/utility";
 import { MyFormTabsList, MyFormTab } from "../../constants";
 import { getPastUserForms } from "@formstr/sdk";
 import { Draft } from "./Drafts";
@@ -152,23 +149,24 @@ const MyForms = () => {
               {savedTab === "nostr" &&
                 (nostrForms || []).map((form) => {
                   let formCreds = form[1];
-                  return (<Card
-                    title={formCreds[0]}
-                    style={gridStyle}
-                    onClick={() => {
-                      setCurrentForm({
-                        name: formCreds[0],
-                        formUrl: constructFormUrl(formCreds[0]),
-                        responseUrl: constructResponseUrl(formCreds[1]),
-                      });
-                      setIsModalOpen(true);
-                    }}
-                    hoverable={true}
-                    type="inner"
-                  >
-                    Click to view urls
-                  </Card>
-                  )
+                  return (
+                    <Card
+                      title={formCreds[0].slice(0, 6)}
+                      style={gridStyle}
+                      onClick={() => {
+                        setCurrentForm({
+                          name: formCreds[0].slice(0, 6),
+                          formUrl: constructFormUrl(formCreds[0]),
+                          responseUrl: constructResponseUrl(formCreds[1]),
+                        });
+                        setIsModalOpen(true);
+                      }}
+                      hoverable={true}
+                      type="inner"
+                    >
+                      Click to view urls
+                    </Card>
+                  );
                 })}
             </Card>
           </div>
