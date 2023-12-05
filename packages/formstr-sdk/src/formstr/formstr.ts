@@ -18,6 +18,7 @@ import {
   V0FormSpec,
   V1Field,
   V1FormSpec,
+  Response,
 } from "../interfaces";
 
 declare global {
@@ -26,16 +27,16 @@ declare global {
     nostr: {
       getPublicKey: () => Promise<string>;
       signEvent: <Event>(
-        event: Event,
+        event: Event
       ) => Promise<Event & { id: string; sig: string }>;
       nip04: {
         encrypt: (
           pubKey: string,
-          message: string,
+          message: string
         ) => ReturnType<typeof nip04.encrypt>;
         decrypt: (
           pubkey: string,
-          nessage: string,
+          nessage: string
         ) => ReturnType<typeof nip04.decrypt>;
       };
     };
@@ -101,11 +102,11 @@ function convertV1Form(formSpec: V0FormSpec): V1FormSpec {
   return finalSchema;
 }
 
-export const getFormTemplate = async (npub: string) => {
+export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
   const pool = new SimplePool();
   const filter = {
     kinds: [0],
-    authors: [npub],
+    authors: [formId],
   };
   const kind0 = await pool.get(relays, filter);
   pool.close(relays);
@@ -128,24 +129,21 @@ function checkWindowNostr() {
   }
 }
 
-async function encryptSavedForms(
-  savedForms: string,
-  userSecretKey: string | null,
-) {
+async function encryptMessage(message: string, userSecretKey: string | null) {
   const userPublicKey = await getUserPublicKey(userSecretKey);
   let ciphertext;
   if (userSecretKey) {
-    ciphertext = await nip04.encrypt(userSecretKey, userPublicKey, savedForms);
+    ciphertext = await nip04.encrypt(userSecretKey, userPublicKey, message);
   } else {
     checkWindowNostr();
-    ciphertext = await window.nostr.nip04.encrypt(userPublicKey, savedForms);
+    ciphertext = await window.nostr.nip04.encrypt(userPublicKey, message);
   }
   return ciphertext;
 }
 
 async function decryptPastForms(
   ciphertext: string,
-  userSecretKey: string | null,
+  userSecretKey: string | null
 ) {
   const publicKey = await getUserPublicKey(userSecretKey);
   let decryptedForms;
@@ -156,6 +154,21 @@ async function decryptPastForms(
     decryptedForms = await window.nostr.nip04.decrypt(publicKey, ciphertext);
   }
   return decryptedForms;
+}
+
+async function signEvent(baseEvent: Event, userSecretKey: string | null) {
+  let nostrEvent;
+  if (userSecretKey) {
+    nostrEvent = {
+      ...baseEvent,
+      id: getEventHash(baseEvent),
+      sig: getSignature(baseEvent, userSecretKey),
+    };
+  } else {
+    checkWindowNostr();
+    nostrEvent = await window.nostr.signEvent(baseEvent);
+  }
+  return nostrEvent;
 }
 
 async function getUserPublicKey(userSecretKey: string | null) {
@@ -171,7 +184,7 @@ async function getUserPublicKey(userSecretKey: string | null) {
 
 export async function getPastUserForms<FormStructure = unknown>(
   userPublicKey: string,
-  userSecretKey: string | null = null,
+  userSecretKey: string | null = null
 ) {
   const filters = {
     kinds: [30001],
@@ -183,14 +196,14 @@ export async function getPastUserForms<FormStructure = unknown>(
   pool.close(relays);
   const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
-    userSecretKey,
+    userSecretKey
   );
   return JSON.parse(decryptedForms) as FormStructure[];
 }
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
-  userSecretKey: string | null = null,
+  userSecretKey: string | null = null
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
   let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
@@ -199,25 +212,18 @@ export const saveFormOnNostr = async (
   }
   pastForms.push(["form", formCredentials]);
   const message = JSON.stringify(pastForms);
-  const ciphertext = await encryptSavedForms(message, userSecretKey);
+  const ciphertext = await encryptMessage(message, userSecretKey);
   const baseNip51Event = {
     kind: 30001,
     pubkey: userPublicKey,
     tags: [["d", "forms"]], //don't overwrite tags reuse previous tags
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
+    id: "",
+    sig: "",
   };
   let nip51event: typeof baseNip51Event & { id: string; sig: string };
-  if (userSecretKey) {
-    nip51event = {
-      ...baseNip51Event,
-      id: getEventHash(baseNip51Event),
-      sig: getSignature(baseNip51Event, userSecretKey),
-    };
-  } else {
-    checkWindowNostr();
-    nip51event = await window.nostr.signEvent(baseNip51Event);
-  }
+  nip51event = await signEvent(baseNip51Event, userSecretKey);
   const pool = new SimplePool();
   await Promise.all(pool.publish(relays, nip51event));
   pool.close(relays);
@@ -226,7 +232,7 @@ export const saveFormOnNostr = async (
 export const createForm = async (
   form: FormSpec,
   saveOnNostr = false,
-  userSecretKey: string | null = null,
+  userSecretKey: string | null = null
 ) => {
   const tags: string[][] = [];
 
@@ -262,4 +268,54 @@ export const createForm = async (
   }
   pool.close(relays);
   return [formId, formSecret];
+};
+
+export const sendResponses = async (
+  formId: string,
+  responses: Array<Response>,
+  anonymous: boolean,
+  userSecretKey: string | null = null
+) => {
+  // TODO Validate Response Spec
+  const form = await getFormTemplate(formId);
+  let questionIds = form.fields?.map((field) => field.questionId) || [];
+  responses.forEach((response) => {
+    if (!questionIds.includes(response.questionId)) {
+      throw Error(
+        `No such question ID: ${response.questionId} found in the template`
+      );
+    }
+  });
+
+  let message = JSON.stringify(responses);
+  let userPk = "";
+  let userSk = null;
+  let ciphertext;
+  if (anonymous) {
+    userSk = generatePrivateKey();
+    userPk = getPublicKey(userSk);
+  }
+  if (!anonymous && userSecretKey) {
+    userSk = userSecretKey;
+    userPk = getPublicKey(userSk);
+  }
+
+  if (!anonymous && !userSecretKey) {
+    userPk = await getUserPublicKey(userSecretKey);
+  }
+
+  ciphertext = await encryptMessage(message, userSk);
+  const baseKind4Event = {
+    kind: 4,
+    pubkey: userPk,
+    tags: [["p", formId]],
+    content: ciphertext,
+    created_at: Math.floor(Date.now() / 1000),
+    id: "",
+    sig: "",
+  };
+  let kind4Event = await signEvent(baseKind4Event, userSk);
+  const pool = new SimplePool();
+  await Promise.all(pool.publish(relays, kind4Event));
+  pool.close(relays);
 };

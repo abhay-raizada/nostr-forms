@@ -58,3 +58,9 @@ export interface V1Field {
   choices?: Array<Choice>;
   numberConstraints?: NumberConstraint;
 }
+
+export interface Response {
+  questionId: string;
+  answer: string;
+  otherMessage?: string;
+}
