@@ -20,3 +20,4 @@ Also follow us on our nostr handle: npub1qu7dsd44275lms4x9snnwvnnmgx926nsppmr7lc
 
 1. `yarn install`
 2. `yarn workspace @formstr/web-app`
+
