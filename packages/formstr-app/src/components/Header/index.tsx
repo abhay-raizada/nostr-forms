@@ -1,7 +1,7 @@
 import { Layout, Menu, Row, Col, Button } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import "./index.css";
-import { ReactComponent as Logo } from "../../formstr.svg";
+import { ReactComponent as Logo } from "../../Images/formstr.svg";
 
 export const NostrHeader = () => {
   const location = useLocation();
@@ -43,18 +43,7 @@ export const NostrHeader = () => {
                 <Link to="myForms">My Forms</Link>
               </Menu.Item>
               <Menu.Item key="/forms/new">
-                <Button
-                  type="primary"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(to top, rgb(255, 81, 47) 0%, rgb(238, 132, 80) 99%, rgb(255, 42, 0) 100%)",
-                    transition: "0.5s",
-                    backgroundSize: "200% auto",
-                    color: "white",
-                    boxShadow: "0 0 20px #eee",
-                    borderRadius: "5px",
-                  }}
-                >
+                <Button type="primary">
                   <Link to="forms/new">Create Form</Link>
                 </Button>
               </Menu.Item>

@@ -8,8 +8,10 @@ In the current state the repo includes:
 
 3. The Linkstr Client: A links app that runs on top of the formstr-sdk, currently in this [PR](https://github.com/abhay-raizada/nostr-forms/pull/68/files)
 
-If you have any questions about formstr, or just want to reach out to us, feel free to ping us on our [telegram](https://t.me/+NQzzsKGGkgtmMjdl)
-Also follow us on our nostr handle: npub1qu7dsd44275lms4x9snnwvnnmgx926nsppmr7lcw9dlj36n4fltqgs7p98
+## How to reach the devs
+
+- If you have any questions about formstr, or just want to reach out to us, feel free to ping us on our [telegram](https://t.me/+NQzzsKGGkgtmMjdl)
+- Or follow us on our nostr handle: npub1qu7dsd44275lms4x9snnwvnnmgx926nsppmr7lcw9dlj36n4fltqgs7p98
 
 ## Prerequistes to setup
 
