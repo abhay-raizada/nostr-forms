@@ -22,14 +22,6 @@ root.render(
           colorPrimary: "#FF5733",
           colorLink: "#FF5733",
         },
-        components: {
-          Menu: {
-            colorItemTextSelected: "#FF2A00",
-          },
-          Button: {
-            primaryColor: "white",
-          },
-        },
       }}
     >
       <HashRouter>
