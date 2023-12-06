@@ -25,7 +25,9 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
+    "prestart": "yarn workspace @formstr/sdk build",
     "start": "react-scripts start",
+    "prebuild": "yarn workspace @formstr/sdk build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
