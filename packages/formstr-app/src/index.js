@@ -19,10 +19,15 @@ root.render(
       theme={{
         token: {
           fontFamily: "Anek Devanagari, ui-serif, Inter, ui-sans-serif",
+          colorPrimary: "#FF5733",
+          colorLink: "#FF5733",
         },
         components: {
           Menu: {
             colorItemTextSelected: "#FF2A00",
+          },
+          Button: {
+            primaryColor: "white",
           },
         },
       }}
@@ -44,5 +49,5 @@ root.render(
         </Routes>
       </HashRouter>
     </ConfigProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
