@@ -19,6 +19,7 @@
     "dist/**"
   ],
   "scripts": {
+    "prebuild": "rm -rf ./dist",
     "build": "tsc --build",
     "test": "jest --coverage",
     "lint": "eslint src/",
