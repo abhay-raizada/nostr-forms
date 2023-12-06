@@ -162,7 +162,7 @@ the form object looks like:
 ### Fill an existing form
 
 ```js
-formstrSDK.sendResponse(responses, anonymousResponse, senderPrivateKey);
+formstrSDK.sendResponse(formId, responses, anonymousResponse, senderPrivateKey);
 ```
 
 - responses(required): is an array of questionIds and their corresponding answers:
