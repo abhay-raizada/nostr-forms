@@ -106,7 +106,7 @@ export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
   const pool = new SimplePool();
   const filter = {
     kinds: [0],
-    authors: [formId],
+    authors: [formId], //formId is the npub of the form
   };
   const kind0 = await pool.get(relays, filter);
   pool.close(relays);
