@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button, Input, Form, Radio, Space, Row, Col, Divider } from "antd";
+import { Input, Form, Radio, Space, Row, Col, Divider } from "antd";
 import { Typography } from "antd";
 import { sendFormResponse } from "../../utils/nostr";
-import { SignAndSubmit } from "./SignAndSubmit";
+import { SubmitButton } from "./SubmitButton";
 
 const { Title, Text } = Typography;
 
@@ -44,7 +44,7 @@ function NostrForm(props) {
     selfSignForm = false,
     onReadPubkey = (_) => {},
     onEncryptedResponse = () => {},
-    onEventSigned = () => {},
+    onEventSigned = () => {}
   ) => {
     console.log("HANDLE SUBMIT", selfSignForm);
     let answerObject = fields.map((field) => {
@@ -65,7 +65,7 @@ function NostrForm(props) {
       selfSignForm,
       onReadPubkey,
       onEncryptedResponse,
-      onEventSigned,
+      onEventSigned
     );
     props.onSubmit();
   };
@@ -244,30 +244,11 @@ function NostrForm(props) {
           );
         })}
         {fields ? (
-          !selfSign ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                gap: "10px",
-                maxWidth: "80%",
-              }}
-            >
-              <Button type="primary" onClick={handleSubmit}>
-                Submit
-              </Button>
-              <Text style={{ minWidth: "15px" }}> or </Text>
-              <SignAndSubmit
-                onSubmit={(event) => {
-                  handleSubmit(event, true);
-                }}
-                edit={existingResponses}
-              />
-            </div>
-          ) : (
-            <SignAndSubmit onSubmit={handleSubmit} edit={existingResponses} />
-          )
+          <SubmitButton
+            selfSign={selfSign}
+            edit={existingResponses}
+            onSubmit={handleSubmit}
+          />
         ) : null}
       </Form>
     </div>

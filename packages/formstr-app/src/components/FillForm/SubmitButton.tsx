@@ -1,29 +1,35 @@
-import { Button, Modal, Spin } from "antd";
-import { CheckCircleTwoTone } from "@ant-design/icons";
-import { useState } from "react";
+import { CheckCircleTwoTone, DownOutlined } from "@ant-design/icons";
+import { Dropdown, Modal, Spin, MenuProps } from "antd";
+import React, { useState } from "react";
 
-export const SignAndSubmit = (props) => {
+type onSubmitFunction = (...args: unknown[]) => void;
+
+interface SubmitButtonProps {
+  selfSign: boolean;
+  edit: boolean;
+  onSubmit: onSubmitFunction;
+}
+
+export const SubmitButton: React.FC<SubmitButtonProps> = ({
+  selfSign,
+  edit,
+  onSubmit,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pubKeyAccess, setPubKeyAccess] = useState(false);
   const [responseEncrypted, setResponseEncrypted] = useState(false);
   const [signedEvent, setSignedEvent] = useState(false);
 
-  function showModal(event) {
-    props.onSubmit(
-      event,
-      true,
-      onReadPubkey,
-      onEncryptedResponse,
-      onEventSigned,
-    );
+  const showModal = () => {
+    onSubmit(null, true, onReadPubkey, onEncryptedResponse, onEventSigned);
     setIsModalOpen(true);
-  }
+  };
 
   function closeModal() {
     setIsModalOpen(false);
   }
 
-  function onReadPubkey(pubkey) {
+  function onReadPubkey() {
     setPubKeyAccess(true);
   }
 
@@ -36,11 +42,52 @@ export const SignAndSubmit = (props) => {
     setIsModalOpen(false);
   }
 
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "signSubmition") {
+      showModal();
+    } else {
+      onSubmit();
+    }
+  };
+
+  const handleButtonClick = () => {
+    if (selfSign) {
+      showModal();
+      return;
+    }
+    onSubmit();
+  };
+  const items = [
+    {
+      label: "Submit Anonymously",
+      key: "submit",
+      disabled: selfSign,
+    },
+    {
+      label: edit ? "Update Response" : "Submit As Yourself",
+      key: "signSubmition",
+    },
+  ];
+
+  const menuProps = {
+    items,
+    onClick: handleMenuClick,
+  };
+
   return (
     <>
-      <Button type="primary" onClick={showModal}>
-        {props.edit ? "Edit and submit" : "Sign and submit"}
-      </Button>
+      <Dropdown.Button
+        menu={menuProps}
+        type="primary"
+        onClick={handleButtonClick}
+        icon={<DownOutlined />}
+      >
+        {selfSign
+          ? edit
+            ? "Update Response"
+            : items[1].label
+          : items[0].label}
+      </Dropdown.Button>
       <Modal
         open={isModalOpen}
         onCancel={closeModal}
