@@ -2,6 +2,7 @@ import { Layout, Menu, Row, Col, Button } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
+import { MenuOutlined } from "@ant-design/icons";
 
 export const NostrHeader = () => {
   const location = useLocation();
@@ -23,21 +24,22 @@ export const NostrHeader = () => {
     <>
       <Header style={{ background: "white" }}>
         <Row justify="space-between">
-          <Col md={3}>
+          <Col md={2} xs={1} sm={1}>
             <div style={{ paddingTop: 15 }}>
               <Link to="/myForms">
                 <Logo />
               </Link>
             </div>
           </Col>
-          <Col md={9}>
+          <Col md={6} xs={2} sm={2}>
             <Menu
               mode="horizontal"
               theme="light"
               defaultSelectedKeys={[getSelectedTab()]}
+              overflowedIndicator={<MenuOutlined />}
             >
               <Menu.Item key="/global">
-                <Link to="global">Global Feed</Link>
+                <Link to="global">Public Forms</Link>
               </Menu.Item>
               <Menu.Item key="/myForms">
                 <Link to="myForms">My Forms</Link>
