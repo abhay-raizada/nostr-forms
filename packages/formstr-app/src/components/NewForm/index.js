@@ -7,13 +7,14 @@ import FormSettings from "./FormSettings";
 import QuestionsController from "./QuestionsController";
 import { makeTag } from "../../utils/utility";
 import { useLocation } from "react-router";
+import { Reorder } from "framer-motion";
 
 function NewForm() {
   const [questions, setQuestions] = useState([]);
   const [formTempId, setFormTempId] = useState(null);
   const [formCredentials, setFormCredentials] = useState("");
   const [activeTab, setActiveTab] = useState(
-    Constants.CreateFormTab.addQuestion,
+    Constants.CreateFormTab.addQuestion
   );
   const [settingsForm] = Form.useForm();
   const [api, contextHolder] = notification.useNotification();
@@ -118,7 +119,7 @@ function NewForm() {
   function handleDeleteQuestion(index) {
     let questionsList = [...questions];
     questionsList = questionsList.filter(
-      (ques) => ques.tag !== questionsList[index].tag,
+      (ques) => ques.tag !== questionsList[index].tag
     );
     setQuestions(questionsList);
   }
@@ -216,15 +217,21 @@ function NewForm() {
                       </Button>
                     </div>
                   </Card>
-                  <QuestionsController
-                    actionHandlers={{
-                      onEditQuestion: handleEditQuestion,
-                      onAddQuestion: handleAddQuestion,
-                      onCloneQuestion: handleCloneQuestion,
-                      onDeleteQuestion: handleDeleteQuestion,
-                    }}
-                    questions={questions}
-                  />
+                  <Reorder.Group
+                    values={questions}
+                    onReorder={setQuestions}
+                    style={{ listStyle: "none" }}
+                  >
+                    <QuestionsController
+                      actionHandlers={{
+                        onEditQuestion: handleEditQuestion,
+                        onAddQuestion: handleAddQuestion,
+                        onCloneQuestion: handleCloneQuestion,
+                        onDeleteQuestion: handleDeleteQuestion,
+                      }}
+                      questions={questions}
+                    />
+                  </Reorder.Group>
 
                   <div
                     style={{
