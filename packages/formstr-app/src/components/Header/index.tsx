@@ -2,7 +2,12 @@ import { Layout, Menu, Row, Col, Button } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
-import { MenuOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 
 export const NostrHeader = () => {
   const location = useLocation();
@@ -31,21 +36,24 @@ export const NostrHeader = () => {
               </Link>
             </div>
           </Col>
-          <Col md={6} xs={2} sm={2}>
+          <Col md={8} xs={2} sm={2}>
             <Menu
               mode="horizontal"
               theme="light"
               defaultSelectedKeys={[getSelectedTab()]}
               overflowedIndicator={<MenuOutlined />}
             >
-              <Menu.Item key="/global">
+              <Menu.Item key="/global" icon={<SearchOutlined />}>
                 <Link to="global">Public Forms</Link>
               </Menu.Item>
-              <Menu.Item key="/myForms">
+              <Menu.Item key="/myForms" icon={<UserOutlined />}>
                 <Link to="myForms">My Forms</Link>
               </Menu.Item>
               <Menu.Item key="/forms/new">
-                <Button type="primary">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
+                >
                   <Link to="forms/new">Create Form</Link>
                 </Button>
               </Menu.Item>

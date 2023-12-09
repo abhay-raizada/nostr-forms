@@ -5,6 +5,7 @@ import QuestionCard from "./QuestionCard";
 import React from "react";
 import { isChoiceType, isNumberType } from "./util";
 import QuestionActions from "./QuestionActions";
+import { Reorder, useDragControls } from "framer-motion";
 
 const initialQuesObj = {
   question: "",
@@ -22,6 +23,8 @@ const QuestionList = (props) => {
   const [showOptions, setShowOptions] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
   const [editQuestionForm] = Form.useForm();
+
+  const controls = useDragControls();
 
   function handleQuestionNameChange(event, form) {
     form.setFieldValue("question", event.target.value);
@@ -79,7 +82,7 @@ const QuestionList = (props) => {
       setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
       editQuestionForm.setFieldValue(
         "numberConstraints",
-        questions[index].numberConstraints,
+        questions[index].numberConstraints
       );
     }
   };
@@ -89,7 +92,7 @@ const QuestionList = (props) => {
     const cloneTag = makeTag(6);
     editQuestionForm.setFieldValue(
       "question",
-      `${questions[index].question} clone`,
+      `${questions[index].question} clone`
     );
     editQuestionForm.setFieldValue("inputType", questions[index].answerType);
     editQuestionForm.setFieldValue("tag", cloneTag);
@@ -109,7 +112,7 @@ const QuestionList = (props) => {
       setShowOptions(OPTION_TYPES.NUMBER_OPTIONS);
       editQuestionForm.setFieldValue(
         "numberConstraints",
-        questions[index].numberConstraints,
+        questions[index].numberConstraints
       );
       cloneObject["numberConstraints"] = questions[index].numberConstraints;
     }
@@ -124,30 +127,41 @@ const QuestionList = (props) => {
           <React.Fragment key={question.tag}>
             {currentQuestionIndex !== index ? (
               // added question card
-              <Card
-                type="inner"
-                title="Question"
-                extra={
-                  <QuestionActions
-                    handleQuestionEdit={handleQuestionEdit}
-                    handleQuestionClone={handleQuestionClone}
-                    handleQuestionDelete={onDeleteQuestion}
-                    index={index}
-                  />
-                }
+              <Reorder.Item
                 key={question.tag}
+                value={question}
+                style={{ margin: "10px" }}
+                dragControls={controls}
               >
-                <ul
-                  style={{
-                    justifyContent: "flex-start",
-                    alignItems: "flex-start",
-                    alignContent: "flex-start",
-                    textAlign: "left",
+                <Card
+                  type="inner"
+                  title="Drag to reorder"
+                  extra={
+                    <QuestionActions
+                      handleQuestionEdit={handleQuestionEdit}
+                      handleQuestionClone={handleQuestionClone}
+                      handleQuestionDelete={onDeleteQuestion}
+                      index={index}
+                    />
+                  }
+                  onPointerDown={(e) => {
+                    setCurrentQuestionIndex(-1);
+                    controls.start(e);
                   }}
+                  key={question.tag}
                 >
-                  <li>{question.question}</li>
-                </ul>
-              </Card>
+                  <ul
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "flex-start",
+                      alignContent: "flex-start",
+                      textAlign: "left",
+                    }}
+                  >
+                    <li>Question: {question.question}</li>
+                  </ul>
+                </Card>
+              </Reorder.Item>
             ) : (
               // Edit question form
               <QuestionCard
