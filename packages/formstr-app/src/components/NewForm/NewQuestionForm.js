@@ -1,7 +1,8 @@
 import { makeTag } from "../../utils/utility";
 import { useEffect, useState } from "react";
-import QuestionCard from "./QuestionCard";
+// import QuestionCard from "./QuestionCard";
 import { isChoiceType, isNumberType } from "./util";
+import QuestionCard from "../v1/QuestionCard";
 
 const OPTION_TYPES = {
   CHOICE_OPTIONS: 1,
@@ -62,16 +63,28 @@ const NewQuestionForm = (props) => {
   }
 
   return (
-    <QuestionCard
-      handleSaveQuestion={handleSaveQuestion}
-      handleEditQuestion={null}
-      handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
-      handleInputType={handleInputType}
-      showOptions={showOptions}
-      handleChoices={handleChoices}
-      handleNumberConstraints={handleNumberConstraints}
-      form={form}
-    />
+    <>
+      <QuestionCard
+        handleSaveQuestion={handleSaveQuestion}
+        handleEditQuestion={null}
+        handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
+        handleInputType={handleInputType}
+        showOptions={showOptions}
+        handleChoices={handleChoices}
+        handleNumberConstraints={handleNumberConstraints}
+        form={form}
+      />
+      {/* <QuestionCard
+        handleSaveQuestion={handleSaveQuestion}
+        handleEditQuestion={null}
+        handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
+        handleInputType={handleInputType}
+        showOptions={showOptions}
+        handleChoices={handleChoices}
+        handleNumberConstraints={handleNumberConstraints}
+        form={form}
+      /> */}
+    </>
   );
 };
 
