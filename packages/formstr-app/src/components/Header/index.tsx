@@ -13,7 +13,6 @@ export const NostrHeader = () => {
   const location = useLocation();
   const { Header } = Layout;
   const getSelectedTab = () => {
-    console.log("locaaation", location.pathname);
     if (location.pathname === "/myForms") {
       return "/myForms";
     }
@@ -25,6 +24,7 @@ export const NostrHeader = () => {
     }
     return "/myForms";
   };
+
   return (
     <>
       <Header

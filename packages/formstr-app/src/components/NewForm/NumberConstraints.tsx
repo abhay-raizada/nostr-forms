@@ -1,5 +1,6 @@
 import React from "react";
 import { Form, Input, Row, Tooltip, InputRef } from "antd";
+import { NumberConstraint } from "@formstr/sdk/dist/interfaces";
 
 interface Constraints {
   max?: number;
@@ -8,11 +9,11 @@ interface Constraints {
 
 interface NumberConstraintsProps {
   onConstraintsChange: (constraints: Constraints | null) => void;
-  numberConstraints: Constraints | null;
+  numberConstraints: NumberConstraint;
 }
 export const NumberConstraints: React.FC<NumberConstraintsProps> = ({
   onConstraintsChange,
-  numberConstraints = null,
+  numberConstraints,
 }) => {
   const [error, showError] = React.useState(false);
   const maxRef = React.useRef<InputRef | null>();
