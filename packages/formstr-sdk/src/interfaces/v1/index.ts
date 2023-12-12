@@ -59,8 +59,8 @@ export interface V1Field {
   numberConstraints?: NumberConstraint;
 }
 
-export interface Response {
+export interface V1Response {
   questionId: string;
   answer: string;
-  otherMessage?: string;
+  message?: string;
 }

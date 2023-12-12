@@ -1,4 +1,3 @@
-import { regExpLiteral } from "@babel/types";
 import { AnswerTypes } from "../interfaces";
 import { makeTag } from "../utils/utils";
 import * as formstr from "./formstr";
@@ -323,8 +322,6 @@ describe("getFormTemplate", () => {
 });
 
 describe("sendResponses", () => {
-  const relays = ["relay1", "relay2"]; // Replace with your relay values
-
   beforeEach(() => {
     // Reset mocks before each test
     jest.clearAllMocks();
@@ -412,5 +409,114 @@ describe("sendResponses", () => {
 
     global.window = mockWindow;
     await formstr.sendResponses(formId, responses, false);
+  });
+});
+
+describe("getFormResponses", () => {
+  beforeEach(() => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() => {
+      return {
+        list: jest.fn(
+          () =>
+            new Promise((resolve) =>
+              resolve([
+                {
+                  content: "gibberish",
+                  pubkey: "Some key",
+                },
+              ])
+            )
+        ),
+        close: jest.fn(),
+      };
+    });
+  });
+  const mockNip04 = {
+    encrypt: jest.fn(),
+    decrypt: jest.fn(
+      () =>
+        new Promise((resolve) =>
+          resolve(JSON.stringify({ questionId: "234ed", answer: "sada" }))
+        )
+    ),
+  };
+  it("should return valid responses", async () => {
+    jest.replaceProperty(nostrTools, "nip04", mockNip04);
+    const result = await formstr.getFormResponses("formSecret");
+
+    expect(result).toEqual([{ questionId: "234ed", answer: "sada" }]);
+  });
+
+  it("should handle invalid JSON in response", async () => {
+    mockNip04.decrypt = jest.fn(() => {
+      return new Promise((resolve) => {
+        return resolve("EWDweqfW");
+      });
+    });
+    jest.replaceProperty(nostrTools, "nip04", mockNip04);
+    const result = await formstr.getFormResponses("validFormSecret");
+
+    expect(result).toEqual([]);
+  });
+
+  it("should convert V0 response to V1", async () => {
+    mockNip04.decrypt = jest.fn(() => {
+      return new Promise((resolve) => {
+        return resolve(
+          JSON.stringify({
+            question: "ASDD",
+            tag: "123456",
+            answerType: "string",
+            inputValue: "Hello",
+          })
+        );
+      });
+    });
+    jest.replaceProperty(nostrTools, "nip04", mockNip04);
+    const result = await formstr.getFormResponses("validFormSecret");
+
+    expect(result).toEqual([{ questionId: "123456", answer: "Hello" }]);
+  });
+
+  it("should handle invalid V1 response schema", async () => {
+    mockNip04.decrypt = jest.fn(() => {
+      return new Promise((resolve) => {
+        return resolve(JSON.stringify({ a: 1, b: 2 }));
+      });
+    });
+    jest.replaceProperty(nostrTools, "nip04", mockNip04);
+    const result = await formstr.getFormResponses("validFormSecret");
+
+    expect(result).toEqual([]);
+  });
+});
+
+describe("getFormResponses", () => {
+  beforeEach(() => {
+    jest.spyOn(nostrTools, "SimplePool").mockImplementationOnce(() => {
+      return {
+        list: jest.fn(
+          () =>
+            new Promise((resolve) =>
+              resolve([
+                {
+                  content: "gibberish",
+                  pubkey: "Some key1",
+                },
+                {
+                  content: "gibberish",
+                  pubkey: "Some key2",
+                },
+              ])
+            )
+        ),
+        close: jest.fn(),
+      };
+    });
+  });
+
+  it("should return correct count", async () => {
+    const result = await formstr.getFormResponsesCount("formId");
+    expect(result).toEqual(2);
   });
 });

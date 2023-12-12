@@ -8,7 +8,12 @@ import {
   nip04,
 } from "nostr-tools";
 import { detectFormVersion, makeTag } from "../utils/utils";
-import { getSchema, isValidSpec } from "../utils/validators";
+import {
+  getResponseSchema,
+  getSchema,
+  isValidSpec,
+  isValidResponse,
+} from "../utils/validators";
 import {
   AnswerTypes,
   Field,
@@ -18,7 +23,9 @@ import {
   V0FormSpec,
   V1Field,
   V1FormSpec,
-  Response,
+  V1Response,
+  V0Response,
+  V1Choice,
 } from "../interfaces";
 
 declare global {
@@ -272,7 +279,7 @@ export const createForm = async (
 
 export const sendResponses = async (
   formId: string,
-  responses: Array<Response>,
+  responses: Array<V1Response>,
   anonymous: boolean,
   userSecretKey: string | null = null
 ) => {
@@ -318,4 +325,61 @@ export const sendResponses = async (
   const pool = new SimplePool();
   await Promise.all(pool.publish(relays, kind4Event));
   pool.close(relays);
+};
+
+async function getEncryptedResponses(formId: string) {
+  const pool = new SimplePool();
+  const filter = {
+    kinds: [4],
+    "#p": [formId],
+  };
+  const responses = await pool.list(relays, [filter]);
+  pool.close(relays);
+  return responses;
+}
+
+function isV0Response(response: any) {
+  if (response.tag !== undefined) {
+    return true;
+  }
+  return false;
+}
+
+function convertV1Response(response: V0Response) {
+  return {
+    questionId: response.tag,
+    answer: response.inputValue,
+    message: response.otherMessage,
+  };
+}
+
+export const getFormResponses = async (formSecret: string) => {
+  const formId = getPublicKey(formSecret);
+  const responses = await getEncryptedResponses(formId);
+  const finalResponses: Array<V1Response> = [];
+  for (const response of responses) {
+    const decryptedResponse = await nip04.decrypt(
+      formSecret,
+      response.pubkey,
+      response.content
+    );
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(decryptedResponse);
+    } catch (e) {
+      continue;
+    }
+    if (isV0Response(parsedResponse)) {
+      parsedResponse = convertV1Response(parsedResponse);
+    }
+    if (isValidResponse(await getResponseSchema("v1"), parsedResponse)) {
+      finalResponses.push(parsedResponse);
+    }
+  }
+  return finalResponses;
+};
+
+export const getFormResponsesCount = async (formId: string) => {
+  let responses = await getEncryptedResponses(formId);
+  return responses.length;
 };
