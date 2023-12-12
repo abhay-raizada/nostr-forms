@@ -33,3 +33,11 @@ export interface V0NumberConstraint {
   min: number;
   max: number;
 }
+
+export interface V0Response {
+  question: string;
+  answerType: string;
+  tag: string;
+  inputValue: string;
+  otherMessage?: string;
+}
