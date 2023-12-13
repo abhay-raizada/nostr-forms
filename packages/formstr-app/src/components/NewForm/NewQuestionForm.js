@@ -2,7 +2,7 @@ import { makeTag } from "../../utils/utility";
 import { useEffect, useState } from "react";
 // import QuestionCard from "./QuestionCard";
 import { isChoiceType, isNumberType } from "./util";
-import QuestionCard from "../v1/QuestionCard";
+import QuestionCard from "../v1/QuestionCard/QuestionCard";
 
 const OPTION_TYPES = {
   CHOICE_OPTIONS: 1,
