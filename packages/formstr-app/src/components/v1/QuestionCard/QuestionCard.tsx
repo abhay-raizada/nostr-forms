@@ -1,7 +1,7 @@
 import { Button, Card, Form, FormInstance, Input, Select } from "antd";
 import { useRef, useState } from "react";
 import { useEditable } from "use-editable";
-import { IQuestion } from "../Index";
+import { IQuestion } from "../QuestionsList";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
 
@@ -33,6 +33,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
       }}
     >
       <CardHeader />
+
       <div style={{ marginBottom: 10 }}>
         <label ref={questionRef}>{questionText}</label>
       </div>
