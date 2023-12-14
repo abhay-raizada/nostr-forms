@@ -67,8 +67,6 @@ export const QuestionsList = () => {
   };
 
   const handleMenuClick: MenuProps["onClick"] = (e) => {
-    // message.info('Click on menu item.');
-    console.log("click", e);
     const selectedItem = answerTypeItems.find((item) => item.key === e.key);
     setQuestionsList([
       ...questionsList,

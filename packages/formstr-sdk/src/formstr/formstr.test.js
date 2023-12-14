@@ -115,14 +115,16 @@ test("adds choice id for each choice", async () => {
       {
         question: "Short question",
         answerType: AnswerTypes.radioButton,
-        choices: [
-          {
-            message: "choice1",
-          },
-          {
-            message: "choice2",
-          },
-        ],
+        answerSettings: {
+          choices: [
+            {
+              message: "choice1",
+            },
+            {
+              message: "choice2",
+            },
+          ],
+        },
       },
     ],
   });
@@ -273,12 +275,14 @@ describe("getFormTemplate", () => {
           question: "Question1",
           answerType: "radioButton",
           questionId: "asdasd",
-          choices: [
-            {
-              message: "choice",
-              choiceId: "tfsdfg",
-            },
-          ],
+          answerSettings: {
+            choices: [
+              {
+                label: "choice",
+                choiceId: "tfsdfg",
+              },
+            ],
+          },
         },
       ],
     });

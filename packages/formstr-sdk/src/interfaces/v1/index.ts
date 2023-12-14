@@ -29,34 +29,36 @@ export enum AnswerTypes {
 }
 
 export interface Choice {
-  message: string;
-  otherMessage?: boolean;
+  label: string;
+  isOther?: boolean;
 }
 
 export interface V1Choice {
   choiceId: string;
-  message: string;
-  otherMessage?: boolean;
+  label: string;
+  isOther?: boolean;
 }
 
 export interface NumberConstraint {
   min: number;
   max: number;
 }
+export interface AnswerSettings {
+  choices?: Array<Choice> | Array<V1Choice>;
+  numberConstraints?: NumberConstraint;
+}
 
 export interface Field {
   question: string;
   answerType: AnswerTypes;
-  choices?: Array<Choice>;
-  numberConstraints?: NumberConstraint;
+  answerSettings: AnswerSettings;
 }
 
 export interface V1Field {
   question: string;
   questionId: string;
   answerType: AnswerTypes;
-  choices?: Array<Choice>;
-  numberConstraints?: NumberConstraint;
+  answerSettings: AnswerSettings;
 }
 
 export interface V1Response {
