@@ -63,28 +63,16 @@ const NewQuestionForm = (props) => {
   }
 
   return (
-    <>
-      <QuestionCard
-        handleSaveQuestion={handleSaveQuestion}
-        handleEditQuestion={null}
-        handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
-        handleInputType={handleInputType}
-        showOptions={showOptions}
-        handleChoices={handleChoices}
-        handleNumberConstraints={handleNumberConstraints}
-        form={form}
-      />
-      {/* <QuestionCard
-        handleSaveQuestion={handleSaveQuestion}
-        handleEditQuestion={null}
-        handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
-        handleInputType={handleInputType}
-        showOptions={showOptions}
-        handleChoices={handleChoices}
-        handleNumberConstraints={handleNumberConstraints}
-        form={form}
-      /> */}
-    </>
+    <QuestionCard
+      handleSaveQuestion={handleSaveQuestion}
+      handleEditQuestion={null}
+      handleQuestionNameChange={(e) => handleQuestionNameChange(e, form)}
+      handleInputType={handleInputType}
+      showOptions={showOptions}
+      handleChoices={handleChoices}
+      handleNumberConstraints={handleNumberConstraints}
+      form={form}
+    />
   );
 };
 

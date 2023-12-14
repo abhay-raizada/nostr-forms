@@ -11,6 +11,7 @@ interface NumberConstraintsProps {
   onConstraintsChange: (constraints: Constraints | null) => void;
   numberConstraints: NumberConstraint;
 }
+
 export const NumberConstraints: React.FC<NumberConstraintsProps> = ({
   onConstraintsChange,
   numberConstraints,
