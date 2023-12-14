@@ -1,4 +1,4 @@
-import { Button, Card, Form, FormInstance, Input, Select } from "antd";
+import { Card } from "antd";
 import { useRef, useState } from "react";
 import { useEditable } from "use-editable";
 import { IQuestion } from "../QuestionsList";
@@ -9,15 +9,13 @@ type QuestionCardProps = {
   question: IQuestion;
   onEdit: (question: IQuestion, tempId: string) => void;
 };
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
-  const { Option } = Select;
 
+const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   const questionRef = useRef(null);
   const [questionText, setQuestionText] = useState("Click to edit");
 
   const handleChange = (text: string) => {
     setQuestionText(text);
-    console.log("handleChange", text);
     onEdit({ ...question, question: questionText }, question.tempId);
   };
 

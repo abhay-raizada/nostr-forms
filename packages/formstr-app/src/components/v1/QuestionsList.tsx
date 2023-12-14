@@ -2,21 +2,20 @@ import { useMemo, useState } from "react";
 import QuestionCard from "./QuestionCard/QuestionCard";
 import { Button, Dropdown, Menu, MenuProps } from "antd";
 import { AnswerTypes, Field } from "@formstr/sdk/dist/interfaces";
-import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
-import { AnswerTypeLabels } from "./constants";
 import { makeTag } from "../../utils/utility";
-import { createForm } from "@formstr/sdk";
-
+import "./v1.css";
+import { Typography } from "antd";
 export interface IQuestion extends Field {
   tempId: string;
-  inputSettings: {};
 }
+
+const { Text } = Typography;
 
 const initialQuestion: IQuestion = {
   tempId: makeTag(6),
   question: "Click here to edit",
   answerType: AnswerTypes.shortText,
-  inputSettings: {},
+  answerSettings: {},
 };
 
 const getItems = () => {
@@ -45,7 +44,6 @@ export const QuestionsList = () => {
         };
       }),
     };
-    console.log("SAAAAVEEEE", formToSave);
     //createForm(formToSave);
   }
 
@@ -79,28 +77,90 @@ export const QuestionsList = () => {
   };
 
   return (
-    <>
-      {questionsList.map((question) => {
-        return (
-          <QuestionCard
-            question={question}
-            key={question.tempId}
-            onEdit={onEditQuestion}
-          />
-        );
-      })}
-      <Dropdown.Button
-        menu={{
-          items: answerTypeItems,
-          onClick: handleMenuClick,
-        }}
-        onClick={onAddQuestion}
-      >
-        Add +
-      </Dropdown.Button>
+    <div>
+      <div style={{ width: "100%" }}>
+        <div
+          style={{
+            backgroundImage: `linear-gradient(180deg, rgb(243 239 239 / 0%), rgb(4 3 3) 150%), url('https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg')`,
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            height: "250px",
+            marginTop: 30,
+            borderRadius: 10,
+            position: "relative",
+          }}
+        >
+          <Text
+            style={{
+              color: "white",
+              position: "absolute",
+              bottom: "10px",
+              left: "10px",
+              fontSize: "24px",
+            }}
+          >
+            blah and blah
+          </Text>
+        </div>
+        <div
+        // style={{
+        //   width: "100%",
+        //   // maxHeight: 250,
+        //   overflow: "hidden",
+        //   paddingTop: 30,
+        //   paddingBlock: 30,
+        // }}
+        >
+          {/* <img
+            src="https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg"
+            alt="form"
+            style={{
+              maxWidth: "100%",
+              maxHeight: 250,
+
+              objectFit: "contain",
+              overflow: "hidden",
+              aspectRatio: 4 / 3,
+            }}
+          ></img> */}
+        </div>
+        <div style={{ textAlign: "left", padding: "2rem" }}>
+          <Text>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi
+            commodi vero praesentium non quaerat modi in at ut assumenda atque,
+            iure, eos temporibus deserunt quidem eius voluptatum mollitia!
+            Temporibus, esse. Lorem ipsum dolor sit, amet consectetur
+            adipisicing elit. Tempora suscipit porro, maxime minus quo rem
+            debitis provident ipsam expedita ipsa?
+          </Text>
+        </div>
+      </div>
+      <div>
+        {questionsList.map((question) => {
+          return (
+            <QuestionCard
+              question={question}
+              key={question.tempId}
+              onEdit={onEditQuestion}
+            />
+          );
+        })}
+      </div>
+      <div>
+        <Dropdown.Button
+          menu={{
+            items: answerTypeItems,
+            onClick: handleMenuClick,
+          }}
+          onClick={onAddQuestion}
+        >
+          Add +
+        </Dropdown.Button>
+      </div>
       <Button type="primary" onClick={handleSaveForm}>
         Save Form
       </Button>
-    </>
+    </div>
   );
 };
