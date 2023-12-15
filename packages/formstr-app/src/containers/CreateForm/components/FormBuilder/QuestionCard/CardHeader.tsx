@@ -1,5 +1,5 @@
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { ReactComponent as Asterisk } from "../../../Images/asterisk.svg";
+import { ReactComponent as Asterisk } from "../../../../../Images/asterisk.svg";
 
 const CardHeader = () => {
   return (

@@ -1,9 +1,12 @@
+import Sidebar from "../Sidebar";
 import { QuestionsList } from "./QuestionsList";
 
-function Dashboard() {
+function FormBuilder() {
   return (
     <div style={{ display: "flex", maxWidth: "100vw" }}>
-      <div style={{ minWidth: "20%" }}>sidebar</div>
+      <div style={{ minWidth: "20%" }}>
+        <Sidebar />
+      </div>
       <div
         style={{
           minWidth: "60%",
@@ -21,4 +24,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default FormBuilder;

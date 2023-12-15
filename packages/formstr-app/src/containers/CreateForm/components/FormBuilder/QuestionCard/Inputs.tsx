@@ -1,7 +1,4 @@
 import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
-import { Input } from "antd";
-import { NumberConstraints } from "../../NewForm/NumberConstraints";
-import { useState } from "react";
 import ShortText from "./InputElements/ShortText";
 import QuestionContext from "../QuestionContext";
 

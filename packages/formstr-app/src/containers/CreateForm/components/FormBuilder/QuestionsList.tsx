@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import QuestionCard from "./QuestionCard/QuestionCard";
 import { Button, Dropdown, Menu, MenuProps } from "antd";
 import { AnswerTypes, Field } from "@formstr/sdk/dist/interfaces";
-import { makeTag } from "../../utils/utility";
-import "./v1.css";
+import "./FormBuilder";
 import { Typography } from "antd";
+import { makeTag } from "../../../../utils/utility";
 export interface IQuestion extends Field {
   tempId: string;
 }
@@ -44,6 +44,7 @@ export const QuestionsList = () => {
         };
       }),
     };
+    console.log(formToSave);
     //createForm(formToSave);
   }
 
