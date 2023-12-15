@@ -1,9 +1,7 @@
 import Sidebar from "./components/Sidebar";
 
 function CreateForm() {
-  return (
-    <Sidebar />
-  );
+  return <Sidebar />;
 }
 
 export default CreateForm;
