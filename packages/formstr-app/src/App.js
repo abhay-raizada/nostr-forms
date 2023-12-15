@@ -17,6 +17,8 @@ function App() {
             position: "fixed",
             bottom: "0",
             width: "100%",
+            textAlign: "center",
+            padding: "12px"
           }}
         >
           <a

@@ -27,11 +27,17 @@ export const NostrHeader = () => {
   };
   return (
     <>
-      <Header style={{ background: "white" }}>
-        <Row justify="space-between">
+      <Header
+        className="header-style"
+        style={{
+          background: "white",
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        <Row className="header-row" justify="space-between">
           <Col md={2} xs={1} sm={1}>
-            <div style={{ paddingTop: 15 }}>
-              <Link to="/myForms">
+            <div>
+              <Link className="app-link" to="/myForms">
                 <Logo />
               </Link>
             </div>
