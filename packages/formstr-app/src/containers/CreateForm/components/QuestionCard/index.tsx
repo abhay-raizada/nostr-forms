@@ -1,7 +1,7 @@
 import { Card } from "antd";
 import { useRef, useState } from "react";
 import { useEditable } from "use-editable";
-import { IQuestion } from "../QuestionsList";
+import { IQuestion } from "../../typeDefs";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
 
