@@ -1,16 +1,15 @@
-import { useContext } from "react";
 import QuestionCard from "../QuestionCard";
 import { Button, Dropdown, MenuProps } from "antd";
 import { Typography } from "antd";
 import StyleWrapper from "./style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
-import { FormBuilderContext } from "../../providers/FormBuilder";
+import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
 const { Text } = Typography;
 
 export const QuestionsList = () => {
   const { questionsList, saveForm, editQuestion, addQuestion } =
-    useContext(FormBuilderContext);
+    useFormBuilderContext();
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);

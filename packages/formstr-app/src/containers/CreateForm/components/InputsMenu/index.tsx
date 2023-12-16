@@ -1,10 +1,9 @@
-import { useContext } from "react";
 import { Menu } from "antd";
 import { INPUTS_MENU } from "../../configs/menuConfig";
-import { FormBuilderContext } from "../../providers/FormBuilder";
+import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
 function InputsMenu() {
-  const { addQuestion } = useContext(FormBuilderContext);
+  const { addQuestion } = useFormBuilderContext();
 
   const onMenuClick = ({ key }: { key: string }) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === key);
