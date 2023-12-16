@@ -4,6 +4,7 @@ import {
   PRE_BUILT_MENU_KEYS,
 } from "./constants";
 import { ShopOutlined } from "@ant-design/icons";
+import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
 
 export const BASIC_MENU = [
   {
@@ -23,36 +24,43 @@ export const INPUTS_MENU = [
     key: INPUTS_TYPES.SHORT_ANSWER,
     label: "Short answer",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.shortText,
   },
   {
     key: INPUTS_TYPES.PARAGRAPH,
     label: "Paragraph",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.paragraph,
   },
   {
     key: INPUTS_TYPES.MULTIPLE_CHOICE,
     label: "Multiple choice",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.checkboxes,
   },
   {
     key: INPUTS_TYPES.SINGLE_CHOICE,
     label: "Single choice",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.radioButton,
   },
   {
     key: INPUTS_TYPES.SELECT,
     label: "Select",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.label,
   },
   {
     key: INPUTS_TYPES.DATE,
     label: "Date",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.date,
   },
   {
     key: INPUTS_TYPES.TIME,
     label: "Time",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.date,
   },
 ];
 

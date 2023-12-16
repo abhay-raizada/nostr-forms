@@ -49,35 +49,41 @@
             ],
             "description": "Can only be one of the above enums"
           },
-          "choices": {
-            "type": "array",
-            "description": "This will be used when answer type will be radioButton or checkboxes",
-            "items": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                },
-                "otherMessage": {
-                  "type": "boolean",
-                  "description": "There should only be one instance of otherMessage in a given question. User will be presented an input box for selection"
+          "answerSettings": {
+            "type": "object",
+            "description": "holds settings of an object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "description": "This will be used when answer type will be radioButton or checkboxes",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "isOther": {
+                      "type": "boolean",
+                      "description": "There should only be one instance of otherMessage in a given question. User will be presented an input box for selection"
+                    }
+                  },
+                  "required": ["message"]
                 }
               },
-              "required": ["message"]
-            }
-          },
-          "numberConstraints": {
-            "type": "object",
-            "description": "This will be used when answer type will be number",
-            "properties": {
-              "max": {
-                "type": "number"
-              },
-              "min": {
-                "type": "number"
+              "numberConstraints": {
+                "type": "object",
+                "description": "This will be used when answer type will be number",
+                "properties": {
+                  "max": {
+                    "type": "number"
+                  },
+                  "min": {
+                    "type": "number"
+                  }
+                },
+                "required": ["max", "min"]
               }
-            },
-            "required": ["max", "min"]
+            }
           }
         },
         "required": ["question", "answerType"]

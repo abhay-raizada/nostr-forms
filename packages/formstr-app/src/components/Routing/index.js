@@ -5,13 +5,12 @@ import FillForm from "../FillForm";
 import ViewResponses from "../ViewResponses";
 import MyForms from "../MyForms";
 import { GlobalForms } from "../GlobalForms";
-import CreateForm from "../../containers/CreateForm";
 import { DraftsController } from "../MyForms/DraftsController";
+import FormBuilder from "../../containers/CreateForm";
 
 function Routing() {
   return (
     <Routes>
-      <Route path="forms/create" element={<CreateForm />} />
       <Route path="/" element={<App />}>
         <Route path="global" element={<GlobalForms />} />
         <Route path="myForms" element={<MyForms />} />
@@ -24,6 +23,7 @@ function Routing() {
         <Route path="*" element={<NewForm />} />
         <Route index element={<MyForms />} />
       </Route>
+      <Route path="v1" element={<FormBuilder />} />
     </Routes>
   );
 }

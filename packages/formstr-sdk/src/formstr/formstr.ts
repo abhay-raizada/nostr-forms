@@ -26,6 +26,7 @@ import {
   V1Response,
   V0Response,
   V1Choice,
+  AnswerSettings,
 } from "../interfaces";
 
 declare global {
@@ -71,10 +72,11 @@ function transformAnswerType(field: V0Field): AnswerTypes {
 
 function generateIds(formSpec: FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: Field): V1Field => {
-    const choices = field.choices?.map((choice) => {
+    const choices = field.answerSettings?.choices?.map((choice) => {
       return { ...choice, choiceId: makeTag(6) };
     });
-    return { ...field, questionId: makeTag(6) };
+    let answerSettings = { ...field.answerSettings, choices };
+    return { ...field, questionId: makeTag(6), answerSettings };
   });
   return { ...formSpec, fields };
 }
@@ -86,17 +88,26 @@ function convertV1Form(formSpec: V0FormSpec): V1FormSpec {
       let newId = choice.tag;
       delete newChoice.tag;
       return {
-        ...newChoice,
+        label: choice.message,
+        isOther: choice.otherMessage,
         choiceId: newId,
       };
     });
     const newField: any = { ...field };
+    let answerSettings: AnswerSettings = {};
+    if (choices) answerSettings.choices = choices;
+    if (newField.numberConstraints)
+      answerSettings.numberConstraints = newField.numberConstraints;
+
     delete newField.tag;
+    delete newField.choices;
+    delete newField.numberConstraints;
+
     const answerType: AnswerTypes = transformAnswerType(field);
     const v1Field: V1Field = {
       ...newField,
       answerType,
-      choices,
+      answerSettings,
       questionId: field.tag,
     };
     return v1Field;
@@ -249,7 +260,7 @@ export const createForm = async (
   try {
     isValidSpec(await getSchema("v1"), form);
   } catch (e) {
-    throw Error("Invalid form spec");
+    throw Error("Invalid form spec" + e);
   }
   const v1form = generateIds(form);
   const content = JSON.stringify(v1form);

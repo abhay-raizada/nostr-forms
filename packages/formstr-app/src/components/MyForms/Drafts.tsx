@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { constructDraftUrl } from "../../utils/utility";
 
 interface DraftProps {
-  drafts: Array<Draft>;
+  drafts: Array<IDraft>;
 }
 
 interface ShareDraft {
@@ -13,7 +13,7 @@ interface ShareDraft {
   tempId: string;
 }
 
-interface Draft {
+interface IDraft {
   formSpec: { name: string; description: string };
   tempId: string;
 }
@@ -22,7 +22,7 @@ const { Text } = Typography;
 export const Draft = (props: DraftProps) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareDraft, setShareDraft] = useState<ShareDraft | null>(null);
-  const [formDrafts, setFormDrafts] = useState<Array<Draft>>([]);
+  const [formDrafts, setFormDrafts] = useState<Array<IDraft>>([]);
 
   function handleDraftDelete(index: number) {
     let drafts = [...formDrafts];
@@ -36,7 +36,7 @@ export const Draft = (props: DraftProps) => {
   }, [props]);
   return (
     <>
-      {(formDrafts || []).map((draft: Draft, index: number) => {
+      {(formDrafts || []).map((draft: IDraft, index: number) => {
         return (
           <>
             <Card
