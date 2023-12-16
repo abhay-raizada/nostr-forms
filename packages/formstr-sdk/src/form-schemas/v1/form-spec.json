@@ -59,10 +59,10 @@
                 "items": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "label": {
                       "type": "string"
                     },
-                    "otherMessage": {
+                    "isOther": {
                       "type": "boolean",
                       "description": "There should only be one instance of otherMessage in a given question. User will be presented an input box for selection"
                     }

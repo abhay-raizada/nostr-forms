@@ -32,7 +32,7 @@ const QuestionsController = (props) => {
         <Button
           type="primary"
           size="large"
-          // disabled={isNewQuestion}
+          disabled={isNewQuestion}
           onClick={addQuestion}
           style={{ margin: "10px" }}
         >
