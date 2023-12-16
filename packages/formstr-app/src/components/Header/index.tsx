@@ -35,12 +35,10 @@ export const NostrHeader = () => {
         }}
       >
         <Row className="header-row" justify="space-between">
-          <Col md={2} xs={1} sm={1}>
-            <div>
-              <Link className="app-link" to="/myForms">
-                <Logo />
-              </Link>
-            </div>
+          <Col>
+            <Link className="app-link" to="/myForms">
+              <Logo />
+            </Link>
           </Col>
           <Col md={8} xs={2} sm={2}>
             <Menu
