@@ -28,6 +28,7 @@ export default function FormBuilderProvider({
         return {
           question: question.question,
           answerType: question.answerType,
+          answerSettings: question.answerSettings,
         };
       }),
     };

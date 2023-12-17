@@ -46,6 +46,8 @@ export interface NumberConstraint {
 export interface AnswerSettings {
   choices?: Array<Choice> | Array<V1Choice>;
   numberConstraints?: NumberConstraint;
+  required?: boolean;
+  [key: string]: unknown;
 }
 
 export interface Field {

@@ -13,13 +13,21 @@ type QuestionCardProps = {
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   const questionRef = useRef(null);
   const [questionText, setQuestionText] = useState("Click to edit");
+  const [required, setRequired] = useState(false);
 
-  const handleChange = (text: string) => {
+  const handleTextChange = (text: string) => {
     setQuestionText(text);
     onEdit({ ...question, question: questionText }, question.tempId);
   };
 
-  useEditable(questionRef, handleChange);
+  useEditable(questionRef, handleTextChange);
+
+  const handleRequiredChange = (required: boolean) => {
+    setRequired(required);
+    let answerSettings = question.answerSettings;
+    answerSettings = { ...answerSettings, required };
+    onEdit({ ...question, answerSettings }, question.tempId);
+  };
 
   return (
     <Card
@@ -30,7 +38,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
         textAlign: "left",
       }}
     >
-      <CardHeader />
+      <CardHeader required={required} onRequired={handleRequiredChange} />
 
       <div style={{ marginBottom: 10 }}>
         <label ref={questionRef}>{questionText}</label>
