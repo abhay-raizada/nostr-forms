@@ -4,9 +4,9 @@ import InputsMenu from "../InputsMenu";
 import PreBuiltMenu from "../PreBuiltMenu";
 import StyledWrapper from "./style";
 
-function Sidebar() {
+function Sidebar({ className }: { className: string }) {
   return (
-    <StyledWrapper>
+    <StyledWrapper className={className}>
       <Layout.Sider
         className="create-sidebar"
         width={242}

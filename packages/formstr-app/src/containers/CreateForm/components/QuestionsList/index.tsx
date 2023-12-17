@@ -8,7 +8,13 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
 const { Text } = Typography;
 
-export const QuestionsList = () => {
+export const QuestionsList = ({
+  className,
+  onOpenMenu,
+}: {
+  className: string;
+  onOpenMenu: () => void;
+}) => {
   const {
     formSettings,
     questionsList,
@@ -24,7 +30,7 @@ export const QuestionsList = () => {
   };
 
   return (
-    <StyleWrapper onClick={() => setQuestionIdInFocus()}>
+    <StyleWrapper className={className} onClick={() => setQuestionIdInFocus()}>
       <div>
         <FormTitle className="form-title" />
         {!!formSettings.description && (
@@ -49,6 +55,7 @@ export const QuestionsList = () => {
       </div>
       <div>
         <Dropdown.Button
+          className="desktop-add-btn"
           menu={{
             items: INPUTS_MENU,
             onClick: onMenuClick,
@@ -57,6 +64,9 @@ export const QuestionsList = () => {
         >
           Add +
         </Dropdown.Button>
+        <Button type="primary" onClick={onOpenMenu} className="mobile-add-btn">
+          +
+        </Button>
       </div>
       <Button type="primary" onClick={saveForm}>
         Save Form

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { MEDIA_QUERY_MOBILE_TABLET } from "../../utils/css";
 
 export default styled.div`
   background-color: #dedede;
@@ -20,5 +21,21 @@ export default styled.div`
   .form-description {
     text-align: left;
     padding: 32px;
+  }
+  
+  .desktop-add-btn {
+    position: sticky;
+    ${MEDIA_QUERY_MOBILE_TABLET} {
+      display: none;
+    }
+  }
+  .mobile-add-btn {
+    display: none;
+    ${MEDIA_QUERY_MOBILE_TABLET} {
+      display: block;
+      position: fixed;
+      right: 10px;
+      bottom: 50px;
+    }
   }
 `;
