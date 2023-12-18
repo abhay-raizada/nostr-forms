@@ -5,7 +5,7 @@ export default styled.div<{$isOpen?: boolean}>`
   .left-sidebar {
     ${MEDIA_QUERY_MOBILE_TABLET} {
         display: ${props => props.$isOpen ? 'block':'none'};
-        width: 100%;
+        box-shadow: 3px 1px 5px -3px gray;
     }
   }
 
@@ -13,8 +13,9 @@ export default styled.div<{$isOpen?: boolean}>`
     ${MEDIA_QUERY_MOBILE_TABLET} {
         width: 100%;
         padding:0;
-        display: ${props => props.$isOpen ?'none': 'block'};
-
+        position: ${props => props.$isOpen ? 'absolute':'static'};
+        z-index: ${props => props.$isOpen ? '-1':'0'};
+        opacity: ${props => props.$isOpen ? '0.5':'1'};
     }
   }
 
