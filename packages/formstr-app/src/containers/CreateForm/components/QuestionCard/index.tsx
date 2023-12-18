@@ -4,6 +4,7 @@ import { useEditable } from "use-editable";
 import { IQuestion } from "../../typeDefs";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
+import { AnswerSettings } from "@formstr/sdk/dist/interfaces";
 
 type QuestionCardProps = {
   question: IQuestion;
@@ -29,6 +30,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
     onEdit({ ...question, answerSettings }, question.tempId);
   };
 
+  const handleAnswerSettings = (answerSettings: AnswerSettings) => {
+    onEdit({ ...question, answerSettings }, question.tempId);
+  };
+
   return (
     <Card
       type="inner"
@@ -46,9 +51,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
 
       <Inputs
         inputType={question.answerType}
-        inputSettingsHandler={() => {
-          return;
-        }}
+        answerSettings={question.answerSettings}
+        answerSettingsHandler={handleAnswerSettings}
       />
     </Card>
   );
