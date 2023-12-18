@@ -9,7 +9,7 @@ function Sidebar() {
     <StyledWrapper>
       <Layout.Sider
         className="create-sidebar"
-        width={228}
+        width={242}
         style={{
           marginTop: "1px",
         }}

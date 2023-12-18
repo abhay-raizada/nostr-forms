@@ -1,6 +1,7 @@
 import QuestionCard from "../QuestionCard";
 import { Button, Dropdown, MenuProps } from "antd";
 import { Typography } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import StyleWrapper from "./style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
@@ -15,6 +16,8 @@ export const QuestionsList = () => {
     editQuestion,
     addQuestion,
     setQuestionIdInFocus,
+    updateFormSetting,
+    updateFormTitleImage,
   } = useFormBuilderContext();
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
@@ -25,8 +28,35 @@ export const QuestionsList = () => {
   return (
     <StyleWrapper onClick={() => setQuestionIdInFocus()}>
       <div>
-        <div className="cover-image">
-          <Text className="cover-image-text">blah and blah</Text>
+        <div className="form-title">
+          {!!formSettings.titleImageUrl && (
+            <img
+              className="title-image"
+              src={formSettings.titleImageUrl}
+              alt="title background"
+            />
+          )}
+          <div className="image-utils">
+            <label htmlFor="form-title-image">
+              <div className="icon-util">
+                <EditOutlined />
+                <input
+                  id="form-title-image"
+                  className="file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={updateFormTitleImage}
+                />
+              </div>
+            </label>
+            <div
+              className="icon-util"
+              onClick={() => updateFormSetting({ titleImageUrl: "" })}
+            >
+              <DeleteOutlined />
+            </div>
+          </div>
+          <Text className="title-text">blah and blah</Text>
         </div>
         {!!formSettings.description && (
           <div className="form-description">

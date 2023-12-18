@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
-import { IFormBuilderContext, IFormSettings } from "./typeDefs";
+import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
+import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { generateQuestion } from "../../utils";
 
@@ -12,12 +12,13 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
-  formSettings: {},
+  formSettings: { titleImageUrl: "" },
   updateFormSetting: (settings: IFormSettings) => null,
+  updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
-  titleImage: true,
+  titleImageUrl: "",
   description: true,
   thankYouPage: true,
 };
@@ -79,6 +80,16 @@ export default function FormBuilderProvider({
     setFormSettings((preSettings) => ({ ...preSettings, ...settings }));
   };
 
+  const updateFormTitleImage = (e: React.FormEvent<HTMLInputElement>) => {
+    let imageFiles = e.currentTarget.files;
+    if (imageFiles) {
+      let imageUrl = URL.createObjectURL(imageFiles[0]);
+      updateFormSetting({
+        titleImageUrl: imageUrl,
+      });
+    }
+  };
+
   return (
     <FormBuilderContext.Provider
       value={{
@@ -91,6 +102,7 @@ export default function FormBuilderProvider({
         setQuestionIdInFocus,
         formSettings,
         updateFormSetting,
+        updateFormTitleImage,
       }}
     >
       {children}

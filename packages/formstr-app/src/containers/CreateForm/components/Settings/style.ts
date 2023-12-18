@@ -1,5 +1,6 @@
 import styled from "styled-components";
 
 export default styled.div`
-  min-width: 228px;
+  width: 242px;
+  min-width: 242px;
 `;

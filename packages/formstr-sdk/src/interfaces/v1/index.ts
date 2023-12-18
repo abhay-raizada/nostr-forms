@@ -68,3 +68,9 @@ export interface V1Response {
   answer: string;
   message?: string;
 }
+
+export interface IFormSettings {
+  titleImageUrl?: string;
+  description?: boolean;
+  thankYouPage?: boolean;
+}

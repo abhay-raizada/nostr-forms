@@ -2,6 +2,7 @@ import { Button, Divider, Switch, Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import StyleWrapper from "./style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
+import TitleImage from "./TitleImage";
 
 const { Text } = Typography;
 
@@ -11,13 +12,7 @@ function FormSettings() {
   return (
     <StyleWrapper>
       <div className="form-setting">
-        <div className="property-setting">
-          <Text className="property-name">Title image</Text>
-          <Switch
-            checked={formSettings.titleImage}
-            onChange={(checked) => updateFormSetting({ titleImage: checked })}
-          />
-        </div>
+        <TitleImage titleImageUrl={formSettings.titleImageUrl} />
         <div className="property-setting">
           <Text className="property-name">Description</Text>
           <Switch

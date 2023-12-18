@@ -1,4 +1,4 @@
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
+import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
 import { IQuestion } from "../../typeDefs";
 
 export interface IFormBuilderContext {
@@ -11,10 +11,5 @@ export interface IFormBuilderContext {
   setQuestionIdInFocus: (tempId?: string) => void;
   formSettings: IFormSettings;
   updateFormSetting: (settings: IFormSettings) => void;
-}
-
-export interface IFormSettings {
-  titleImage?: boolean;
-  description?: boolean;
-  thankYouPage?: boolean;
+  updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => void;
 }
