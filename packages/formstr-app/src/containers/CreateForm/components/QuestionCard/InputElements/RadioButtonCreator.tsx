@@ -1,8 +1,9 @@
 import { CloseOutlined, PlusOutlined } from "@ant-design/icons";
-import { Input, Radio, Typography } from "antd";
+import { Button, Input, Radio, Typography } from "antd";
 import { useState } from "react";
 import { IChoice } from "./types";
 import { makeTag } from "../../../../../utils/utility";
+import RadioButtonStyles from "./RadioButtonCreator.style";
 
 const { Text } = Typography;
 
@@ -13,35 +14,42 @@ interface RadioButtonCreatorProps {
 
 interface AddOptionProps {
   onClick: (option: IChoice) => void;
+  isDisplayOther: boolean;
+  disable: boolean;
 }
-const AddOption: React.FC<AddOptionProps> = ({ onClick }) => {
+const AddOption: React.FC<AddOptionProps> = ({
+  onClick,
+  isDisplayOther,
+  disable,
+}) => {
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "left",
-        margin: "2px",
-      }}
-    >
-      <div>
-        <PlusOutlined
-          onClick={(e) => {
-            onClick({ label: "Add option", tempId: makeTag(6) });
-          }}
-        />
-        Add Option
-      </div>
-      <div style={{ marginLeft: "10px", marginRight: "10px" }}>
-        <Text>{" or "}</Text>
-      </div>
-      <div
+    <div className="addOptionButtons">
+      <Button
+        disabled={disable}
+        type="dashed"
         onClick={(e) => {
-          onClick({ label: "Other", isOther: true, tempId: makeTag(6) });
+          onClick({ label: "Add option", tempId: makeTag(6) });
         }}
+        icon={<PlusOutlined />}
       >
-        add other
-      </div>
+        Add Option
+      </Button>
+      {isDisplayOther && (
+        <>
+          <div className="orText">
+            <Text disabled={disable}>{" or "}</Text>
+          </div>
+          <Button
+            type="dashed"
+            disabled={disable}
+            onClick={(e) => {
+              onClick({ label: "Other", isOther: true, tempId: makeTag(6) });
+            }}
+          >
+            add other
+          </Button>
+        </>
+      )}
     </div>
   );
 };
@@ -74,34 +82,44 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
     onValuesChange("choices", newChoices);
   };
 
+  const hasOtherOption = () => {
+    return choices.some((choice) => {
+      return choice.isOther;
+    });
+  };
+
   return (
-    <>
+    <RadioButtonStyles>
       {choices?.map((choice) => {
         return (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
-            }}
-          >
+          <div className="radioButtonItem">
             <Radio disabled />
             <Input
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(e.target.value, choice.tempId);
               }}
+              placeholder="Enter an option"
+              className=""
               disabled={choice.isOther}
             />
-            <CloseOutlined
-              onClick={(e) => {
-                handleDelete(choice.tempId);
-              }}
-            />
+            {choices.length >= 2 && (
+              <CloseOutlined
+                onClick={(e) => {
+                  handleDelete(choice.tempId);
+                }}
+              />
+            )}
           </div>
         );
       })}
-      <AddOption onClick={addOption} />
-    </>
+      <AddOption
+        disable={choices.some((choice) => {
+          return choice.label === "";
+        })}
+        onClick={addOption}
+        isDisplayOther={!hasOtherOption()}
+      />
+    </RadioButtonStyles>
   );
 };

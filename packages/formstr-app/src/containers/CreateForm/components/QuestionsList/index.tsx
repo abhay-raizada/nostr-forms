@@ -20,16 +20,15 @@ export const QuestionsList = () => {
     <StyleWrapper>
       <div>
         <div className="cover-image">
-          <Text className="cover-image-text">blah and blah</Text>
+          <Text className="cover-image-text">
+            {" "}
+            This is the title of your form! Tap to edit.
+          </Text>
         </div>
         <div className="form-description">
           <Text>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi
-            commodi vero praesentium non quaerat modi in at ut assumenda atque,
-            iure, eos temporibus deserunt quidem eius voluptatum mollitia!
-            Temporibus, esse. Lorem ipsum dolor sit, amet consectetur
-            adipisicing elit. Tempora suscipit porro, maxime minus quo rem
-            debitis provident ipsam expedita ipsa?
+            This is where the description of your form will appear! You can tap
+            anywhere on the form to edit it, including this description.
           </Text>
         </div>
       </div>
