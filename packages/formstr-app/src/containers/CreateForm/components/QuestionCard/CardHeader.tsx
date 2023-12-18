@@ -3,7 +3,7 @@ import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./style";
 
 interface CardHeaderProps {
-  required: boolean;
+  required?: boolean;
   onRequired: (required: boolean) => void;
 }
 

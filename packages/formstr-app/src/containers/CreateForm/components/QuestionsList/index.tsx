@@ -8,8 +8,14 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 const { Text } = Typography;
 
 export const QuestionsList = () => {
-  const { questionsList, saveForm, editQuestion, addQuestion } =
-    useFormBuilderContext();
+  const {
+    formSettings,
+    questionsList,
+    saveForm,
+    editQuestion,
+    addQuestion,
+    setQuestionIdInFocus,
+  } = useFormBuilderContext();
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);
@@ -17,21 +23,23 @@ export const QuestionsList = () => {
   };
 
   return (
-    <StyleWrapper>
+    <StyleWrapper onClick={() => setQuestionIdInFocus()}>
       <div>
         <div className="cover-image">
           <Text className="cover-image-text">blah and blah</Text>
         </div>
-        <div className="form-description">
-          <Text>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi
-            commodi vero praesentium non quaerat modi in at ut assumenda atque,
-            iure, eos temporibus deserunt quidem eius voluptatum mollitia!
-            Temporibus, esse. Lorem ipsum dolor sit, amet consectetur
-            adipisicing elit. Tempora suscipit porro, maxime minus quo rem
-            debitis provident ipsam expedita ipsa?
-          </Text>
-        </div>
+        {!!formSettings.description && (
+          <div className="form-description">
+            <Text>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quasi
+              commodi vero praesentium non quaerat modi in at ut assumenda
+              atque, iure, eos temporibus deserunt quidem eius voluptatum
+              mollitia! Temporibus, esse. Lorem ipsum dolor sit, amet
+              consectetur adipisicing elit. Tempora suscipit porro, maxime minus
+              quo rem debitis provident ipsam expedita ipsa?
+            </Text>
+          </div>
+        )}
       </div>
       <div>
         {questionsList.map((question) => {

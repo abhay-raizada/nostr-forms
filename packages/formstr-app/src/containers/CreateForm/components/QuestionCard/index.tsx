@@ -2,6 +2,7 @@ import { Card } from "antd";
 import { useRef, useState } from "react";
 import { useEditable } from "use-editable";
 import { IQuestion } from "../../typeDefs";
+import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
 
@@ -13,7 +14,8 @@ type QuestionCardProps = {
 const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   const questionRef = useRef(null);
   const [questionText, setQuestionText] = useState("Click to edit");
-  const [required, setRequired] = useState(false);
+  const answerSettings = question.answerSettings;
+  const { setQuestionIdInFocus } = useFormBuilderContext();
 
   const handleTextChange = (text: string) => {
     setQuestionText(text);
@@ -23,10 +25,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   useEditable(questionRef, handleTextChange);
 
   const handleRequiredChange = (required: boolean) => {
-    setRequired(required);
-    let answerSettings = question.answerSettings;
-    answerSettings = { ...answerSettings, required };
-    onEdit({ ...question, answerSettings }, question.tempId);
+    onEdit(
+      { ...question, answerSettings: { ...answerSettings, required } },
+      question.tempId
+    );
+  };
+
+  const onCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setQuestionIdInFocus(question.tempId);
   };
 
   return (
@@ -37,8 +44,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
         margin: "10px",
         textAlign: "left",
       }}
+      onClick={onCardClick}
     >
-      <CardHeader required={required} onRequired={handleRequiredChange} />
+      <CardHeader
+        required={answerSettings.required}
+        onRequired={handleRequiredChange}
+      />
 
       <div style={{ marginBottom: 10 }}>
         <label ref={questionRef}>{questionText}</label>
