@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Switch, Typography } from "antd";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
@@ -16,6 +16,10 @@ function TitleImage({ titleImageUrl }: { titleImageUrl?: string }) {
     }
     setChecked(checked);
   };
+
+  useEffect(() => {
+    setChecked(!!titleImageUrl)
+  }, [titleImageUrl])
 
   return (
     <>
