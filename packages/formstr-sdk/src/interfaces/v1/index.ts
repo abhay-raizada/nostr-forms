@@ -4,7 +4,7 @@ export interface FormSpec {
   name: string;
   fields?: Array<Field>;
   description?: string;
-  settings?: unknown;
+  settings?: IFormSettings;
   metadata?: unknown;
 }
 
