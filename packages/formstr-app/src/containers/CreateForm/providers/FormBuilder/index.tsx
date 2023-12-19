@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
+import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { generateQuestion } from "../../utils";
@@ -9,7 +9,20 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
   addQuestion: (answerType?: AnswerTypes) => null,
+  deleteQuestion: (tempId: string) => null,
+  questionIdInFocus: undefined,
+  setQuestionIdInFocus: (tempId?: string) => null,
+  formSettings: { titleImageUrl: "" },
+  updateFormSetting: (settings: IFormSettings) => null,
+  updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => null,
 });
+
+const InitialFormSettings: IFormSettings = {
+  titleImageUrl:
+    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
+  description: true,
+  thankYouPage: true,
+};
 
 export default function FormBuilderProvider({
   children,
@@ -19,6 +32,11 @@ export default function FormBuilderProvider({
   const [questionsList, setQuestionsList] = useState<IQuestion[]>([
     generateQuestion(),
   ]);
+  const [questionIdInFocus, setQuestionIdInFocus] = useState<
+    string | undefined
+  >();
+  const [formSettings, setFormSettings] =
+    useState<IFormSettings>(InitialFormSettings);
 
   const saveForm = () => {
     let formToSave = {
@@ -50,9 +68,42 @@ export default function FormBuilderProvider({
     setQuestionsList([...questionsList, generateQuestion(answerType)]);
   };
 
+  const deleteQuestion = (tempId: string) => {
+    if (questionIdInFocus === tempId) {
+      setQuestionIdInFocus(undefined);
+    }
+    setQuestionsList((preQuestions) => {
+      return preQuestions.filter((question) => question.tempId !== tempId);
+    });
+  };
+
+  const updateFormSetting = (settings: IFormSettings) => {
+    setFormSettings((preSettings) => ({ ...preSettings, ...settings }));
+  };
+
+  const updateFormTitleImage = (e: React.FormEvent<HTMLInputElement>) => {
+    let imageUrl = e.currentTarget.value;
+    if (imageUrl) {
+      updateFormSetting({
+        titleImageUrl: imageUrl,
+      });
+    }
+  };
+
   return (
     <FormBuilderContext.Provider
-      value={{ questionsList, saveForm, editQuestion, addQuestion }}
+      value={{
+        questionsList,
+        saveForm,
+        editQuestion,
+        addQuestion,
+        deleteQuestion,
+        questionIdInFocus,
+        setQuestionIdInFocus,
+        formSettings,
+        updateFormSetting,
+        updateFormTitleImage,
+      }}
     >
       {children}
     </FormBuilderContext.Provider>

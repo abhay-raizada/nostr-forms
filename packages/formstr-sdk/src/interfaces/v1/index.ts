@@ -4,7 +4,7 @@ export interface FormSpec {
   name: string;
   fields?: Array<Field>;
   description?: string;
-  settings?: unknown;
+  settings?: IFormSettings;
   metadata?: unknown;
 }
 
@@ -14,7 +14,7 @@ export interface V1FormSpec {
   name: string;
   fields?: Array<V1Field>;
   description?: string;
-  settings?: unknown;
+  settings?: IFormSettings;
   metadata?: unknown;
 }
 
@@ -67,4 +67,10 @@ export interface V1Response {
   questionId: string;
   answer: string;
   message?: string;
+}
+
+export interface IFormSettings {
+  titleImageUrl?: string;
+  description?: boolean;
+  thankYouPage?: boolean;
 }

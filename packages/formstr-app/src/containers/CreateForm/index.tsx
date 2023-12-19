@@ -1,6 +1,7 @@
 import Sidebar from "./components/Sidebar";
 import { QuestionsList } from "./components/QuestionsList";
 import FormBuilderProvider from "./providers/FormBuilder";
+import Settings from "./components/Settings";
 
 function FormBuilder() {
   return (
@@ -8,7 +9,7 @@ function FormBuilder() {
       <div style={{ display: "flex", maxWidth: "100vw" }}>
         <Sidebar />
         <QuestionsList />
-        <div style={{ minWidth: "20%" }}>right sidebar</div>
+        <Settings />
       </div>
     </FormBuilderProvider>
   );
