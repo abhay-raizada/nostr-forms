@@ -1,8 +1,9 @@
 import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import ShortText from "./InputElements/ShortText";
 import QuestionContext from "../QuestionContext";
-import { RadioButtonCreator } from "./InputElements/RadioButtonCreator";
+import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreator";
 import { makeTag } from "../../../../utils/utility";
+import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
 
 interface InputsProps {
   inputType: string;
@@ -39,6 +40,15 @@ const Inputs: React.FC<InputsProps> = ({
       case AnswerTypes.radioButton:
         return (
           <RadioButtonCreator
+            initialValues={answerSettings.choices?.map((c) => {
+              return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
+            })}
+            onValuesChange={updateAnswerSettings}
+          />
+        );
+      case AnswerTypes.checkboxes:
+        return (
+          <CheckboxCreator
             initialValues={answerSettings.choices?.map((c) => {
               return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
             })}

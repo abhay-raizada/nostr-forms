@@ -19,9 +19,11 @@ export default styled.div`
 
   .ant-input {
     border: none;
+    margin: 5px;
   }
 
   .choice-input {
     border-bottom: 1px;
+    top: 2px;
   }
 `;
