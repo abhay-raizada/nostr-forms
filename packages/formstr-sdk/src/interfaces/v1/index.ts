@@ -23,6 +23,7 @@ export enum AnswerTypes {
   paragraph = "paragraph",
   radioButton = "radioButton",
   checkboxes = "checkboxes",
+  dropdown = "dropdown",
   number = "number",
   date = "date",
   label = "label",

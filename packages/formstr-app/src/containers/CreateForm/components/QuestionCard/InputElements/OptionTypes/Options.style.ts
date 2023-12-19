@@ -3,8 +3,8 @@ import styled from "styled-components";
 export default styled.div`
   .radioButtonItem {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    width: 100%;
   }
 
   .addOptionButtons {
@@ -25,5 +25,9 @@ export default styled.div`
   .choice-input {
     border-bottom: 1px;
     top: 2px;
+  }
+  .dropdown {
+    margin-top: 5px;
+    margin-bottom: 10px;
   }
 `;
