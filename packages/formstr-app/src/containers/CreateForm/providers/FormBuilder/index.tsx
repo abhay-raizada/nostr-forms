@@ -18,7 +18,8 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
 });
 
 const InitialFormSettings: IFormSettings = {
-  titleImageUrl: "",
+  titleImageUrl:
+    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
   description: true,
   thankYouPage: true,
 };

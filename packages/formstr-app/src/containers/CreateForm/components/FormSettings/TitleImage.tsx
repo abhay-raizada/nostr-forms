@@ -31,6 +31,7 @@ function TitleImage({ titleImageUrl }: { titleImageUrl?: string }) {
         <input
           className="file-input"
           type="text"
+          value={titleImageUrl}
           onChange={updateFormTitleImage}
         />
       )}
