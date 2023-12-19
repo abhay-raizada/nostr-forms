@@ -81,9 +81,8 @@ export default function FormBuilderProvider({
   };
 
   const updateFormTitleImage = (e: React.FormEvent<HTMLInputElement>) => {
-    let imageFiles = e.currentTarget.files;
-    if (imageFiles) {
-      let imageUrl = URL.createObjectURL(imageFiles[0]);
+    let imageUrl = e.currentTarget.value;
+    if (imageUrl) {
       updateFormSetting({
         titleImageUrl: imageUrl,
       });

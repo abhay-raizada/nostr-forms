@@ -18,8 +18,8 @@ function TitleImage({ titleImageUrl }: { titleImageUrl?: string }) {
   };
 
   useEffect(() => {
-    setChecked(!!titleImageUrl)
-  }, [titleImageUrl])
+    setChecked(!!titleImageUrl);
+  }, [titleImageUrl]);
 
   return (
     <>
@@ -30,8 +30,7 @@ function TitleImage({ titleImageUrl }: { titleImageUrl?: string }) {
       {checked && (
         <input
           className="file-input"
-          type="file"
-          accept="image/*"
+          type="text"
           onChange={updateFormTitleImage}
         />
       )}

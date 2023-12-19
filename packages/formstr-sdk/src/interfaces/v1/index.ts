@@ -14,7 +14,7 @@ export interface V1FormSpec {
   name: string;
   fields?: Array<V1Field>;
   description?: string;
-  settings?: unknown;
+  settings?: IFormSettings;
   metadata?: unknown;
 }
 
