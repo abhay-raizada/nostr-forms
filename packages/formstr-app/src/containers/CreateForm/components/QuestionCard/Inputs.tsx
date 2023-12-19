@@ -1,13 +1,26 @@
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
+import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import ShortText from "./InputElements/ShortText";
 import QuestionContext from "../QuestionContext";
+import { RadioButtonCreator } from "./InputElements/RadioButtonCreator";
+import { makeTag } from "../../../../utils/utility";
 
 interface InputsProps {
   inputType: string;
-  inputSettingsHandler: (inputSettings: unknown) => void;
+  answerSettings: AnswerSettings;
+  answerSettingsHandler: (answerSettings: AnswerSettings) => void;
 }
 
-const Inputs: React.FC<InputsProps> = ({ inputType, inputSettingsHandler }) => {
+const Inputs: React.FC<InputsProps> = ({
+  inputType,
+  answerSettings,
+  answerSettingsHandler,
+}) => {
+  const handleProperties = (properties: unknown) => {};
+
+  const updateAnswerSettings = (key: string, property: unknown) => {
+    let newAnswerSettings = { ...answerSettings, key: property };
+    answerSettingsHandler(newAnswerSettings);
+  };
   const getInputElement = () => {
     switch (inputType) {
       case AnswerTypes.shortText:
@@ -16,12 +29,22 @@ const Inputs: React.FC<InputsProps> = ({ inputType, inputSettingsHandler }) => {
             <ShortText />
             <QuestionContext
               inputType={AnswerTypes.shortText}
-              propertiesHandler={inputSettingsHandler}
+              propertiesHandler={handleProperties}
             />
           </>
         );
       case AnswerTypes.number:
         break;
+
+      case AnswerTypes.radioButton:
+        return (
+          <RadioButtonCreator
+            initialValues={answerSettings.choices?.map((c) => {
+              return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
+            })}
+            onValuesChange={updateAnswerSettings}
+          />
+        );
       default:
         <></>;
         break;
