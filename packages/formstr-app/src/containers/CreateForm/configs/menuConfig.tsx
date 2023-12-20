@@ -48,7 +48,7 @@ export const INPUTS_MENU = [
     key: INPUTS_TYPES.SELECT,
     label: "Select",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
-    type: AnswerTypes.label,
+    type: AnswerTypes.dropdown,
   },
   {
     key: INPUTS_TYPES.DATE,
