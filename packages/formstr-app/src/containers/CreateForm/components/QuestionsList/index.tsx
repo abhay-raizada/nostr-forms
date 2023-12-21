@@ -5,6 +5,9 @@ import FormTitle from "../FormTitle";
 import StyleWrapper from "./style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
+import { useRef, useState } from "react";
+import { FormDetails } from "./FormDetails";
+import { useEditable } from "use-editable";
 
 const { Text } = Typography;
 
@@ -16,11 +19,32 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     editQuestion,
     addQuestion,
     setQuestionIdInFocus,
+    formDescription,
+    updateFormDescription,
   } = useFormBuilderContext();
+
+  const [formCredentials, setFormCredentials] = useState<string[]>([]);
+  const [openSubmittedWindow, setOpenSubmittedWindow] =
+    useState<boolean>(false);
+  const formDescriptionRef = useRef(null);
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);
     addQuestion(selectedItem?.type);
+  };
+
+  const handleDescriptionChange = (text: string) => {
+    updateFormDescription(text);
+  };
+
+  useEditable(formDescriptionRef, handleDescriptionChange);
+
+  const handleSaveForm = async () => {
+    if (formCredentials.length === 0) {
+      const formCreds = await saveForm();
+      setFormCredentials(formCreds);
+    }
+    setOpenSubmittedWindow(true);
   };
 
   return (
@@ -32,10 +56,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         <FormTitle className="form-title" />
         {!!formSettings.description && (
           <div className="form-description">
-            <Text>
-              This is where the description of your form will appear! You can
-              tap anywhere on the form to edit it, including this description.
-            </Text>
+            <Text ref={formDescriptionRef}>{formDescription}</Text>
           </div>
         )}
       </div>
@@ -65,9 +86,17 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
           +
         </Button>
       </div>
-      <Button type="primary" onClick={saveForm}>
+      <Button type="primary" onClick={handleSaveForm}>
         Save Form
       </Button>
+
+      <FormDetails
+        isOpen={openSubmittedWindow}
+        formCredentials={formCredentials}
+        onClose={() => {
+          setOpenSubmittedWindow(false);
+        }}
+      />
     </StyleWrapper>
   );
 };

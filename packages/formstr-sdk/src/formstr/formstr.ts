@@ -7,7 +7,7 @@ import {
   getSignature,
   nip04,
 } from "nostr-tools";
-import { detectFormVersion, makeTag } from "../utils/utils";
+import * as utils from "../utils/utils";
 import {
   getResponseSchema,
   getSchema,
@@ -25,7 +25,6 @@ import {
   V1FormSpec,
   V1Response,
   V0Response,
-  V1Choice,
   AnswerSettings,
 } from "../interfaces";
 
@@ -70,13 +69,17 @@ function transformAnswerType(field: V0Field): AnswerTypes {
   throw Error("Uknown Answer Type");
 }
 
+export const constructFormUrl = utils.constructFormUrl;
+
+export const constructResponseUrl = utils.constructResponseUrl;
+
 function generateIds(formSpec: FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: Field): V1Field => {
     const choices = field.answerSettings?.choices?.map((choice) => {
-      return { ...choice, choiceId: makeTag(6) };
+      return { ...choice, choiceId: utils.makeTag(6) };
     });
     let answerSettings = { ...field.answerSettings, choices };
-    return { ...field, questionId: makeTag(6), answerSettings };
+    return { ...field, questionId: utils.makeTag(6), answerSettings };
   });
   return { ...formSpec, fields };
 }
@@ -131,7 +134,7 @@ export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
   let formTemplate;
   if (kind0) {
     formTemplate = JSON.parse(kind0.content);
-    let formVersion = detectFormVersion(formTemplate);
+    let formVersion = utils.detectFormVersion(formTemplate);
     if (formVersion === "v0") {
       formTemplate = convertV1Form(formTemplate);
     }

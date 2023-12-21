@@ -17,14 +17,14 @@ export function constructFormUrl(publicKey: string) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `http://formstr.app/#/forms/${publicKey}`;
+  return `https://formstr.app/#/forms/${publicKey}`;
 }
 
 export function constructResponseUrl(privateKey: string) {
   if (!privateKey) {
     throw Error("public key is required");
   }
-  return `http://formstr.app/#/forms/${privateKey}/responses`;
+  return `https://formstr.app/#/forms/${privateKey}/responses`;
 }
 
 export function detectFormVersion(form: FormSpec & V0FormSpec) {
