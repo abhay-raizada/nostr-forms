@@ -4,6 +4,7 @@ import { IQuestion } from "../../typeDefs";
 export interface IFormBuilderContext {
   questionsList: IQuestion[];
   saveForm: () => void;
+  closeOnOutsideClick: () => void;
   editQuestion: (question: IQuestion, tempId: string) => void;
   addQuestion: (answerType?: AnswerTypes) => void;
   deleteQuestion: (tempId: string) => void;
@@ -12,4 +13,6 @@ export interface IFormBuilderContext {
   formSettings: IFormSettings;
   updateFormSetting: (settings: IFormSettings) => void;
   updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => void;
+  isRightSettingsOpen: boolean;
+  toggleSettingsWindow: () => void;
 }

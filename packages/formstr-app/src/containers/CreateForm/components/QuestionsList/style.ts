@@ -20,7 +20,7 @@ export default styled.div`
 
   .form-description {
     text-align: left;
-    padding: 32px;
+    padding: 1em;
   }
   
   .desktop-add-btn {
@@ -36,6 +36,7 @@ export default styled.div`
       position: fixed;
       right: 10px;
       bottom: 50px;
+      margin: 10px;
     }
   }
 `;

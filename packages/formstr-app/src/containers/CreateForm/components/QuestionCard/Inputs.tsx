@@ -1,6 +1,5 @@
 import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import ShortText from "./InputElements/ShortText";
-import QuestionContext from "../QuestionContext";
 import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreator";
 import { makeTag } from "../../../../utils/utility";
 import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
@@ -17,8 +16,6 @@ const Inputs: React.FC<InputsProps> = ({
   answerSettings,
   answerSettingsHandler,
 }) => {
-  const handleProperties = (properties: unknown) => {};
-
   const updateAnswerSettings = (key: string, property: unknown) => {
     let newAnswerSettings = { ...answerSettings, key: property };
     answerSettingsHandler(newAnswerSettings);
@@ -29,10 +26,6 @@ const Inputs: React.FC<InputsProps> = ({
         return (
           <>
             <ShortText />
-            <QuestionContext
-              inputType={AnswerTypes.shortText}
-              propertiesHandler={handleProperties}
-            />
           </>
         );
       case AnswerTypes.number:

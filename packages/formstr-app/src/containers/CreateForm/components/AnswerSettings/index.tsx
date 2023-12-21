@@ -34,7 +34,7 @@ function AnswerSettings() {
   };
 
   return (
-    <StyleWrapper className="right-sidebar">
+    <StyleWrapper>
       <Text className="question">
         Question {questionIndex + 1} of {questionsList.length}
       </Text>

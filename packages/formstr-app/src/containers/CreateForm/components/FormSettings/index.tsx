@@ -10,7 +10,7 @@ function FormSettings() {
   const { formSettings, updateFormSetting } = useFormBuilderContext();
 
   return (
-    <StyleWrapper className="right-sidebar">
+    <StyleWrapper>
       <div className="form-setting">
         <TitleImage titleImageUrl={formSettings.titleImageUrl} />
         <div className="property-setting">
