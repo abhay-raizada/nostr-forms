@@ -212,6 +212,7 @@ export async function getPastUserForms<FormStructure = unknown>(
   const pool = new SimplePool();
   const saveEvent = await pool.list(relays, [filters]);
   pool.close(relays);
+  if(Array.isArray(saveEvent) && !saveEvent.length) return saveEvent;
   const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
     userSecretKey

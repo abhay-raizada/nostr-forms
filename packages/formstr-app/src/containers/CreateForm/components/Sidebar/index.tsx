@@ -1,27 +1,19 @@
-import { Layout, Divider } from "antd";
+import { Divider } from "antd";
 import BasicMenu from "../BasicMenu";
 import InputsMenu from "../InputsMenu";
 import PreBuiltMenu from "../PreBuiltMenu";
-import StyledWrapper from "./style";
+import Sidebar from "../../../../components/Sidebar";
 
-function Sidebar() {
+function SidebarMenu() {
   return (
-    <StyledWrapper>
-      <Layout.Sider
-        className="create-sidebar"
-        width={242}
-        style={{
-          marginTop: "1px",
-        }}
-      >
-        <BasicMenu />
-        <Divider className="menu-divider" />
-        <InputsMenu />
-        <Divider className="menu-divider" />
-        <PreBuiltMenu />
-      </Layout.Sider>
-    </StyledWrapper>
+    <Sidebar width={242}>
+      <BasicMenu />
+      <Divider className="menu-divider" />
+      <InputsMenu />
+      <Divider className="menu-divider" />
+      <PreBuiltMenu />
+    </Sidebar>
   );
 }
 
-export default Sidebar;
+export default SidebarMenu;

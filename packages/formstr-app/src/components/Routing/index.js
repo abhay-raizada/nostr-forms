@@ -7,6 +7,9 @@ import MyForms from "../MyForms";
 import { GlobalForms } from "../GlobalForms";
 import { DraftsController } from "../MyForms/DraftsController";
 import FormBuilder from "../../containers/CreateForm";
+import MyFormsV1 from "../../containers/MyForms";
+import PublicForms from "../../containers/PublicForms";
+import { ROUTES } from "../../constants/routes";
 
 function Routing() {
   return (
@@ -23,7 +26,9 @@ function Routing() {
         <Route path="*" element={<NewForm />} />
         <Route index element={<MyForms />} />
       </Route>
-      <Route path="v1" element={<FormBuilder />} />
+      <Route path={`${ROUTES.CREATE_FORMS}/*`} element={<FormBuilder />} />
+      <Route path={`${ROUTES.MY_FORMS}/*`} element={<MyFormsV1 />} />
+      <Route path={`${ROUTES.PUBLIC_FORMS}/*`} element={<PublicForms />} />
     </Routes>
   );
 }

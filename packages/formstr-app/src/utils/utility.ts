@@ -40,3 +40,7 @@ export function constructResponseUrl(privateKey: string) {
   }
   return `http://${hostname}/#/forms/${privateKey}/responses`;
 }
+
+export function copyToClipBoard(str: string) {
+  navigator.clipboard.writeText(str);
+}

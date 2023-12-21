@@ -1,0 +1,7 @@
+export const MY_FORM_MENU_KEYS = {
+  DRAFTS: "DRAFTS",
+  LOCAL: "LOCAL",
+  NOSTR: "NOSTR",
+};
+
+export const DEFAULT_SELECT_KEY = MY_FORM_MENU_KEYS.DRAFTS;
