@@ -6,7 +6,7 @@ import ViewResponses from "../ViewResponses";
 import MyForms from "../MyForms";
 import { GlobalForms } from "../GlobalForms";
 import { DraftsController } from "../MyForms/DraftsController";
-import FormBuilder from "../../containers/CreateForm";
+import CreateForm from "../../containers/CreateForm";
 
 function Routing() {
   return (
@@ -23,7 +23,7 @@ function Routing() {
         <Route path="*" element={<NewForm />} />
         <Route index element={<MyForms />} />
       </Route>
-      <Route path="v1" element={<FormBuilder />} />
+      <Route path="v1" element={<CreateForm />} />
     </Routes>
   );
 }

@@ -3,17 +3,13 @@ import BasicMenu from "../BasicMenu";
 import InputsMenu from "../InputsMenu";
 import PreBuiltMenu from "../PreBuiltMenu";
 import StyledWrapper from "./style";
+import { forwardRef } from "react";
 
-function Sidebar() {
+// TODO: remove usage of any here
+const Sidebar = (_props: any, ref: any) => {
   return (
-    <StyledWrapper>
-      <Layout.Sider
-        className="create-sidebar"
-        width={242}
-        style={{
-          marginTop: "1px",
-        }}
-      >
+    <StyledWrapper ref={ref} className="left-sidebar">
+      <Layout.Sider className="create-sidebar" width={252}>
         <BasicMenu />
         <Divider className="menu-divider" />
         <InputsMenu />
@@ -22,6 +18,6 @@ function Sidebar() {
       </Layout.Sider>
     </StyledWrapper>
   );
-}
+};
 
-export default Sidebar;
+export default forwardRef(Sidebar);
