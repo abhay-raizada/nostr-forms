@@ -9,16 +9,17 @@ import {
   getItem,
   setItem,
 } from "../../../../utils/localStorage";
-import { constructDraftUrl, copyToClipBoard } from "../../../../utils/utility";
+import { constructDraftUrl, copyToClipBoard, isMobile } from "../../../../utils/utility";
 import { IDraft } from "./typeDefs";
 import StyleWrapper from "./style";
 
-const columns = [
+const COLUMNS = [
   {
     key: "name",
     title: "Name",
     dataIndex: "name",
-    width: 25,
+    width: 35,
+    ellipsis: true,
     render: (_: any, draft: IDraft) => draft.formSpec.name,
   },
   {
@@ -28,12 +29,13 @@ const columns = [
     width: 25,
     ellipsis: true,
     render: (description: string) => description ?? "-",
+    isDisabled: isMobile,
   },
   {
     key: "edit",
     title: "Edit",
     dataIndex: "edit",
-    width: 15,
+    width: isMobile() ? 25 : 15,
     ellipsis: true,
     render: (_: any, draft: IDraft) => (
       <Link to={ROUTES.CREATE_FORMS} relative="path" className="edit-icon">
@@ -62,7 +64,7 @@ const columns = [
     key: "delete",
     title: "Delete",
     dataIndex: "tempId",
-    width: 15,
+    width: isMobile() ? 25 : 15,
     ellipsis: true,
     render: (tempId: string, { onDelete }: IDraft) => {
       return (
@@ -99,6 +101,13 @@ function Drafts() {
     }));
     setDrafts(draftForms);
   }, [onDelete]);
+
+  let columns = COLUMNS.filter(({ isDisabled }) => {
+    if (isDisabled && isDisabled()) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <StyleWrapper>

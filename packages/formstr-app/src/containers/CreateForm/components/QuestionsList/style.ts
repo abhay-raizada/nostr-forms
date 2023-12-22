@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { MEDIA_QUERY_MOBILE_TABLET } from "../../utils/css";
+import { MEDIA_QUERY_MOBILE } from "../../../../utils/css";
 
 export default styled.div`
   background-color: #dedede;
@@ -25,13 +25,13 @@ export default styled.div`
   
   .desktop-add-btn {
     position: sticky;
-    ${MEDIA_QUERY_MOBILE_TABLET} {
+    ${MEDIA_QUERY_MOBILE} {
       display: none;
     }
   }
   .mobile-add-btn {
     display: none;
-    ${MEDIA_QUERY_MOBILE_TABLET} {
+    ${MEDIA_QUERY_MOBILE} {
       display: block;
       position: fixed;
       right: 10px;

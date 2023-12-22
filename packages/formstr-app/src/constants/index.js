@@ -46,6 +46,17 @@ const MyFormTabsList = [
   },
 ];
 
+const DEVICE_TYPE = {
+  MOBILE: "MOBILE",
+  TABLET: "TABLET",
+  DESKTOP: "DESKTOP",
+};
+
+const DEVICE_WIDTH = {
+  [DEVICE_TYPE.MOBILE]: 767,
+  [DEVICE_TYPE.TABLET]: 1024,
+};
+
 module.exports = {
   CreateFormTab,
   ResponseFilters,
@@ -53,4 +64,6 @@ module.exports = {
   tabList,
   MyFormTabsList,
   MyFormTab,
+  DEVICE_TYPE,
+  DEVICE_WIDTH,
 };

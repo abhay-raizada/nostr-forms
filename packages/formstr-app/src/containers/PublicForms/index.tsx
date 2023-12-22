@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
 import { Table } from "antd";
 import EmptyScreen from "../../components/EmptyScreen";
+import ResponsiveLink from "../../components/ResponsiveLink";
 import { V1Field } from "@formstr/sdk/dist/interfaces";
 import { fetchGlobalFeed } from "../../utils/nostr";
-import { constructFormUrl } from "../../utils/utility";
+import { constructFormUrl, isMobile } from "../../utils/utility";
 import { IPublicForm, IV1FormSpec } from "./typeDefs";
 import StyleWrapper from "./style";
 
-const columns = [
+const COLUMNS = [
   {
     key: "name",
     title: "Name",
     dataIndex: "name",
-    width: 20,
+    width: isMobile() ? 25 : 20,
+    ellipsis: true,
   },
   {
     key: "description",
@@ -21,12 +23,13 @@ const columns = [
     width: 35,
     ellipsis: true,
     render: (description: string) => description ?? "-",
+    isDisabled: isMobile,
   },
   {
     key: "fields",
     title: "Questions",
     dataIndex: "fields",
-    width: 15,
+    width: isMobile() ? 20 : 15,
     ellipsis: true,
     render: (fields: V1Field[]) => fields.length,
   },
@@ -34,11 +37,11 @@ const columns = [
     key: "formUrl",
     title: "Form Url",
     dataIndex: "pubkey",
-    width: 30,
+    width: isMobile() ? 20 : 30,
     ellipsis: true,
     render: (pubkey: string) => {
       let link = constructFormUrl(pubkey);
-      return <a href={link}>{link}</a>;
+      return <ResponsiveLink link={link} />;
     },
   },
 ];
@@ -60,6 +63,13 @@ function PublicForms() {
       setIsLoading(false);
     })();
   }, []);
+
+  let columns = COLUMNS.filter(({ isDisabled }) => {
+    if (isDisabled && isDisabled()) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <StyleWrapper>

@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import { Table } from "antd";
 import { getPastUserForms } from "@formstr/sdk";
 import EmptyScreen from "../../../../components/EmptyScreen";
+import ResponsiveLink from "../../../../components/ResponsiveLink";
 import {
   constructFormUrl,
   constructResponseUrl,
 } from "../../../../utils/utility";
 import { IForm } from "./typeDefs";
 
-const columns = [
+const COLUMNS = [
   {
     key: "number",
     title: "Number",
-    dataIndex: "key",
+    dataIndex: "name",
     width: 25,
+    ellipsis: true,
   },
   {
     key: "formUrl",
@@ -22,7 +24,7 @@ const columns = [
     width: 30,
     ellipsis: true,
     render: (formUrl: string) => {
-      return <a href={formUrl}>{formUrl}</a>;
+      return <ResponsiveLink link={formUrl} />;
     },
   },
   {
@@ -32,7 +34,7 @@ const columns = [
     width: 30,
     ellipsis: true,
     render: (responseUrl: string) => {
-      return <a href={responseUrl}>{responseUrl}</a>;
+      return <ResponsiveLink link={responseUrl} />;
     },
   },
 ];
@@ -47,7 +49,8 @@ function Nostr() {
       let pubKey = await window.nostr.getPublicKey();
       let forms = (await getPastUserForms(pubKey)) as string[][];
       let parsedForms = forms.map((form, idx) => ({
-        key: idx+1,
+        key: idx + 1,
+        name: form[1][0].slice(0, 6),
         formUrl: constructFormUrl(form[1][0]),
         responseUrl: constructResponseUrl(form[1][1]),
       }));
@@ -64,7 +67,7 @@ function Nostr() {
             spinning: isLoading,
             tip: "Traveling through the world to look for forms...",
           }}
-          columns={columns}
+          columns={COLUMNS}
           dataSource={forms}
           pagination={false}
           scroll={{ y: "calc(100vh - 208px)" }}
