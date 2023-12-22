@@ -8,6 +8,7 @@ import QuestionsController from "./QuestionsController";
 import { makeTag } from "../../utils/utility";
 import { useLocation } from "react-router";
 import { Reorder } from "framer-motion";
+import StyleWrapper from "./style";
 
 function NewForm() {
   const [questions, setQuestions] = useState([]);
@@ -137,16 +138,7 @@ function NewForm() {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          flexDirection: "column",
-          alignContent: "center",
-          alignItems: "center",
-          maxWidth: "100%",
-        }}
-      >
+      <StyleWrapper>
         {contextHolder}
         {!formCredentials && (
           <div
@@ -251,7 +243,7 @@ function NewForm() {
             </Card>
           </div>
         )}
-      </div>
+      </StyleWrapper>
       {formCredentials && (
         <FormSubmitted
           formCredentials={formCredentials}

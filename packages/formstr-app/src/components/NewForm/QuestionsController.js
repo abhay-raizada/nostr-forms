@@ -28,13 +28,12 @@ const QuestionsController = (props) => {
           onAddQuestion={handleAddQuestion}
         />
       )}
-      <Card title="Add a question">
+      <Card title="Add a question" style={{ margin: "10px" }}>
         <Button
           type="primary"
           size="large"
           disabled={isNewQuestion}
           onClick={addQuestion}
-          style={{ margin: "10px" }}
         >
           Add +
         </Button>
