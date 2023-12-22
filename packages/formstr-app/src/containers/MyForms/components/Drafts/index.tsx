@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Table } from "antd";
 import { DeleteOutlined, EditOutlined, LinkOutlined } from "@ant-design/icons";
 import EmptyScreen from "../../../../components/EmptyScreen";
-import { ROUTES } from "../../../../constants/routes";
 import {
   LOCAL_STORAGE_KEYS,
   getItem,
