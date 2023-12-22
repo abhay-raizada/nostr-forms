@@ -1,6 +1,6 @@
 {
   "short_name": "Formstr",
-  "name": "A usable alternative to google forms, that works on \"notes and other stuff transmitted through relays(nostr)\".",
+  "name": "A Forms app where you own your own data. Made possible by the nostr protocol.",
   "icons": [
     {
       "src": "favicon.ico",
