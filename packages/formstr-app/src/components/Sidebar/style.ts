@@ -8,6 +8,7 @@ export default styled.div`
   .create-sidebar {
     height: calc(100vh - 112px);
     border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
+    margin-top: 1px;
   }
 
   .create-sidebar .ant-menu .ant-menu-item-group .ant-menu-item-group-title {
@@ -17,7 +18,8 @@ export default styled.div`
   .create-sidebar .ant-menu .ant-menu-item-group .ant-menu-item {
     padding: 0 12px;
     line-height: 36px;
-    height: 36px;
+    min-height: 36px;
+    max-height: 38px;
     margin: 0 8px 4px 8px;
     width: calc(100% - 16px);
   }

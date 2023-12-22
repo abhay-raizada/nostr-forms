@@ -1,18 +1,12 @@
-import Sidebar from "./components/Sidebar";
-import { QuestionsList } from "./components/QuestionsList";
 import FormBuilderProvider from "./providers/FormBuilder";
-import Settings from "./components/Settings";
+import FormBuilder from "./FormBuilder";
 
-function FormBuilder() {
+function CreateForm() {
   return (
     <FormBuilderProvider>
-      <div style={{ display: "flex", maxWidth: "100vw" }}>
-        <Sidebar />
-        <QuestionsList />
-        <Settings />
-      </div>
+      <FormBuilder />
     </FormBuilderProvider>
   );
 }
 
-export default FormBuilder;
+export default CreateForm;

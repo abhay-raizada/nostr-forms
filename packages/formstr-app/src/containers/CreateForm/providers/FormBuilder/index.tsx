@@ -15,6 +15,9 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   formSettings: { titleImageUrl: "" },
   updateFormSetting: (settings: IFormSettings) => null,
   updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => null,
+  closeOnOutsideClick: () => null,
+  isRightSettingsOpen: false,
+  toggleSettingsWindow: () => null,
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -37,6 +40,19 @@ export default function FormBuilderProvider({
   >();
   const [formSettings, setFormSettings] =
     useState<IFormSettings>(InitialFormSettings);
+
+  // see if we need to move this
+  const [isRightSettingsOpen, setIsRightSettingsOpen] = useState(false);
+
+  const toggleSettingsWindow = () => {
+    setIsRightSettingsOpen((open) => {
+      return !open;
+    });
+  };
+
+  const closeOnOutsideClick = () => {
+    isRightSettingsOpen && toggleSettingsWindow();
+  };
 
   const saveForm = () => {
     let formToSave = {
@@ -103,6 +119,9 @@ export default function FormBuilderProvider({
         formSettings,
         updateFormSetting,
         updateFormTitleImage,
+        closeOnOutsideClick,
+        toggleSettingsWindow,
+        isRightSettingsOpen,
       }}
     >
       {children}

@@ -1,12 +1,14 @@
+import { forwardRef } from "react";
 import { Divider } from "antd";
 import BasicMenu from "../BasicMenu";
 import InputsMenu from "../InputsMenu";
 import PreBuiltMenu from "../PreBuiltMenu";
 import Sidebar from "../../../../components/Sidebar";
 
-function SidebarMenu() {
+// TODO: remove usage of any here
+function SidebarMenu(_props: any, ref: any) {
   return (
-    <Sidebar width={242}>
+    <Sidebar width={252} ref={ref} className="left-sidebar">
       <BasicMenu />
       <Divider className="menu-divider" />
       <InputsMenu />
@@ -16,4 +18,4 @@ function SidebarMenu() {
   );
 }
 
-export default SidebarMenu;
+export default forwardRef(SidebarMenu);
