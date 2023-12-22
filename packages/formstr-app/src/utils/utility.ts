@@ -1,3 +1,5 @@
+import { DEVICE_TYPE, DEVICE_WIDTH } from "../constants/index";
+
 export function makeTag(length: number) {
   let result = "";
   const characters =
@@ -21,7 +23,7 @@ export function constructFormUrl(publicKey: string) {
 }
 
 export function constructDraftUrl(
-  draft: { formSpec: unknown; tempId: string } | null,
+  draft: { formSpec: unknown; tempId: string } | null
 ) {
   if (!draft) {
     return;
@@ -40,3 +42,22 @@ export function constructResponseUrl(privateKey: string) {
   }
   return `http://${hostname}/#/forms/${privateKey}/responses`;
 }
+
+export function copyToClipBoard(str: string) {
+  navigator.clipboard.writeText(str);
+}
+
+export const getDeviceType = () => {
+  const { innerWidth } = window;
+  if (innerWidth <= DEVICE_WIDTH[DEVICE_TYPE.MOBILE]) {
+    return DEVICE_TYPE.MOBILE;
+  } else if (innerWidth <= DEVICE_WIDTH[DEVICE_TYPE.TABLET]) {
+    return DEVICE_TYPE.TABLET;
+  } else {
+    return DEVICE_TYPE.DESKTOP;
+  }
+};
+
+export const isMobile = () => getDeviceType() === DEVICE_TYPE.MOBILE;
+export const isTablet = () => getDeviceType() === DEVICE_TYPE.TABLET;
+

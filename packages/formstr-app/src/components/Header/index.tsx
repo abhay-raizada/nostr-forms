@@ -1,28 +1,25 @@
-import { Layout, Menu, Row, Col, Button } from "antd";
+import { Layout, Menu, Row, Col } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
-import {
-  MenuOutlined,
-  PlusOutlined,
-  SearchOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
+import { MenuOutlined } from "@ant-design/icons";
+import { HEADER_MENU, HEADER_MENU_KEYS } from "./configs";
+import { ROUTES } from "../../constants/routes";
 
 export const NostrHeader = () => {
   const location = useLocation();
   const { Header } = Layout;
   const getSelectedTab = () => {
-    if (location.pathname === "/myForms") {
-      return "/myForms";
+    if (location.pathname.includes(ROUTES.MY_FORMS)) {
+      return HEADER_MENU_KEYS.MY_FORMS;
     }
     if (location.pathname === "/forms/new") {
-      return "/forms/new";
+      return HEADER_MENU_KEYS.CREATE_FORMS;
     }
     if (location.pathname === "/global") {
-      return "/global";
+      return HEADER_MENU_KEYS.PUBLIC_FORMS;
     }
-    return "/myForms";
+    return HEADER_MENU_KEYS.MY_FORMS;
   };
 
   return (
@@ -46,22 +43,8 @@ export const NostrHeader = () => {
               theme="light"
               defaultSelectedKeys={[getSelectedTab()]}
               overflowedIndicator={<MenuOutlined />}
-            >
-              <Menu.Item key="/global" icon={<SearchOutlined />}>
-                <Link to="global">Public Forms</Link>
-              </Menu.Item>
-              <Menu.Item key="/myForms" icon={<UserOutlined />}>
-                <Link to="myForms">My Forms</Link>
-              </Menu.Item>
-              <Menu.Item key="/forms/new">
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
-                >
-                  <Link to="forms/new">Create Form</Link>
-                </Button>
-              </Menu.Item>
-            </Menu>
+              items={HEADER_MENU}
+            />
           </Col>
         </Row>
       </Header>
