@@ -5,6 +5,7 @@ import FillForm from "../FillForm";
 import ViewResponses from "../ViewResponses";
 import { GlobalForms } from "../GlobalForms";
 import { DraftsController } from "../MyForms/DraftsController";
+import MyFormsV0 from "../MyForms";
 import CreateForm from "../../containers/CreateForm";
 import MyForms from "../../containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
@@ -22,6 +23,7 @@ function Routing() {
         <Route path="drafts/:encodedForm" element={<DraftsController />} />
         <Route path="forms/responses" element={<ViewResponses />} />
         <Route path="*" element={<NewForm />} />
+        <Route path="v0/myforms" element={<MyFormsV0 />} />
         <Route index element={<Navigate to={ROUTES.MY_FORMS} />} />
       </Route>
       <Route path={`${ROUTES.CREATE_FORMS}/*`} element={<CreateForm />} />
