@@ -9,7 +9,11 @@ import {
   getItem,
   setItem,
 } from "../../../../utils/localStorage";
-import { constructDraftUrl, copyToClipBoard, isMobile } from "../../../../utils/utility";
+import {
+  constructDraftUrl,
+  copyToClipBoard,
+  isMobile,
+} from "../../../../utils/utility";
 import { IDraft } from "./typeDefs";
 import StyleWrapper from "./style";
 
@@ -38,7 +42,14 @@ const COLUMNS = [
     width: isMobile() ? 25 : 15,
     ellipsis: true,
     render: (_: any, draft: IDraft) => (
-      <Link to={ROUTES.CREATE_FORMS} relative="path" className="edit-icon">
+      <Link
+        to="/forms/new"
+        state={{
+          formSpec: draft.formSpec,
+          tempId: draft.tempId,
+        }}
+        className="edit-icon"
+      >
         <EditOutlined className="action-icon" />
       </Link>
     ),
