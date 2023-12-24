@@ -3,10 +3,11 @@ import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { generateQuestion } from "../../utils";
+import { createForm } from "@formstr/sdk";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
-  saveForm: () => null,
+  saveForm: () => Promise.resolve([]),
   editQuestion: (question: IQuestion, tempId: string) => null,
   addQuestion: (answerType?: AnswerTypes) => null,
   deleteQuestion: (tempId: string) => null,
@@ -18,6 +19,10 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   closeOnOutsideClick: () => null,
   isRightSettingsOpen: false,
   toggleSettingsWindow: () => null,
+  formName: "",
+  updateFormName: (name: string) => null,
+  formDescription: "",
+  updateFormDescription: (description: string) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -41,8 +46,15 @@ export default function FormBuilderProvider({
   const [formSettings, setFormSettings] =
     useState<IFormSettings>(InitialFormSettings);
 
-  // see if we need to move this
   const [isRightSettingsOpen, setIsRightSettingsOpen] = useState(false);
+  const [formName, setFormName] = useState<string>(
+    "This is the title of your form! Tap to edit."
+  );
+
+  const [formDescription, setFormDescription] = useState<string>(
+    "This is where the description of your form will appear! You can" +
+      " tap anywhere on the form to edit it, including this description."
+  );
 
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
@@ -54,9 +66,10 @@ export default function FormBuilderProvider({
     isRightSettingsOpen && toggleSettingsWindow();
   };
 
-  const saveForm = () => {
+  const saveForm = async () => {
     let formToSave = {
-      name: "Form Name",
+      name: formName,
+      description: formDescription,
       schemaVersion: "v1",
       fields: questionsList.map((question) => {
         return {
@@ -67,7 +80,7 @@ export default function FormBuilderProvider({
       }),
     };
     console.log(formToSave);
-    //createForm(formToSave);
+    return await createForm(formToSave);
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
@@ -122,6 +135,10 @@ export default function FormBuilderProvider({
         closeOnOutsideClick,
         toggleSettingsWindow,
         isRightSettingsOpen,
+        formName,
+        updateFormName: setFormName,
+        formDescription,
+        updateFormDescription: setFormDescription,
       }}
     >
       {children}

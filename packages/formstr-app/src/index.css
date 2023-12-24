@@ -27,3 +27,14 @@ code {
     background-image: none;
   }
 }
+.form-details {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+  word-break: break-all;
+}
+
+.ant-modal-mask {
+  backdrop-filter: blur(30px);
+}

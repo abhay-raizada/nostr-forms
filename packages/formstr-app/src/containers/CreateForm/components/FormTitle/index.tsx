@@ -2,11 +2,21 @@ import { Typography } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./style";
+import { useRef } from "react";
+import { useEditable } from "use-editable";
 
 const { Text } = Typography;
 
 function FormTitle({ className }: { className: string }) {
-  const { formSettings, updateFormSetting } = useFormBuilderContext();
+  const { formSettings, updateFormSetting, formName, updateFormName } =
+    useFormBuilderContext();
+  const formTitleRef = useRef(null);
+
+  const handleTitleChange = (text: string) => {
+    updateFormName(text);
+  };
+
+  useEditable(formTitleRef, handleTitleChange);
 
   return (
     <StyleWrapper
@@ -21,8 +31,8 @@ function FormTitle({ className }: { className: string }) {
           <DeleteOutlined />
         </div>
       </div>
-      <Text className="title-text">
-        This is the title of your form! Tap to edit.
+      <Text className="title-text" ref={formTitleRef}>
+        {formName}
       </Text>
     </StyleWrapper>
   );
