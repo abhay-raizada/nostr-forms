@@ -4,7 +4,7 @@ import {
   MoreOutlined,
 } from "@ant-design/icons";
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
-import StyledWrapper from "./style";
+import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
 interface CardHeaderProps {
