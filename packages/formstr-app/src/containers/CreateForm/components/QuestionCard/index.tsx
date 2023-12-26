@@ -6,6 +6,7 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
 import { AnswerSettings } from "@formstr/sdk/dist/interfaces";
+import StyledWrapper from "./index.style";
 
 type QuestionCardProps = {
   question: IQuestion;
@@ -42,30 +43,24 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   };
 
   return (
-    <Card
-      type="inner"
-      style={{
-        maxWidth: "100%",
-        margin: "10px",
-        textAlign: "left",
-      }}
-      onClick={onCardClick}
-    >
-      <CardHeader
-        required={answerSettings.required}
-        onRequired={handleRequiredChange}
-      />
+    <StyledWrapper>
+      <Card type="inner" className="question-card" onClick={onCardClick}>
+        <CardHeader
+          required={answerSettings.required}
+          onRequired={handleRequiredChange}
+        />
 
-      <div style={{ marginBottom: 10 }}>
-        <label ref={questionRef}>{questionText}</label>
-      </div>
+        <div ref={questionRef} className="question-text">
+          <label>{questionText}</label>
+        </div>
 
-      <Inputs
-        inputType={question.answerType}
-        answerSettings={question.answerSettings}
-        answerSettingsHandler={handleAnswerSettings}
-      />
-    </Card>
+        <Inputs
+          inputType={question.answerType}
+          answerSettings={question.answerSettings}
+          answerSettingsHandler={handleAnswerSettings}
+        />
+      </Card>
+    </StyledWrapper>
   );
 };
 
