@@ -13,7 +13,6 @@ export interface V1FormSpec {
   schemaLink?: string;
   name: string;
   fields?: Array<V1Field>;
-  description?: string;
   settings?: IFormSettings;
   metadata?: unknown;
 }

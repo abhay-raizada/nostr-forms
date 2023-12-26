@@ -17,7 +17,7 @@ export function constructFormUrl(publicKey: string) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `https://formstr.app/#/forms/${publicKey}`;
+  return `https://formstr.app/#/v1/fill/${publicKey}`;
 }
 
 export function constructResponseUrl(privateKey: string) {

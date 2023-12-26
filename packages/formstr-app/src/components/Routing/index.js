@@ -10,6 +10,7 @@ import CreateForm from "../../containers/CreateForm";
 import MyForms from "../../containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
 import { ROUTES } from "../../constants/routes";
+import { FormFiller } from "../../containers/FormFiller";
 
 function Routing() {
   return (
@@ -29,6 +30,7 @@ function Routing() {
       <Route path={`${ROUTES.CREATE_FORMS}/*`} element={<CreateForm />} />
       <Route path={`${ROUTES.MY_FORMS}/*`} element={<MyForms />} />
       <Route path={`${ROUTES.PUBLIC_FORMS}/*`} element={<PublicForms />} />
+      <Route path={`${"v1/fill/:formId"}/*`} element={<FormFiller />} />
     </Routes>
   );
 }

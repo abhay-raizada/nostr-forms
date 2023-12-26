@@ -40,10 +40,12 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   useEditable(formDescriptionRef, handleDescriptionChange);
 
   const handleSaveForm = async () => {
+    console.log("Im heeeeasdfasdfasdfadsfdasfdsfeere", formCredentials);
     if (formCredentials.length === 0) {
       const formCreds = await saveForm();
       setFormCredentials(formCreds);
     }
+    console.log("creds are ", formCredentials);
     setOpenSubmittedWindow(true);
   };
 

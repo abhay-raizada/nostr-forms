@@ -17,7 +17,7 @@ function FormSettings() {
           <Text className="property-name">Description</Text>
           <Switch
             checked={formSettings.description}
-            onChange={(checked) => updateFormSetting({ description: checked })}
+            // onChange={(checked) => updateFormSetting({ description: checked })}
           />
         </div>
       </div>

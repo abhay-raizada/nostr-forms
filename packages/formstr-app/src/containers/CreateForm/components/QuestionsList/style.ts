@@ -22,7 +22,7 @@ export default styled.div`
     text-align: left;
     padding: 1em;
   }
-  
+
   .desktop-add-btn {
     position: sticky;
     ${MEDIA_QUERY_MOBILE} {

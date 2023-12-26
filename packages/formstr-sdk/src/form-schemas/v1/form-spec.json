@@ -11,10 +11,6 @@
       "type": "string",
       "description": "The name of the form"
     },
-    "description": {
-      "type": "string",
-      "description": "Some description about the form"
-    },
     "metadata": {},
     "settings": {
       "type": "object",
@@ -23,9 +19,12 @@
         "selfSignForms": {
           "type": "boolean",
           "description": "Whether force users to self sign the form using nostr"
+        },
+        "description": {
+          "type": "string",
+          "description": "Some description about the form"
         }
-      },
-      "required": ["selfSignForms"]
+      }
     },
     "fields": {
       "type": "array",

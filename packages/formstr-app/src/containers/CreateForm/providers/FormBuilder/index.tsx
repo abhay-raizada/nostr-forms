@@ -28,7 +28,6 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
 const InitialFormSettings: IFormSettings = {
   titleImageUrl:
     "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
-  description: true,
   thankYouPage: true,
 };
 
@@ -71,6 +70,7 @@ export default function FormBuilderProvider({
       name: formName,
       description: formDescription,
       schemaVersion: "v1",
+      settings: formSettings,
       fields: questionsList.map((question) => {
         return {
           question: question.question,
