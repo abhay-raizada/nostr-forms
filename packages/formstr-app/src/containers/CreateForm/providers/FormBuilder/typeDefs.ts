@@ -17,6 +17,5 @@ export interface IFormBuilderContext {
   toggleSettingsWindow: () => void;
   formName: string;
   updateFormName: (formName: string) => void;
-  formDescription: string;
-  updateFormDescription: (description: string) => void;
+  updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => void;
 }

@@ -15,6 +15,14 @@ export const FormFiller = () => {
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
 
+  const handleInput = (
+    questionId: string,
+    answer: string,
+    message?: string
+  ) => {
+    form.setFieldValue(questionId, [answer, message]);
+  };
+
   useEffect(() => {
     async function getForm() {
       if (!formTemplate) {
@@ -29,15 +37,11 @@ export const FormFiller = () => {
   });
   const { name, settings, fields } = formTemplate || {};
 
-  //Title image
-  //description
-  //Question List
-
   console.log("Form template is", formTemplate);
 
   return (
     <StyleWrapper $isRightSettingsOpen={false}>
-      <StyleWrapperChild style={{ width: "80%", margin: "0 auto 0 auto" }}>
+      <StyleWrapperChild style={{ width: "60%", margin: "0 auto 0 auto" }}>
         <div>
           <FormTitle
             className="form-title"
@@ -49,14 +53,20 @@ export const FormFiller = () => {
             <Text>{settings?.description}</Text>
           </div>
 
-          <Form form={form}>
+          <Form form={form} requiredMark={true}>
             {fields?.map((field) => {
+              console.log("Field issssss", field);
               return (
                 <Form.Item
                   rules={[{ required: field.answerSettings.required }]}
-                  required={field.answerSettings.required}
+                  name={field.questionId}
                 >
-                  <QuestionNode key={field.questionId} field={field} />
+                  <QuestionNode
+                    key={field.questionId}
+                    required={field.answerSettings.required || false}
+                    field={field}
+                    inputHandler={handleInput}
+                  />
                 </Form.Item>
               );
             })}

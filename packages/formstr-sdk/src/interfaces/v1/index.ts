@@ -71,6 +71,6 @@ export interface V1Response {
 
 export interface IFormSettings {
   titleImageUrl?: string;
-  description?: boolean;
+  description?: string;
   thankYouPage?: boolean;
 }

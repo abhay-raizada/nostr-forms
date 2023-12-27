@@ -21,13 +21,15 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   toggleSettingsWindow: () => null,
   formName: "",
   updateFormName: (name: string) => null,
-  formDescription: "",
-  updateFormDescription: (description: string) => null,
+  updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
   titleImageUrl:
     "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
+  description:
+    "This is where the description of your form will appear! You can" +
+    " tap anywhere on the form to edit it, including this description.",
   thankYouPage: true,
 };
 
@@ -50,11 +52,6 @@ export default function FormBuilderProvider({
     "This is the title of your form! Tap to edit."
   );
 
-  const [formDescription, setFormDescription] = useState<string>(
-    "This is where the description of your form will appear! You can" +
-      " tap anywhere on the form to edit it, including this description."
-  );
-
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
       return !open;
@@ -68,7 +65,6 @@ export default function FormBuilderProvider({
   const saveForm = async () => {
     let formToSave = {
       name: formName,
-      description: formDescription,
       schemaVersion: "v1",
       settings: formSettings,
       fields: questionsList.map((question) => {
@@ -119,6 +115,15 @@ export default function FormBuilderProvider({
     }
   };
 
+  const updateFormDescription = (e: React.FormEvent<HTMLInputElement>) => {
+    let description = e.currentTarget.value;
+    if (description) {
+      updateFormSetting({
+        description,
+      });
+    }
+  };
+
   return (
     <FormBuilderContext.Provider
       value={{
@@ -137,8 +142,7 @@ export default function FormBuilderProvider({
         isRightSettingsOpen,
         formName,
         updateFormName: setFormName,
-        formDescription,
-        updateFormDescription: setFormDescription,
+        updateFormDescription,
       }}
     >
       {children}

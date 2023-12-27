@@ -19,8 +19,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     editQuestion,
     addQuestion,
     setQuestionIdInFocus,
-    formDescription,
-    updateFormDescription,
+    updateFormSetting,
   } = useFormBuilderContext();
 
   const [formCredentials, setFormCredentials] = useState<string[]>([]);
@@ -34,18 +33,17 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   };
 
   const handleDescriptionChange = (text: string) => {
-    updateFormDescription(text);
+    updateFormSetting({ description: text });
   };
 
   useEditable(formDescriptionRef, handleDescriptionChange);
 
   const handleSaveForm = async () => {
-    console.log("Im heeeeasdfasdfasdfadsfdasfdsfeere", formCredentials);
     if (formCredentials.length === 0) {
       const formCreds = await saveForm();
       setFormCredentials(formCreds);
     }
-    console.log("creds are ", formCredentials);
+    console.log("formCredentials aaare", formCredentials);
     setOpenSubmittedWindow(true);
   };
 
@@ -58,7 +56,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         <FormTitle className="form-title" />
         {!!formSettings.description && (
           <div className="form-description">
-            <Text ref={formDescriptionRef}>{formDescription}</Text>
+            <Text ref={formDescriptionRef}>{formSettings.description}</Text>
           </div>
         )}
       </div>
