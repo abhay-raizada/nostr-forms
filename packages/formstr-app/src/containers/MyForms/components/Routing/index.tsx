@@ -10,7 +10,7 @@ function Routing() {
       <Route path={ROUTES.DRAFTS} element={<Drafts />} />
       <Route path={ROUTES.LOCAL} element={<Local />} />
       <Route path={ROUTES.NOSTR} element={<Nostr />} />
-      <Route path={"/"} element={<Navigate to={ROUTES.DRAFTS} />} />
+      <Route path={"/"} element={<Navigate replace to={ROUTES.DRAFTS} />} />
     </Routes>
   );
 }

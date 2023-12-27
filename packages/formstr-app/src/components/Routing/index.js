@@ -24,7 +24,7 @@ function Routing() {
         <Route path="forms/responses" element={<ViewResponses />} />
         <Route path="*" element={<NewForm />} />
         <Route path="v0/myforms" element={<MyFormsV0 />} />
-        <Route index element={<Navigate to={ROUTES.MY_FORMS} />} />
+        <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
       </Route>
       <Route path={`${ROUTES.CREATE_FORMS}/*`} element={<CreateForm />} />
       <Route path={`${ROUTES.MY_FORMS}/*`} element={<MyForms />} />
