@@ -19,16 +19,16 @@ export const InputFiller: React.FC<InputFillerProps> = ({
   ) => {
     onChange(e.target.value);
   };
+
   const getInput = (
     answerType: AnswerTypes,
     answerSettings: AnswerSettings
   ) => {
-    switch (answerType) {
-      case AnswerTypes.shortText:
-        return <Input onChange={handleInputChange} />;
-      case AnswerTypes.paragraph:
-        return <TextArea onChange={handleInputChange} />;
-    }
+    const INPUT_TYPE_COMPONENT_MAP: { [key in AnswerTypes]?: JSX.Element } = {
+      [AnswerTypes.shortText]: <Input onChange={handleInputChange} />,
+      [AnswerTypes.paragraph]: <TextArea onChange={handleInputChange} />,
+    };
+    return INPUT_TYPE_COMPONENT_MAP[answerType];
   };
 
   return <>{getInput(answerType, answerSettings)}</>;

@@ -9,6 +9,12 @@ export default styled.div`
   height: calc(100vh - 112px);
   width: calc(100vw - 482px);
 
+  .filler-question {
+    max-width: "100%";
+    margin: "5px";
+    text-align: "left";
+  }
+
   .form-title {
     position: relative;
     height: 250px;

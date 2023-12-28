@@ -20,14 +20,7 @@ export const QuestionNode: React.FC<QuestionProps> = ({
   };
 
   return (
-    <Card
-      type="inner"
-      style={{
-        maxWidth: "100%",
-        margin: "5px",
-        textAlign: "left",
-      }}
-    >
+    <Card type="inner" className="filler-question">
       <div>
         <label>
           {required && <span style={{ color: "#ea8dea" }}>* &nbsp;</span>}

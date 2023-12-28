@@ -30,7 +30,7 @@ function Routing() {
       <Route path={`${ROUTES.CREATE_FORMS}/*`} element={<CreateForm />} />
       <Route path={`${ROUTES.MY_FORMS}/*`} element={<MyForms />} />
       <Route path={`${ROUTES.PUBLIC_FORMS}/*`} element={<PublicForms />} />
-      <Route path={`${"v1/fill/:formId"}/*`} element={<FormFiller />} />
+      <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFiller />} />
     </Routes>
   );
 }

@@ -64,7 +64,7 @@ export const FormFiller = () => {
 
   return (
     <StyleWrapper $isRightSettingsOpen={false}>
-      <StyleWrapperChild style={{ width: "60%", margin: "0 auto 0 auto" }}>
+      <StyleWrapperChild className="form-filler">
         <div>
           <FormTitle
             className="form-title"
@@ -76,11 +76,12 @@ export const FormFiller = () => {
             <Text>{settings?.description}</Text>
           </div>
 
-          <Form form={form} requiredMark={true} onFinish={saveResponse}>
+          <Form form={form} onFinish={saveResponse}>
             <div>
               {fields?.map((field) => {
                 return (
                   <Form.Item
+                    key={field.questionId}
                     rules={[
                       {
                         required: field.answerSettings.required,
@@ -90,7 +91,6 @@ export const FormFiller = () => {
                     name={field.questionId}
                   >
                     <QuestionNode
-                      key={field.questionId}
                       required={field.answerSettings.required || false}
                       field={field}
                       inputHandler={handleInput}
