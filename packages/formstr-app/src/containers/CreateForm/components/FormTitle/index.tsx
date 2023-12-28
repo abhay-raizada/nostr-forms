@@ -7,14 +7,29 @@ import { useEditable } from "use-editable";
 
 const { Text } = Typography;
 
-function FormTitle({ className }: { className: string }) {
+function FormTitle({
+  className,
+  edit = true,
+  imageUrl,
+  formTitle,
+}: {
+  className: string;
+  edit?: boolean;
+  imageUrl?: string;
+  formTitle?: string;
+}) {
   const {
     formSettings,
     updateFormSetting,
     formName,
-    toggleSettingsWindow,
     updateFormName,
+    toggleSettingsWindow,
   } = useFormBuilderContext();
+
+  const settings = {
+    name: edit ? formName : formTitle,
+    image: edit ? formSettings.titleImageUrl : imageUrl,
+  };
   const formTitleRef = useRef(null);
 
   const handleTitleChange = (text: string) => {
@@ -23,29 +38,32 @@ function FormTitle({ className }: { className: string }) {
 
   useEditable(formTitleRef, handleTitleChange);
 
+  console.log("image being used is ", settings.image);
+
   return (
-    <StyleWrapper
-      className={className}
-      titleImageUrl={formSettings.titleImageUrl}
-    >
+    <StyleWrapper className={className} titleImageUrl={settings.image}>
       <div className="image-utils">
-        <div
-          className="icon-util"
-          title="Delete cover"
-          onClick={() => updateFormSetting({ titleImageUrl: "" })}
-        >
-          <DeleteOutlined />
-        </div>
-        <div
-          className="icon-util"
-          title="Form settings"
-          onClick={toggleSettingsWindow}
-        >
-          <MoreOutlined />
-        </div>
+        {edit && (
+          <>
+            <div
+              className="icon-util"
+              title="Delete cover"
+              onClick={() => updateFormSetting({ titleImageUrl: "" })}
+            >
+              <DeleteOutlined />
+            </div>
+            <div
+              className="icon-util"
+              title="Form settings"
+              onClick={toggleSettingsWindow}
+            >
+              <MoreOutlined />
+            </div>
+          </>
+        )}
       </div>
-      <Text className="title-text" ref={formTitleRef}>
-        {formName}
+      <Text className="title-text" ref={edit ? formTitleRef : null}>
+        {settings.name}
       </Text>
     </StyleWrapper>
   );

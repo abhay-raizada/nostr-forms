@@ -24,6 +24,7 @@ export default styled.div`
     justify-content: space-between;
     margin: 12px 0;
     font-size: 14px;
+    min-width: 14px;
   }
 
   .property-name {

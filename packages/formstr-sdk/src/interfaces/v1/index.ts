@@ -13,7 +13,6 @@ export interface V1FormSpec {
   schemaLink?: string;
   name: string;
   fields?: Array<V1Field>;
-  description?: string;
   settings?: IFormSettings;
   metadata?: unknown;
 }
@@ -72,6 +71,6 @@ export interface V1Response {
 
 export interface IFormSettings {
   titleImageUrl?: string;
-  description?: boolean;
+  description?: string;
   thankYouPage?: boolean;
 }

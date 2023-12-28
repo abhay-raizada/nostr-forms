@@ -215,7 +215,8 @@ export async function getPastUserForms<FormStructure = unknown>(
   const pool = new SimplePool();
   const saveEvent = await pool.list(relays, [filters]);
   pool.close(relays);
-  if(Array.isArray(saveEvent) && !saveEvent.length) return saveEvent as FormStructure[];
+  if (Array.isArray(saveEvent) && !saveEvent.length)
+    return saveEvent as FormStructure[];
   const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
     userSecretKey
@@ -283,7 +284,7 @@ export const createForm = async (
     id: getEventHash(baseKind0Event),
     sig: getSignature(baseKind0Event, formSecret),
   };
-  await Promise.all(pool.publish(relays, kind0Event));
+  pool.publish(relays, kind0Event);
   const formCredentials = [formId, formSecret];
   if (saveOnNostr) {
     await saveFormOnNostr(formCredentials, userSecretKey);
@@ -338,7 +339,7 @@ export const sendResponses = async (
   };
   let kind4Event = await signEvent(baseKind4Event, userSk);
   const pool = new SimplePool();
-  await Promise.all(pool.publish(relays, kind4Event));
+  pool.publish(relays, kind4Event);
   pool.close(relays);
 };
 
