@@ -4,8 +4,8 @@ import StyleWrapper from "../CreateForm/index.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFormTemplate } from "@formstr/sdk";
-import { Form, Typography } from "antd";
+import { getFormTemplate, sendResponses } from "@formstr/sdk";
+import { Button, Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 
 const { Text } = Typography;
@@ -14,14 +14,6 @@ export const FormFiller = () => {
   const { formId } = useParams();
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
-
-  const handleInput = (
-    questionId: string,
-    answer: string,
-    message?: string
-  ) => {
-    form.setFieldValue(questionId, [answer, message]);
-  };
 
   useEffect(() => {
     async function getForm() {
@@ -34,7 +26,38 @@ export const FormFiller = () => {
       }
     }
     getForm();
-  });
+  }, [formTemplate, formId]);
+
+  if (!formId) {
+    return;
+  }
+
+  const handleInput = (
+    questionId: string,
+    answer: string,
+    message?: string
+  ) => {
+    if (!answer || answer === "") {
+      form.setFieldValue(questionId, null);
+      return;
+    }
+    form.setFieldValue(questionId, [answer, message]);
+  };
+
+  const saveResponse = async () => {
+    let formResponses = form.getFieldsValue(true);
+    const response = Object.keys(formResponses).map((key: string) => {
+      let [answer, message] = formResponses[key];
+      return {
+        questionId: key,
+        answer,
+        message,
+      };
+    });
+    console.log("response is", response);
+    sendResponses(formId, response, true);
+  };
+
   const { name, settings, fields } = formTemplate || {};
 
   console.log("Form template is", formTemplate);
@@ -53,23 +76,32 @@ export const FormFiller = () => {
             <Text>{settings?.description}</Text>
           </div>
 
-          <Form form={form} requiredMark={true}>
-            {fields?.map((field) => {
-              console.log("Field issssss", field);
-              return (
-                <Form.Item
-                  rules={[{ required: field.answerSettings.required }]}
-                  name={field.questionId}
-                >
-                  <QuestionNode
-                    key={field.questionId}
-                    required={field.answerSettings.required || false}
-                    field={field}
-                    inputHandler={handleInput}
-                  />
-                </Form.Item>
-              );
-            })}
+          <Form form={form} requiredMark={true} onFinish={saveResponse}>
+            <div>
+              {fields?.map((field) => {
+                return (
+                  <Form.Item
+                    rules={[
+                      {
+                        required: field.answerSettings.required,
+                        message: "This is a required question",
+                      },
+                    ]}
+                    name={field.questionId}
+                  >
+                    <QuestionNode
+                      key={field.questionId}
+                      required={field.answerSettings.required || false}
+                      field={field}
+                      inputHandler={handleInput}
+                    />
+                  </Form.Item>
+                );
+              })}
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </div>
           </Form>
         </div>
       </StyleWrapperChild>

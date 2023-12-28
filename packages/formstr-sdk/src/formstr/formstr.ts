@@ -339,7 +339,7 @@ export const sendResponses = async (
   };
   let kind4Event = await signEvent(baseKind4Event, userSk);
   const pool = new SimplePool();
-  await Promise.all(pool.publish(relays, kind4Event));
+  pool.publish(relays, kind4Event);
   pool.close(relays);
 };
 
