@@ -6,24 +6,37 @@ import {
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
+import { IQuestion } from "../../typeDefs";
 
 interface CardHeaderProps {
   required?: boolean;
   onRequired: (required: boolean) => void;
+  question: IQuestion;
+  onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
 }
 
-const CardHeader: React.FC<CardHeaderProps> = ({ required, onRequired }) => {
+const CardHeader: React.FC<CardHeaderProps> = ({
+  required,
+  onRequired,
+  onReorderKey,
+  question,
+}) => {
   const { toggleSettingsWindow } = useFormBuilderContext();
-
   return (
     <StyledWrapper>
       <div className="action-wrapper">
         <div style={{ display: "flex" }}>
           <div className="action-icon">
-            <ArrowUpOutlined style={{ fontSize: 12 }} />
+            <ArrowUpOutlined
+              style={{ fontSize: 12 }}
+              onClick={() => onReorderKey("UP", question?.tempId)}
+            />
           </div>
           <div className="action-icon">
-            <ArrowDownOutlined style={{ fontSize: 12 }} />
+            <ArrowDownOutlined
+              style={{ fontSize: 12 }}
+              onClick={() => onReorderKey("DOWN", question?.tempId)}
+            />
           </div>
           <div className="action-icon">
             <Asterisk

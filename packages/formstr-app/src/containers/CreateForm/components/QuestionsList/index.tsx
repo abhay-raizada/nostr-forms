@@ -8,6 +8,8 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { useRef, useState } from "react";
 import { FormDetails } from "./FormDetails";
 import { useEditable } from "use-editable";
+import { IQuestion } from "../../typeDefs";
+import { Reorder } from "framer-motion";
 
 const { Text } = Typography;
 
@@ -20,6 +22,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     addQuestion,
     setQuestionIdInFocus,
     updateFormSetting,
+    updateQuestionsList,
   } = useFormBuilderContext();
 
   const [formCredentials, setFormCredentials] = useState<string[]>([]);
@@ -37,6 +40,27 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   };
 
   useEditable(formDescriptionRef, handleDescriptionChange);
+
+  const onReorderKey = (keyType: "UP" | "DOWN", tempId: string) => {
+    const questions = [...questionsList];
+    const selectedQuestionIndex = questions.findIndex(
+      (question: IQuestion) => question.tempId === tempId
+    );
+    if (
+      (selectedQuestionIndex === 0 && keyType === "UP") ||
+      (selectedQuestionIndex === questions.length - 1 && keyType === "DOWN")
+    ) {
+      return;
+    }
+    const order = keyType === "UP" ? -1 : +1;
+    if (selectedQuestionIndex !== -1) {
+      const replaceQuestion = questions[selectedQuestionIndex + order];
+      questions[selectedQuestionIndex + order] =
+        questions[selectedQuestionIndex];
+      questions[selectedQuestionIndex] = replaceQuestion;
+    }
+    updateQuestionsList(questions);
+  };
 
   const handleSaveForm = async () => {
     if (formCredentials.length === 0) {
@@ -60,17 +84,26 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
           </div>
         )}
       </div>
-      <div>
-        {questionsList.map((question) => {
-          return (
-            <QuestionCard
-              question={question}
-              key={question.tempId}
-              onEdit={editQuestion}
-            />
-          );
-        })}
-      </div>
+      <Reorder.Group
+        values={questionsList}
+        onReorder={updateQuestionsList}
+        className="reorder-group"
+      >
+        <div>
+          {questionsList.map((question) => {
+            return (
+              <Reorder.Item value={question} key={question.tempId}>
+                <QuestionCard
+                  question={question}
+                  key={question.tempId}
+                  onEdit={editQuestion}
+                  onReorderKey={onReorderKey}
+                />
+              </Reorder.Item>
+            );
+          })}
+        </div>
+      </Reorder.Group>
       <div>
         <Dropdown.Button
           className="desktop-add-btn"

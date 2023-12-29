@@ -7,13 +7,19 @@ import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
 import { AnswerSettings } from "@formstr/sdk/dist/interfaces";
 import StyledWrapper from "./index.style";
+import { SmallDashOutlined } from "@ant-design/icons";
 
 type QuestionCardProps = {
   question: IQuestion;
   onEdit: (question: IQuestion, tempId: string) => void;
+  onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
 };
 
-const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
+const QuestionCard: React.FC<QuestionCardProps> = ({
+  question,
+  onEdit,
+  onReorderKey,
+}) => {
   const questionRef = useRef(null);
   const [questionText, setQuestionText] = useState("Click to edit");
   const answerSettings = question.answerSettings;
@@ -45,9 +51,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question, onEdit }) => {
   return (
     <StyledWrapper>
       <Card type="inner" className="question-card" onClick={onCardClick}>
+        <div className="drag-icon">
+          <SmallDashOutlined />
+        </div>
         <CardHeader
           required={answerSettings.required}
           onRequired={handleRequiredChange}
+          question={question}
+          onReorderKey={onReorderKey}
         />
 
         <div ref={questionRef} className="question-text">
