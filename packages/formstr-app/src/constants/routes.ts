@@ -3,4 +3,6 @@ export const ROUTES = {
   MY_FORMS: "/myforms",
   PUBLIC_FORMS: "/public",
   FORM_FILLER: "/v1/fill/:formId",
+  PREVIEW: "/v1/preview",
+  RESPONSES: "/v1/response",
 };

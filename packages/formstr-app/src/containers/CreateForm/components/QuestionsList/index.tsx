@@ -5,7 +5,7 @@ import FormTitle from "../FormTitle";
 import StyleWrapper from "./style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { FormDetails } from "./FormDetails";
 import { useEditable } from "use-editable";
 import { IQuestion } from "../../typeDefs";
@@ -17,17 +17,16 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   const {
     formSettings,
     questionsList,
-    saveForm,
     editQuestion,
     addQuestion,
     setQuestionIdInFocus,
     updateFormSetting,
     updateQuestionsList,
+    openSubmittedWindow,
+    formCredentials,
+    setOpenSubmittedWindow,
   } = useFormBuilderContext();
 
-  const [formCredentials, setFormCredentials] = useState<string[]>([]);
-  const [openSubmittedWindow, setOpenSubmittedWindow] =
-    useState<boolean>(false);
   const formDescriptionRef = useRef(null);
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
@@ -60,15 +59,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
       questions[selectedQuestionIndex] = replaceQuestion;
     }
     updateQuestionsList(questions);
-  };
-
-  const handleSaveForm = async () => {
-    if (formCredentials.length === 0) {
-      const formCreds = await saveForm();
-      setFormCredentials(formCreds);
-    }
-    console.log("formCredentials aaare", formCredentials);
-    setOpenSubmittedWindow(true);
   };
 
   return (
@@ -119,10 +109,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
           +
         </Button>
       </div>
-      <Button type="primary" onClick={handleSaveForm}>
-        Save Form
-      </Button>
-
       <FormDetails
         isOpen={openSubmittedWindow}
         formCredentials={formCredentials}
