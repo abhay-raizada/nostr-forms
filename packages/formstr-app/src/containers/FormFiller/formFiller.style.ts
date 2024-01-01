@@ -15,6 +15,13 @@ export default styled.div`
     }
   }
 
+  .filler-container {
+    height: 100%;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #dedede;
+  }
+
   .form-title {
     position: relative;
     height: 250px;

@@ -66,7 +66,7 @@
                       "description": "There should only be one instance of otherMessage in a given question. User will be presented an input box for selection"
                     }
                   },
-                  "required": ["message"]
+                  "required": ["label"]
                 }
               },
               "numberConstraints": {

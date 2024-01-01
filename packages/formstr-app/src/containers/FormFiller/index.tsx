@@ -1,6 +1,4 @@
 import { V1FormSpec } from "@formstr/sdk/dist/interfaces";
-import StyleWrapperChild from "../CreateForm/components/QuestionsList/style";
-import StyleWrapper from "../CreateForm/index.style";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import { useParams } from "react-router-dom";
@@ -65,9 +63,7 @@ export const FormFiller = () => {
 
   return (
     <FillerStyle>
-      <div
-        style={{ height: "100vh", width: "100vw", backgroundColor: "#dedede" }}
-      >
+      <div className="filler-container">
         <div className="form-filler">
           <FormTitle
             className="form-title"

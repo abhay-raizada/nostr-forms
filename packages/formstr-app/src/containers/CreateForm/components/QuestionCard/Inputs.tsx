@@ -16,8 +16,8 @@ const Inputs: React.FC<InputsProps> = ({
   answerSettings,
   answerSettingsHandler,
 }) => {
-  const updateAnswerSettings = (key: string, property: unknown) => {
-    let newAnswerSettings = { ...answerSettings, key: property };
+  const updateAnswerSettings = (settingKey: string, property: unknown) => {
+    let newAnswerSettings = { ...answerSettings, [settingKey]: property };
     answerSettingsHandler(newAnswerSettings);
   };
   const getInputElement = () => {

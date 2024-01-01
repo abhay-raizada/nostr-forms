@@ -39,6 +39,13 @@ export const InputFiller: React.FC<InputFillerProps> = ({
           onChange={handleChoiceChange}
         />
       ),
+      [AnswerTypes.checkboxes]: (
+        <ChoiceFiller
+          answerType={answerType}
+          answerSettings={answerSettings}
+          onChange={handleChoiceChange}
+        />
+      ),
     };
 
     return INPUT_TYPE_COMPONENT_MAP[answerType];

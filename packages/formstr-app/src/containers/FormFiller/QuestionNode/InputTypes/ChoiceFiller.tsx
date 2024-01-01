@@ -62,8 +62,8 @@ export const ChoiceFiller: React.FC<ChoiceFillerProps> = ({
       <Space direction="vertical">
         {answerSettings.choices?.map((choice) => {
           return (
-            <ChoiceElement value={choice.choiceId}>
-              {choice.label}{" "}
+            <ChoiceElement key={choice.choiceId} value={choice.choiceId}>
+              {choice.label}
             </ChoiceElement>
           );
         })}
