@@ -27,7 +27,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
   const handleTextChange = (text: string) => {
     setQuestionText(text);
-    onEdit({ ...question, question: questionText }, question.tempId);
+    onEdit({ ...question, question: text }, question.tempId);
   };
 
   useEditable(questionRef, handleTextChange);

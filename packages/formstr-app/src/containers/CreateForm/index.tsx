@@ -1,12 +1,7 @@
-import FormBuilderProvider from "./providers/FormBuilder";
 import FormBuilder from "./FormBuilder";
 
 function CreateForm() {
-  return (
-    <FormBuilderProvider>
-      <FormBuilder />
-    </FormBuilderProvider>
-  );
+  return <FormBuilder />;
 }
 
 export default CreateForm;

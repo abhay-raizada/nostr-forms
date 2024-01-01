@@ -1,6 +1,5 @@
 import { HashRouter } from "react-router-dom";
 import "./App.css";
-import { NostrHeader } from "./components/Header";
 import Routing from "./components/Routing";
 import { Layout } from "antd";
 import { GithubOutlined } from "@ant-design/icons";
@@ -10,7 +9,6 @@ function App() {
   return (
     <HashRouter>
       <div className="App">
-        <NostrHeader selected="Create Form" />
         <Routing />
         <Footer
           style={{
@@ -18,7 +16,7 @@ function App() {
             bottom: "0",
             width: "100%",
             textAlign: "center",
-            padding: "12px"
+            padding: "12px",
           }}
         >
           <a

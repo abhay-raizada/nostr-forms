@@ -3,7 +3,7 @@ import { IQuestion } from "../../typeDefs";
 
 export interface IFormBuilderContext {
   questionsList: IQuestion[];
-  saveForm: () => Promise<string[]>;
+  saveForm: () => void;
   closeOnOutsideClick: () => void;
   editQuestion: (question: IQuestion, tempId: string) => void;
   addQuestion: (answerType?: AnswerTypes) => void;
@@ -19,4 +19,7 @@ export interface IFormBuilderContext {
   updateFormName: (formName: string) => void;
   updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => void;
   updateQuestionsList: (list: IQuestion[]) => void;
+  openSubmittedWindow: boolean;
+  formCredentials: string[];
+  setOpenSubmittedWindow: (open: boolean) => void;
 }

@@ -28,24 +28,18 @@ const CardHeader: React.FC<CardHeaderProps> = ({
         <div style={{ display: "flex" }}>
           <div className="action-icon">
             <ArrowUpOutlined
-              style={{ fontSize: 12 }}
+              className="icon-svg"
               onClick={() => onReorderKey("UP", question?.tempId)}
             />
           </div>
           <div className="action-icon">
             <ArrowDownOutlined
-              style={{ fontSize: 12 }}
+              className="icon-svg"
               onClick={() => onReorderKey("DOWN", question?.tempId)}
             />
           </div>
           <div className="action-icon">
             <Asterisk
-              style={{
-                fontSize: 12,
-                margin: "2.5px",
-                height: "1em",
-                width: "1em",
-              }}
               className={!required ? "asterisk" : "asteriskSelected"}
               onClick={() => {
                 onRequired(!required);

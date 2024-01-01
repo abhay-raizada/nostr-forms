@@ -7,7 +7,7 @@ import { createForm } from "@formstr/sdk";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
-  saveForm: () => Promise.resolve([]),
+  saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
   addQuestion: (answerType?: AnswerTypes) => null,
   deleteQuestion: (tempId: string) => null,
@@ -23,6 +23,9 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   updateFormName: (name: string) => null,
   updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => null,
   updateQuestionsList: (list: IQuestion[]) => null,
+  openSubmittedWindow: false,
+  formCredentials: [],
+  setOpenSubmittedWindow: (open: boolean) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -52,6 +55,9 @@ export default function FormBuilderProvider({
   const [formName, setFormName] = useState<string>(
     "This is the title of your form! Tap to edit."
   );
+  const [formCredentials, setFormCredentials] = useState<string[]>([]);
+  const [openSubmittedWindow, setOpenSubmittedWindow] =
+    useState<boolean>(false);
 
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
@@ -64,19 +70,23 @@ export default function FormBuilderProvider({
   };
 
   const saveForm = async () => {
-    let formToSave = {
-      name: formName,
-      schemaVersion: "v1",
-      settings: formSettings,
-      fields: questionsList.map((question) => {
-        return {
-          question: question.question,
-          answerType: question.answerType,
-          answerSettings: question.answerSettings,
-        };
-      }),
-    };
-    return await createForm(formToSave);
+    if (formCredentials.length === 0) {
+      let formToSave = {
+        name: formName,
+        schemaVersion: "v1",
+        settings: formSettings,
+        fields: questionsList.map((question) => {
+          return {
+            question: question.question,
+            answerType: question.answerType,
+            answerSettings: question.answerSettings,
+          };
+        }),
+      };
+      const formCreds = await createForm(formToSave);
+      setFormCredentials(formCreds);
+    }
+    setOpenSubmittedWindow(true);
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
@@ -148,6 +158,9 @@ export default function FormBuilderProvider({
         updateFormName: setFormName,
         updateQuestionsList,
         updateFormDescription,
+        formCredentials,
+        openSubmittedWindow,
+        setOpenSubmittedWindow,
       }}
     >
       {children}

@@ -38,7 +38,7 @@ export const HEADER_MENU = [
         type="primary"
         icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
       >
-        <Link to="forms/new">Create Form</Link>
+        <Link to="/forms/new">Create Form</Link>
       </Button>
     ),
   },
