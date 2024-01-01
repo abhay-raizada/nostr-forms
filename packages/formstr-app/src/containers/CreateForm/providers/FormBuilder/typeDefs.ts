@@ -18,4 +18,5 @@ export interface IFormBuilderContext {
   formName: string;
   updateFormName: (formName: string) => void;
   updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => void;
+  updateQuestionsList: (list: IQuestion[]) => void;
 }

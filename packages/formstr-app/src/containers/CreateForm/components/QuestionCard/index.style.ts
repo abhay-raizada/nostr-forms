@@ -15,5 +15,13 @@ export default styled.div`
     margin: 10px;
     text-align: left;
   }
-  
+  .drag-icon {
+    display: flex;
+    justify-content: center;
+    opacity: 0.5;
+    cursor: pointer;
+  }
+  .ant-card-body {
+    padding-top: 7px;
+  }
 `;

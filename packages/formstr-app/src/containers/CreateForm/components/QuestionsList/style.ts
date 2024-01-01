@@ -45,4 +45,8 @@ export default styled.div`
       margin: 10px;
     }
   }
+  .reorder-group {
+    list-style: none;
+    padding: 0;
+  }
 `;

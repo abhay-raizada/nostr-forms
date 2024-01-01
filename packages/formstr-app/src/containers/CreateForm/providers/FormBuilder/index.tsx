@@ -22,6 +22,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   formName: "",
   updateFormName: (name: string) => null,
   updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => null,
+  updateQuestionsList: (list: IQuestion[]) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -75,7 +76,6 @@ export default function FormBuilderProvider({
         };
       }),
     };
-    console.log(formToSave);
     return await createForm(formToSave);
   };
 
@@ -100,6 +100,10 @@ export default function FormBuilderProvider({
     setQuestionsList((preQuestions) => {
       return preQuestions.filter((question) => question.tempId !== tempId);
     });
+  };
+
+  const updateQuestionsList = (newQuestionsList: IQuestion[]) => {
+    setQuestionsList(newQuestionsList);
   };
 
   const updateFormSetting = (settings: IFormSettings) => {
@@ -142,6 +146,7 @@ export default function FormBuilderProvider({
         isRightSettingsOpen,
         formName,
         updateFormName: setFormName,
+        updateQuestionsList,
         updateFormDescription,
       }}
     >
