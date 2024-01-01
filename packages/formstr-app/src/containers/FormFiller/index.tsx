@@ -1,6 +1,7 @@
 import { V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import StyleWrapperChild from "../CreateForm/components/QuestionsList/style";
 import StyleWrapper from "../CreateForm/index.style";
+import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -63,9 +64,11 @@ export const FormFiller = () => {
   console.log("Form template is", formTemplate);
 
   return (
-    <StyleWrapper $isRightSettingsOpen={false}>
-      <StyleWrapperChild className="form-filler">
-        <div>
+    <FillerStyle>
+      <div
+        style={{ height: "100vh", width: "100vw", backgroundColor: "#dedede" }}
+      >
+        <div className="form-filler">
           <FormTitle
             className="form-title"
             edit={false}
@@ -104,7 +107,7 @@ export const FormFiller = () => {
             </div>
           </Form>
         </div>
-      </StyleWrapperChild>
-    </StyleWrapper>
+      </div>
+    </FillerStyle>
   );
 };
