@@ -30,7 +30,7 @@ function FormTitle({
     image: edit ? formSettings.titleImageUrl : imageUrl,
   };
 
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     updateFormName(e.target.value);
   };
 
@@ -58,10 +58,11 @@ function FormTitle({
       </div>
       {!edit && <Text className="title-text">{settings.name}</Text>}
       {edit && (
-        <Input
+        <Input.TextArea
           className="title-text"
           defaultValue={settings.name}
           onChange={handleTitleChange}
+          autoSize={true}
         />
       )}
     </StyleWrapper>

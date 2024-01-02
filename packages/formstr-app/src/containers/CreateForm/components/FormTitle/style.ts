@@ -19,6 +19,7 @@ export default styled.div<{ titleImageUrl?: string }>`
     bottom: 10px;
     left: 16px;
     font-size: 24px;
+    max-width: 95%;
   }
 
   .image-utils {
@@ -48,7 +49,7 @@ export default styled.div<{ titleImageUrl?: string }>`
 
   .ant-input:focus {
     box-shadow: none;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid white;
     border-radius: 0%;
   }
 

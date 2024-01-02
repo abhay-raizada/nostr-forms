@@ -29,7 +29,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     addQuestion(selectedItem?.type);
   };
 
-  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     updateFormSetting({ description: e.target.value });
   };
 
@@ -61,17 +61,16 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     >
       <div>
         <FormTitle className="form-title" />
-        {!!formSettings.description && (
-          <DescriptionStyle>
-            <div className="form-description">
-              <Input
-                key={formSettings.description}
-                defaultValue={formSettings.description}
-                onChange={handleDescriptionChange}
-              />
-            </div>
-          </DescriptionStyle>
-        )}
+        <DescriptionStyle>
+          <div className="form-description">
+            <Input.TextArea
+              key="description"
+              defaultValue={formSettings.description}
+              onChange={handleDescriptionChange}
+              autoSize
+            />
+          </div>
+        </DescriptionStyle>
       </div>
       <Reorder.Group
         values={questionsList}
