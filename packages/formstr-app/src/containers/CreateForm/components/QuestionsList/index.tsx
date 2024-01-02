@@ -29,7 +29,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     addQuestion(selectedItem?.type);
   };
 
-  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     updateFormSetting({ description: e.target.value });
   };
 
@@ -64,7 +64,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         {!!formSettings.description && (
           <DescriptionStyle>
             <div className="form-description">
-              <Input
+              <Input.TextArea
                 key={formSettings.description}
                 defaultValue={formSettings.description}
                 onChange={handleDescriptionChange}

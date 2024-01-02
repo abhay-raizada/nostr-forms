@@ -48,8 +48,9 @@ export default styled.div<{ titleImageUrl?: string }>`
 
   .ant-input:focus {
     box-shadow: none;
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid white;
     border-radius: 0%;
+    outline: none;
   }
 
   .ant-input:focus::placeholder {
