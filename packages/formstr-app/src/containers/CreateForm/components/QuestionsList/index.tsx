@@ -9,6 +9,7 @@ import { ChangeEvent } from "react";
 import { FormDetails } from "./FormDetails";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
+import { isMobile, isTablet } from "../../../../utils/utility";
 
 export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   const {
@@ -80,7 +81,11 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         <div>
           {questionsList.map((question) => {
             return (
-              <Reorder.Item value={question} key={question.tempId}>
+              <Reorder.Item
+                value={question}
+                key={question.tempId}
+                dragListener={!(isMobile() || isTablet())}
+              >
                 <QuestionCard
                   question={question}
                   onEdit={editQuestion}
