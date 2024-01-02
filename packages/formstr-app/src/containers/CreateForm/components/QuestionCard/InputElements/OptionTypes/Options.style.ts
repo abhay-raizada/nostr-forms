@@ -30,9 +30,4 @@ export default styled.div`
     margin-top: 5px;
     margin-bottom: 10px;
   }
-
-  .ant-dropdown-menu {
-    max-height: 30px;
-    overflow: auto;
-  }
 `;

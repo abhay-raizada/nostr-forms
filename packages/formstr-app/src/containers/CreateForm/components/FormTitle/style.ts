@@ -39,4 +39,20 @@ export default styled.div<{ titleImageUrl?: string }>`
     opacity: 0.5;
     cursor: pointer;
   }
+
+  .ant-input {
+    border: none;
+    padding: 0;
+    background: transparent;
+  }
+
+  .ant-input:focus {
+    box-shadow: none;
+    border-bottom: 1px solid black;
+    border-radius: 0%;
+  }
+
+  .ant-input:focus::placeholder {
+    color: lightgray;
+  }
 `;
