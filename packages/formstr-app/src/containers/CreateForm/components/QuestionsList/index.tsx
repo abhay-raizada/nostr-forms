@@ -61,17 +61,16 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     >
       <div>
         <FormTitle className="form-title" />
-        {!!formSettings.description && (
-          <DescriptionStyle>
-            <div className="form-description">
-              <Input.TextArea
-                key={formSettings.description}
-                defaultValue={formSettings.description}
-                onChange={handleDescriptionChange}
-              />
-            </div>
-          </DescriptionStyle>
-        )}
+        <DescriptionStyle>
+          <div className="form-description">
+            <Input.TextArea
+              key="description"
+              defaultValue={formSettings.description}
+              onChange={handleDescriptionChange}
+              autoSize
+            />
+          </div>
+        </DescriptionStyle>
       </div>
       <Reorder.Group
         values={questionsList}

@@ -3,7 +3,6 @@ import { DeleteOutlined } from "@ant-design/icons";
 import StyleWrapper from "./style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import TitleImage from "./TitleImage";
-import FormDescription from "./FormDescription";
 
 const { Text } = Typography;
 
@@ -14,9 +13,6 @@ function FormSettings() {
     <StyleWrapper>
       <div className="form-setting">
         <TitleImage titleImageUrl={formSettings.titleImageUrl} />
-      </div>
-      <div className="form-setting">
-        <FormDescription description={formSettings.description} />
       </div>
       <Divider className="divider" />
       <div className="form-setting">
