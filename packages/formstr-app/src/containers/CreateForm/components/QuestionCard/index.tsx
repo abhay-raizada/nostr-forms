@@ -1,6 +1,5 @@
-import { Card } from "antd";
-import { useRef, useState } from "react";
-import { useEditable } from "use-editable";
+import { Card, Input } from "antd";
+import { ChangeEvent } from "react";
 import { IQuestion } from "../../typeDefs";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import CardHeader from "./CardHeader";
@@ -8,6 +7,7 @@ import Inputs from "./Inputs";
 import { AnswerSettings } from "@formstr/sdk/dist/interfaces";
 import StyledWrapper from "./index.style";
 import { SmallDashOutlined } from "@ant-design/icons";
+import QuestionTextStyle from "./question.style";
 
 type QuestionCardProps = {
   question: IQuestion;
@@ -20,17 +20,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   onEdit,
   onReorderKey,
 }) => {
-  const questionRef = useRef(null);
-  const [questionText, setQuestionText] = useState("Click to edit");
   const answerSettings = question.answerSettings;
   const { setQuestionIdInFocus } = useFormBuilderContext();
 
-  const handleTextChange = (text: string) => {
-    setQuestionText(text);
-    onEdit({ ...question, question: text }, question.tempId);
+  const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onEdit({ ...question, question: event.target.value }, question.tempId);
   };
-
-  useEditable(questionRef, handleTextChange);
 
   const handleRequiredChange = (required: boolean) => {
     onEdit(
@@ -60,9 +55,17 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           question={question}
           onReorderKey={onReorderKey}
         />
-
-        <div ref={questionRef} className="question-text">
-          <label>{questionText}</label>
+        <div className="question-text">
+          <QuestionTextStyle>
+            <label>
+              <Input
+                onChange={handleTextChange}
+                defaultValue="Click to edit"
+                placeholder="Enter a Question"
+                className="question-input"
+              />
+            </label>
+          </QuestionTextStyle>
         </div>
 
         <Inputs

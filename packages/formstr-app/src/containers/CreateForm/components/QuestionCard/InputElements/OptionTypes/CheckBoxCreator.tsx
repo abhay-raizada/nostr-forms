@@ -26,9 +26,10 @@ export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
     <OptionsStyle>
       {choices?.map((choice) => {
         return (
-          <div className="radioButtonItem">
+          <div className="radioButtonItem" key={choice.tempId}>
             <Checkbox disabled />
             <Input
+              key={choice.tempId}
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(

@@ -6,7 +6,7 @@ const { Text } = Typography;
 
 function FormDescription({ description }: { description?: string }) {
   const [checked, setChecked] = useState(!!description);
-  const { updateFormSetting, updateFormDescription } = useFormBuilderContext();
+  const { updateFormSetting } = useFormBuilderContext();
 
   const onToggle = (checked: boolean) => {
     if (!checked) {
@@ -32,7 +32,7 @@ function FormDescription({ description }: { description?: string }) {
           className="file-input"
           type="text"
           value={description}
-          onChange={updateFormDescription}
+          onChange={(e) => updateFormSetting({ description: e.target.value })}
         />
       )}
     </>

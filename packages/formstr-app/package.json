@@ -21,7 +21,6 @@
     "styled-components": "^6.1.1",
     "typescript": "^5.2.2",
     "url": "^0.11.3",
-    "use-editable": "^2.3.3",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },

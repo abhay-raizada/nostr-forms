@@ -21,7 +21,6 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   toggleSettingsWindow: () => null,
   formName: "",
   updateFormName: (name: string) => null,
-  updateFormDescription: (e: React.FormEvent<HTMLInputElement>) => null,
   updateQuestionsList: (list: IQuestion[]) => null,
   openSubmittedWindow: false,
   formCredentials: [],
@@ -129,15 +128,6 @@ export default function FormBuilderProvider({
     }
   };
 
-  const updateFormDescription = (e: React.FormEvent<HTMLInputElement>) => {
-    let description = e.currentTarget.value;
-    if (description) {
-      updateFormSetting({
-        description,
-      });
-    }
-  };
-
   return (
     <FormBuilderContext.Provider
       value={{
@@ -157,7 +147,6 @@ export default function FormBuilderProvider({
         formName,
         updateFormName: setFormName,
         updateQuestionsList,
-        updateFormDescription,
         formCredentials,
         openSubmittedWindow,
         setOpenSubmittedWindow,

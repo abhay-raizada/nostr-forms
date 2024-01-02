@@ -1,9 +1,8 @@
-import { Typography } from "antd";
+import { Input, Typography } from "antd";
 import { DeleteOutlined, MoreOutlined } from "@ant-design/icons";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./style";
-import { useRef } from "react";
-import { useEditable } from "use-editable";
+import { ChangeEvent } from "react";
 
 const { Text } = Typography;
 
@@ -30,15 +29,10 @@ function FormTitle({
     name: edit ? formName : formTitle,
     image: edit ? formSettings.titleImageUrl : imageUrl,
   };
-  const formTitleRef = useRef(null);
 
-  const handleTitleChange = (text: string) => {
-    updateFormName(text);
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateFormName(e.target.value);
   };
-
-  useEditable(formTitleRef, handleTitleChange);
-
-  console.log("image being used is ", settings.image);
 
   return (
     <StyleWrapper className={className} titleImageUrl={settings.image}>
@@ -62,9 +56,14 @@ function FormTitle({
           </>
         )}
       </div>
-      <Text className="title-text" ref={edit ? formTitleRef : null}>
-        {settings.name}
-      </Text>
+      {!edit && <Text className="title-text">{settings.name}</Text>}
+      {edit && (
+        <Input
+          className="title-text"
+          defaultValue={settings.name}
+          onChange={handleTitleChange}
+        />
+      )}
     </StyleWrapper>
   );
 }

@@ -26,9 +26,10 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
     <OptionsStyle>
       {choices?.map((choice) => {
         return (
-          <div className="radioButtonItem">
+          <div className="radioButtonItem" key={choice.tempId}>
             <Radio disabled />
             <Input
+              key={choice.tempId}
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(

@@ -1,17 +1,14 @@
 import QuestionCard from "../QuestionCard";
-import { Button, Dropdown, MenuProps } from "antd";
-import { Typography } from "antd";
+import { Button, Dropdown, Input, MenuProps } from "antd";
 import FormTitle from "../FormTitle";
 import StyleWrapper from "./style";
+import DescriptionStyle from "./description.style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
-import { useRef } from "react";
+import { ChangeEvent } from "react";
 import { FormDetails } from "./FormDetails";
-import { useEditable } from "use-editable";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
-
-const { Text } = Typography;
 
 export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
   const {
@@ -27,18 +24,14 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     setOpenSubmittedWindow,
   } = useFormBuilderContext();
 
-  const formDescriptionRef = useRef(null);
-
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);
     addQuestion(selectedItem?.type);
   };
 
-  const handleDescriptionChange = (text: string) => {
-    updateFormSetting({ description: text });
+  const handleDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateFormSetting({ description: e.target.value });
   };
-
-  useEditable(formDescriptionRef, handleDescriptionChange);
 
   const onReorderKey = (keyType: "UP" | "DOWN", tempId: string) => {
     const questions = [...questionsList];
@@ -69,9 +62,15 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
       <div>
         <FormTitle className="form-title" />
         {!!formSettings.description && (
-          <div className="form-description">
-            <Text ref={formDescriptionRef}>{formSettings.description}</Text>
-          </div>
+          <DescriptionStyle>
+            <div className="form-description">
+              <Input
+                key={formSettings.description}
+                defaultValue={formSettings.description}
+                onChange={handleDescriptionChange}
+              />
+            </div>
+          </DescriptionStyle>
         )}
       </div>
       <Reorder.Group
@@ -85,7 +84,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
               <Reorder.Item value={question} key={question.tempId}>
                 <QuestionCard
                   question={question}
-                  key={question.tempId}
                   onEdit={editQuestion}
                   onReorderKey={onReorderKey}
                 />
