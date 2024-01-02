@@ -44,7 +44,14 @@ export interface NumberConstraint {
   max: number;
 }
 export interface AnswerSettings {
-  choices?: Array<Choice> | Array<V1Choice>;
+  choices?: Array<Choice>;
+  numberConstraints?: NumberConstraint;
+  required?: boolean;
+  [key: string]: unknown;
+}
+
+export interface V1AnswerSettings {
+  choices?: Array<V1Choice>;
   numberConstraints?: NumberConstraint;
   required?: boolean;
   [key: string]: unknown;
@@ -60,7 +67,7 @@ export interface V1Field {
   question: string;
   questionId: string;
   answerType: AnswerTypes;
-  answerSettings: AnswerSettings;
+  answerSettings: V1AnswerSettings;
 }
 
 export interface V1Response {

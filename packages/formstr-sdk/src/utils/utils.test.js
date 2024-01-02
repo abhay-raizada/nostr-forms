@@ -37,7 +37,7 @@ describe("makeTag", () => {
 describe("constructFormUrl function", () => {
   test("Construct URL with a valid public key", () => {
     const publicKey = "validPublicKey";
-    const expectedURL = `http://formstr.app/#/forms/${publicKey}`;
+    const expectedURL = `https://formstr.app/#/v1/fill/${publicKey}`;
     const generatedURL = constructFormUrl(publicKey);
     expect(generatedURL).toBe(expectedURL);
   });
@@ -45,7 +45,7 @@ describe("constructFormUrl function", () => {
   test("Construct URL with an empty public key throws an error", () => {
     const publicKey = "";
     expect(() => constructFormUrl(publicKey)).toThrowError(
-      "public key is required",
+      "public key is required"
     );
   });
 });
@@ -53,7 +53,7 @@ describe("constructFormUrl function", () => {
 describe("constructResponseUrl function", () => {
   test("Construct URL with a valid private key", () => {
     const privateKey = "validPrivateKey";
-    const expectedURL = `http://formstr.app/#/forms/${privateKey}/responses`;
+    const expectedURL = `https://formstr.app/#/forms/${privateKey}/responses`;
     const generatedURL = constructResponseUrl(privateKey);
     expect(generatedURL).toBe(expectedURL);
   });
@@ -61,7 +61,7 @@ describe("constructResponseUrl function", () => {
   test("Construct URL with an empty private key throws an error", () => {
     const privateKey = "";
     expect(() => constructResponseUrl(privateKey)).toThrowError(
-      "public key is required",
+      "public key is required"
     );
   });
 });

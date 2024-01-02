@@ -1,5 +1,5 @@
 import { V1Field } from "@formstr/sdk/dist/interfaces";
-import { Card } from "antd";
+import { Card, Divider } from "antd";
 import { InputFiller } from "./InputFiller";
 
 interface QuestionProps {
@@ -27,7 +27,7 @@ export const QuestionNode: React.FC<QuestionProps> = ({
           {field.question}
         </label>
       </div>
-
+      <Divider />
       <InputFiller
         answerType={field.answerType}
         answerSettings={field.answerSettings}
