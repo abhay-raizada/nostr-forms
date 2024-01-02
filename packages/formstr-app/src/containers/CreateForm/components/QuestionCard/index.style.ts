@@ -6,6 +6,7 @@ export default styled.div`
     line-height: 2;
     cursor: pointer;
   }
+
   .question-text:focus-visible {
     outline: none;
     border-bottom: 0.5px solid;

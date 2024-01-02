@@ -42,6 +42,7 @@
               "paragraph",
               "radioButton",
               "checkboxes",
+              "dropdown",
               "number",
               "date",
               "label"

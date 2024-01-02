@@ -1,6 +1,6 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Input, Radio } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IChoice } from "../types";
 import OptionsStyle from "./Options.style";
 import { AddOption } from "./AddOption";
@@ -17,6 +17,10 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
 }) => {
   const [choices, setChoices] = useState<Array<IChoice>>(initialValues || []);
 
+  useEffect(() => {
+    console.log("Ssfasdfsadfsfd");
+  }, []);
+
   const handleNewChoices = (choices: Array<IChoice>) => {
     setChoices(choices);
     onValuesChange("choices", choices);
@@ -26,9 +30,10 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
     <OptionsStyle>
       {choices?.map((choice) => {
         return (
-          <div className="radioButtonItem">
+          <div className="radioButtonItem" key={choice.tempId}>
             <Radio disabled />
             <Input
+              key={choice.tempId}
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(

@@ -28,9 +28,10 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
     return choices.map((choice) => {
       return {
         label: (
-          <div className="radioButtonItem">
+          <div className="radioButtonItem" key={choice.tempId}>
             <Input
               defaultValue={choice.label}
+              key={choice.tempId}
               onChange={(e) => {
                 handleLabelChange(
                   e.target.value,

@@ -4,6 +4,7 @@ import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreat
 import { makeTag } from "../../../../utils/utility";
 import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
 import { DropdownCreator } from "./InputElements/OptionTypes/DropdownCreator";
+import { DatePicker } from "antd";
 
 interface InputsProps {
   inputType: string;
@@ -58,6 +59,8 @@ const Inputs: React.FC<InputsProps> = ({
             onValuesChange={updateAnswerSettings}
           />
         );
+      case AnswerTypes.date:
+        return <DatePicker disabled={true} />;
       default:
         <></>;
         break;

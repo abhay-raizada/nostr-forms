@@ -85,7 +85,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
               <Reorder.Item value={question} key={question.tempId}>
                 <QuestionCard
                   question={question}
-                  key={question.tempId}
                   onEdit={editQuestion}
                   onReorderKey={onReorderKey}
                 />
