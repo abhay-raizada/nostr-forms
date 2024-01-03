@@ -6,7 +6,7 @@ const { Text } = Typography;
 export const DraftsController = () => {
   const { encodedForm } = useParams();
   let draft = window.decodeURIComponent(encodedForm);
-  draft = JSON.parse(window.atob(draft));
+  draft = JSON.parse(decodeURIComponent(window.atob(draft)));
 
   const navigate = useNavigate();
   useEffect(() => {

@@ -28,7 +28,7 @@ export function constructDraftUrl(
   if (!draft) {
     return;
   }
-  let draftHash = window.btoa(JSON.stringify(draft));
+  let draftHash = window.btoa(encodeURIComponent(JSON.stringify(draft)));
   draftHash = window.encodeURIComponent(draftHash);
   const hostname = window.location.host;
 
@@ -60,4 +60,3 @@ export const getDeviceType = () => {
 
 export const isMobile = () => getDeviceType() === DEVICE_TYPE.MOBILE;
 export const isTablet = () => getDeviceType() === DEVICE_TYPE.TABLET;
-
