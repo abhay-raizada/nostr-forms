@@ -1,4 +1,8 @@
-import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
+import {
+  AnswerTypes,
+  FormSpec,
+  IFormSettings,
+} from "@formstr/sdk/dist/interfaces";
 import { IQuestion } from "../../typeDefs";
 
 export interface IFormBuilderContext {
@@ -21,4 +25,8 @@ export interface IFormBuilderContext {
   openSubmittedWindow: boolean;
   formCredentials: string[];
   setOpenSubmittedWindow: (open: boolean) => void;
+  getFormSpec: () => FormSpec;
+  saveDraft: () => void;
+  setFormTempId: (formTempId: string) => void;
+  formTempId: string;
 }

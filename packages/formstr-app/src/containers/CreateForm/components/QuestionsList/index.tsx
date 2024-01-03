@@ -5,7 +5,7 @@ import StyleWrapper from "./style";
 import DescriptionStyle from "./description.style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { FormDetails } from "./FormDetails";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
@@ -23,7 +23,14 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     openSubmittedWindow,
     formCredentials,
     setOpenSubmittedWindow,
+    saveDraft,
   } = useFormBuilderContext();
+
+  useEffect(() => {
+    return () => {
+      saveDraft();
+    };
+  }, [saveDraft]);
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);
