@@ -6,6 +6,7 @@ import { generateQuestion } from "../../utils";
 import { createForm } from "@formstr/sdk";
 import { LOCAL_STORAGE_KEYS } from "../../../../utils/localStorage";
 import { makeTag } from "../../../../utils/utility";
+import { useNavigate } from "react-router-dom";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
@@ -49,6 +50,7 @@ export default function FormBuilderProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const navigate = useNavigate();
   const [questionsList, setQuestionsList] = useState<IQuestion[]>([
     generateQuestion(),
   ]);
@@ -93,13 +95,27 @@ export default function FormBuilderProvider({
     };
   };
 
+  const deleteDraft = (formTempId: string) => {
+    type Draft = { formSpec: unknown; tempId: string };
+    let draftArr = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || "[]"
+    );
+    draftArr = draftArr.filter((draft: Draft) => draft.tempId !== formTempId);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.DRAFT_FORMS,
+      JSON.stringify(draftArr)
+    );
+  };
+
   const saveForm = async () => {
-    if (formCredentials.length === 0) {
-      let formToSave = getFormSpec();
-      const formCreds = await createForm(formToSave);
-      setFormCredentials(formCreds);
-    }
-    setOpenSubmittedWindow(true);
+    let formToSave = getFormSpec();
+    //const formCreds = await createForm(formToSave);
+    const formCreds = ["1", "1"];
+    deleteDraft(formTempId);
+    setFormTempId(""); // to avoid creating a draft
+    navigate("/myForms/local", { state: formCreds });
+    //setFormCredentials(formCreds);
+    //setOpenSubmittedWindow(true);
   };
 
   const saveDraft = () => {

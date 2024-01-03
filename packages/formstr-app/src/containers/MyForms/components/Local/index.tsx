@@ -9,6 +9,9 @@ import {
   constructResponseUrl,
   isMobile,
 } from "../../../../utils/utility";
+import { useLocation } from "react-router-dom";
+import { FormDetails } from "./FormDetails";
+import { useState } from "react";
 
 const COLUMNS = [
   {
@@ -61,6 +64,11 @@ function Local() {
     return true;
   });
 
+  const { state } = useLocation();
+  const [openSubmittedWindow, setOpenSubmittedWindow] = useState<boolean>(
+    !!state
+  );
+
   return (
     <div>
       {!!localForms.length && (
@@ -72,6 +80,13 @@ function Local() {
         />
       )}
       {!localForms.length && <EmptyScreen />}
+      <FormDetails
+        isOpen={openSubmittedWindow}
+        formCredentials={state || []}
+        onClose={() => {
+          setOpenSubmittedWindow(false);
+        }}
+      />
     </div>
   );
 }
