@@ -4,6 +4,8 @@ import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { generateQuestion } from "../../utils";
 import { createForm } from "@formstr/sdk";
+import { LOCAL_STORAGE_KEYS } from "../../../../utils/localStorage";
+import { makeTag } from "../../../../utils/utility";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
@@ -25,6 +27,12 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   openSubmittedWindow: false,
   formCredentials: [],
   setOpenSubmittedWindow: (open: boolean) => null,
+  getFormSpec: () => {
+    return { name: "", schemaVersion: "v1" };
+  },
+  saveDraft: () => null,
+  setFormTempId: (formTempId: string) => "",
+  formTempId: "",
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -58,6 +66,8 @@ export default function FormBuilderProvider({
   const [openSubmittedWindow, setOpenSubmittedWindow] =
     useState<boolean>(false);
 
+  const [formTempId, setFormTempId] = useState<string>(makeTag(6));
+
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
       return !open;
@@ -68,24 +78,53 @@ export default function FormBuilderProvider({
     isRightSettingsOpen && toggleSettingsWindow();
   };
 
+  const getFormSpec = () => {
+    return {
+      name: formName,
+      schemaVersion: "v1",
+      settings: formSettings,
+      fields: questionsList.map((question) => {
+        return {
+          question: question.question,
+          answerType: question.answerType,
+          answerSettings: question.answerSettings,
+        };
+      }),
+    };
+  };
+
   const saveForm = async () => {
     if (formCredentials.length === 0) {
-      let formToSave = {
-        name: formName,
-        schemaVersion: "v1",
-        settings: formSettings,
-        fields: questionsList.map((question) => {
-          return {
-            question: question.question,
-            answerType: question.answerType,
-            answerSettings: question.answerSettings,
-          };
-        }),
-      };
+      let formToSave = getFormSpec();
       const formCreds = await createForm(formToSave);
       setFormCredentials(formCreds);
     }
     setOpenSubmittedWindow(true);
+  };
+
+  const saveDraft = () => {
+    if (formTempId === "") return;
+    type Draft = { formSpec: unknown; tempId: string };
+    const formSpec = getFormSpec();
+    const draftObject = { formSpec, tempId: formTempId };
+    let draftArr = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || "[]"
+    );
+    const draftIds = draftArr.map((draft: Draft) => draft.tempId);
+    if (!draftIds.includes(draftObject.tempId)) {
+      draftArr.push(draftObject);
+    } else {
+      draftArr = draftArr.map((draft: Draft) => {
+        if (draftObject.tempId === draft.tempId) {
+          return draftObject;
+        }
+        return draft;
+      });
+    }
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.DRAFT_FORMS,
+      JSON.stringify(draftArr)
+    );
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
@@ -150,6 +189,10 @@ export default function FormBuilderProvider({
         formCredentials,
         openSubmittedWindow,
         setOpenSubmittedWindow,
+        getFormSpec,
+        saveDraft,
+        setFormTempId,
+        formTempId,
       }}
     >
       {children}
