@@ -82,7 +82,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         className="reorder-group"
       >
         <div>
-          {questionsList.map((question) => {
+          {questionsList.map((question, idx) => {
             return (
               <Reorder.Item
                 value={question}
@@ -93,6 +93,8 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
                   question={question}
                   onEdit={editQuestion}
                   onReorderKey={onReorderKey}
+                  firstQuestion={idx === 0}
+                  lastQuestion={idx === questionsList.length - 1}
                 />
               </Reorder.Item>
             );

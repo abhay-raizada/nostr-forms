@@ -13,12 +13,16 @@ type QuestionCardProps = {
   question: IQuestion;
   onEdit: (question: IQuestion, tempId: string) => void;
   onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
+  firstQuestion: boolean;
+  lastQuestion: boolean;
 };
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
   onEdit,
   onReorderKey,
+  firstQuestion,
+  lastQuestion,
 }) => {
   const answerSettings = question.answerSettings;
   const { setQuestionIdInFocus } = useFormBuilderContext();
@@ -54,6 +58,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           onRequired={handleRequiredChange}
           question={question}
           onReorderKey={onReorderKey}
+          firstQuestion={firstQuestion}
+          lastQuestion={lastQuestion}
         />
         <div className="question-text">
           <QuestionTextStyle>
