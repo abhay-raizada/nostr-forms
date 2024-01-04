@@ -1,11 +1,21 @@
 import React, { useState } from "react";
-import { AnswerTypes, IFormSettings } from "@formstr/sdk/dist/interfaces";
+import {
+  AnswerTypes,
+  FormSpec,
+  IFormSettings,
+} from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { generateQuestion } from "../../utils";
 import { createForm } from "@formstr/sdk";
-import { LOCAL_STORAGE_KEYS } from "../../../../utils/localStorage";
+import {
+  LOCAL_STORAGE_KEYS,
+  getItem,
+  setItem,
+} from "../../../../utils/localStorage";
 import { makeTag } from "../../../../utils/utility";
+import { useNavigate } from "react-router-dom";
+import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
@@ -24,9 +34,6 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   formName: "",
   updateFormName: (name: string) => null,
   updateQuestionsList: (list: IQuestion[]) => null,
-  openSubmittedWindow: false,
-  formCredentials: [],
-  setOpenSubmittedWindow: (open: boolean) => null,
   getFormSpec: () => {
     return { name: "", schemaVersion: "v1" };
   },
@@ -49,6 +56,7 @@ export default function FormBuilderProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const navigate = useNavigate();
   const [questionsList, setQuestionsList] = useState<IQuestion[]>([
     generateQuestion(),
   ]);
@@ -62,9 +70,6 @@ export default function FormBuilderProvider({
   const [formName, setFormName] = useState<string>(
     "This is the title of your form! Tap to edit."
   );
-  const [formCredentials, setFormCredentials] = useState<string[]>([]);
-  const [openSubmittedWindow, setOpenSubmittedWindow] =
-    useState<boolean>(false);
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
 
@@ -93,38 +98,59 @@ export default function FormBuilderProvider({
     };
   };
 
-  const saveForm = async () => {
-    if (formCredentials.length === 0) {
-      let formToSave = getFormSpec();
-      const formCreds = await createForm(formToSave);
-      setFormCredentials(formCreds);
+  const deleteDraft = (formTempId: string) => {
+    type Draft = { formSpec: unknown; tempId: string };
+    let draftArr = getItem<Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
+    draftArr = draftArr.filter((draft: Draft) => draft.tempId !== formTempId);
+    setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
+  };
+
+  function storeLocally(formCredentials: Array<string>) {
+    let saveObject: ILocalForm = {
+      key: formCredentials[0],
+      publicKey: formCredentials[0],
+      privateKey: formCredentials[1],
+      name: formName,
+      createdAt: new Date().toString(),
+    };
+    let forms =
+      getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
+
+    const existingKeys = forms.map((form) => form.publicKey);
+    if (existingKeys.includes(saveObject.publicKey)) {
+      return;
     }
-    setOpenSubmittedWindow(true);
+    forms.push(saveObject);
+    setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
+  }
+
+  const saveForm = async () => {
+    let formToSave = getFormSpec();
+    const formCreds = await createForm(formToSave);
+    deleteDraft(formTempId);
+    setFormTempId(""); // to avoid creating a draft
+    storeLocally(formCreds);
+    navigate("/myForms/local", { state: formCreds });
   };
 
   const saveDraft = () => {
     if (formTempId === "") return;
-    type Draft = { formSpec: unknown; tempId: string };
+    type V1Draft = { formSpec: FormSpec; tempId: string };
     const formSpec = getFormSpec();
     const draftObject = { formSpec, tempId: formTempId };
-    let draftArr = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || "[]"
-    );
-    const draftIds = draftArr.map((draft: Draft) => draft.tempId);
+    let draftArr = getItem<V1Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
+    const draftIds = draftArr.map((draft: V1Draft) => draft.tempId);
     if (!draftIds.includes(draftObject.tempId)) {
       draftArr.push(draftObject);
     } else {
-      draftArr = draftArr.map((draft: Draft) => {
+      draftArr = draftArr.map((draft: V1Draft) => {
         if (draftObject.tempId === draft.tempId) {
           return draftObject;
         }
         return draft;
       });
     }
-    localStorage.setItem(
-      LOCAL_STORAGE_KEYS.DRAFT_FORMS,
-      JSON.stringify(draftArr)
-    );
+    setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
@@ -186,9 +212,6 @@ export default function FormBuilderProvider({
         formName,
         updateFormName: setFormName,
         updateQuestionsList,
-        formCredentials,
-        openSubmittedWindow,
-        setOpenSubmittedWindow,
         getFormSpec,
         saveDraft,
         setFormTempId,
