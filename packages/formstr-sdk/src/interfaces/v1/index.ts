@@ -47,6 +47,7 @@ export interface AnswerSettings {
   choices?: Array<Choice>;
   numberConstraints?: NumberConstraint;
   required?: boolean;
+  validationRules?: { [key: string]: Array<unknown> };
   [key: string]: unknown;
 }
 

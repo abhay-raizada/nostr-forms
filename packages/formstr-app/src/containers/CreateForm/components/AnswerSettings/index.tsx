@@ -1,5 +1,7 @@
 import { Button, Divider, Dropdown, Switch, Typography, MenuProps } from "antd";
 import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
+import { AnswerSettings as IAnswerSettings } from "@formstr/sdk/dist/interfaces";
+import Validation from "../Validation";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import StyleWrapper from "./style";
@@ -33,6 +35,16 @@ function AnswerSettings() {
     );
   };
 
+  const handleAnswerSettings = (answerSettings: IAnswerSettings) => {
+    editQuestion(
+      {
+        ...question,
+        answerSettings: { ...question.answerSettings, ...answerSettings },
+      },
+      question.tempId
+    );
+  };
+
   return (
     <StyleWrapper>
       <Text className="question">
@@ -57,6 +69,12 @@ function AnswerSettings() {
           />
         </div>
       </div>
+      <Divider className="divider" />
+      <Validation
+        answerTypes={question.answerType}
+        answerSettings={answerSettings}
+        handleAnswerSettings={handleAnswerSettings}
+      />
       <Divider className="divider" />
       <Button
         danger

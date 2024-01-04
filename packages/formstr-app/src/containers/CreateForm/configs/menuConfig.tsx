@@ -33,6 +33,12 @@ export const INPUTS_MENU = [
     type: AnswerTypes.paragraph,
   },
   {
+    key: INPUTS_TYPES.NUMBER,
+    label: "Number",
+    icon: <ShopOutlined style={{ color: "#FFD580" }} />,
+    type: AnswerTypes.number,
+  },
+  {
     key: INPUTS_TYPES.MULTIPLE_CHOICE,
     label: "Multiple choice",
     icon: <ShopOutlined style={{ color: "#FFD580" }} />,
