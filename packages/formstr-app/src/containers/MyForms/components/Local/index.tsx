@@ -65,9 +65,7 @@ function Local() {
   });
 
   const { state } = useLocation();
-  const [openSubmittedWindow, setOpenSubmittedWindow] = useState<boolean>(
-    !!state
-  );
+  const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
 
   return (
     <div>
@@ -81,10 +79,10 @@ function Local() {
       )}
       {!localForms.length && <EmptyScreen />}
       <FormDetails
-        isOpen={openSubmittedWindow}
+        isOpen={showFormDetails}
         formCredentials={state || []}
         onClose={() => {
-          setOpenSubmittedWindow(false);
+          setShowFormDetails(false);
         }}
       />
     </div>

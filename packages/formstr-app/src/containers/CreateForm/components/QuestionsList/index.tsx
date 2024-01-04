@@ -19,9 +19,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     setQuestionIdInFocus,
     updateFormSetting,
     updateQuestionsList,
-    openSubmittedWindow,
-    formCredentials,
-    setOpenSubmittedWindow,
     saveDraft,
   } = useFormBuilderContext();
 
