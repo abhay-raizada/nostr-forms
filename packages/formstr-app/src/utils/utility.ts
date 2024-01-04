@@ -60,3 +60,34 @@ export const getDeviceType = () => {
 
 export const isMobile = () => getDeviceType() === DEVICE_TYPE.MOBILE;
 export const isTablet = () => getDeviceType() === DEVICE_TYPE.TABLET;
+export const isDesktop = () => getDeviceType() === DEVICE_TYPE.DESKTOP;
+
+export function appendClass(class1: string, class2: string) {
+  if (class1) {
+    return class1 + " " + class2;
+  }
+  return class1 + class2;
+}
+
+export function classNames(...classNames: any) {
+  let classes = "";
+  for (let i = 0; i < classNames.length; i++) {
+    const arg = arguments[i];
+    if (arg) {
+      if (typeof arg === "string") {
+        classes = appendClass(classes, arg);
+      }
+      if (typeof arg !== "object") {
+        continue;
+      }
+      // eslint-disable-next-line no-loop-func
+      Object.keys(arg).forEach((v) => {
+        if (arg[v]) {
+          classes = appendClass(classes, v);
+        }
+      });
+    }
+  }
+
+  return classes;
+}

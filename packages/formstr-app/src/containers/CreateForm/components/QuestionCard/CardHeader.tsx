@@ -3,12 +3,12 @@ import {
   ArrowUpOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
-import cs from "classnames";
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import useDeviceType from "../../../../hooks/useDeviceType";
 import { IQuestion } from "../../typeDefs";
+import { classNames } from "../../../../utils/utility";
 
 interface CardHeaderProps {
   required?: boolean;
@@ -51,7 +51,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
           )}
           <div className="action-icon">
             <Asterisk
-              className={cs("asterisk", { asteriskSelected: required })}
+              className={classNames("asterisk", { asteriskSelected: required })}
               onClick={() => {
                 onRequired(!required);
               }}
