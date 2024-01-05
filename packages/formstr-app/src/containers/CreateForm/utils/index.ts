@@ -12,3 +12,17 @@ export const generateQuestion = (
     answerSettings: {},
   };
 };
+
+export const isGreaterThanOrEqual = (val: number, compareVal: number) =>
+  val >= compareVal;
+
+export const isLessThanOrEqual = (val: number, compareVal: number) =>
+  val <= compareVal;
+
+export const getNumValue = (val: string | number): number => {
+  let newVal = val;
+  if (typeof newVal === "string") {
+    newVal = newVal.length;
+  }
+  return newVal;
+};

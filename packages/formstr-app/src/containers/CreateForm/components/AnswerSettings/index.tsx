@@ -71,7 +71,7 @@ function AnswerSettings() {
       </div>
       <Divider className="divider" />
       <Validation
-        answerTypes={question.answerType}
+        answerType={question.answerType}
         answerSettings={answerSettings}
         handleAnswerSettings={handleAnswerSettings}
       />

@@ -1,6 +1,14 @@
 import styled from "styled-components";
 
-export const NumberInputStyle = styled.div`
+export default styled.div`
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+`;
+
+export const InputStyle = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -1,41 +1,65 @@
-import { Typography } from "antd";
-import Number from "./Number";
-import TextRule from "./Text";
-import { IProps } from "./typeDefs";
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
+import { useEffect, useState } from "react";
+import { ValidationRuleTypes } from "@formstr/sdk/dist/interfaces";
+import { Typography, Select } from "antd";
+import { IProps } from "./validation.type";
+import { ANSWER_TYPE_RULES_MENU, RULE_CONFIG } from "../../configs/config";
+import StyleWrapper from "./validation.style";
 
 const { Text } = Typography;
 
 function Validation(props: IProps) {
-  const { answerTypes } = props;
+  const { answerType, answerSettings, handleAnswerSettings } = props;
+  const validationRules = answerSettings.validationRules ?? {};
+  const defaultSelected = Object.keys(validationRules) as ValidationRuleTypes[];
 
-  const getComponent = () => {
-    switch (answerTypes) {
-      case AnswerTypes.number:
-        return <Number {...props} />;
-      case AnswerTypes.shortText:
-      case AnswerTypes.paragraph:
-        return <TextRule {...props} />
-      default:
-        break;
-    }
+  const [selected, setSelected] =
+    useState<ValidationRuleTypes[]>(defaultSelected);
+
+  useEffect(() => {
+    setSelected(defaultSelected);
+  }, [answerType]);
+
+  if (!selected.length && !ANSWER_TYPE_RULES_MENU[answerType].length)
+    return null;
+
+  const onRuleSelect = (val: any) => {
+    const newSelected = [...selected, val];
+    setSelected(newSelected);
   };
 
-  if (
-    ![
-      AnswerTypes.number,
-      AnswerTypes.shortText,
-      AnswerTypes.paragraph,
-    ].includes(answerTypes)
-  ) {
-    return null;
-  }
+  const onSettingChange = (ruleType: ValidationRuleTypes, val: any) => {
+    handleAnswerSettings({
+      validationRules: { ...validationRules, [ruleType]: val },
+    });
+  };
+
+  let rules = ANSWER_TYPE_RULES_MENU[answerType].filter(
+    (rule) => !selected.includes(rule.value)
+  );
 
   return (
-    <div className="input-property">
-      <Text className="property-title">Validation</Text>
-      {getComponent()}
-    </div>
+    <StyleWrapper className="input-property">
+      <div className="header">
+        <div>
+          <Text className="property-title">Validation</Text>
+        </div>
+        {!!rules.length && (
+          <Select value="Select" options={rules} onChange={onRuleSelect} />
+        )}
+      </div>
+      {!!selected.length &&
+        selected.map((ruleType) => {
+          let { key, component: Component } = RULE_CONFIG[ruleType];
+          return (
+            <Component
+              key={key}
+              //@ts-ignore
+              rule={validationRules[ruleType]}
+              onChange={onSettingChange}
+            />
+          );
+        })}
+    </StyleWrapper>
   );
 }
 
