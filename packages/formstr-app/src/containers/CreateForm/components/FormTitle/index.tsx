@@ -35,7 +35,7 @@ function FormTitle({
   };
 
   return (
-    <StyleWrapper className={className} titleImageUrl={settings.image}>
+    <StyleWrapper className={className} $titleImageUrl={settings.image}>
       <div className="image-utils">
         {edit && (
           <>

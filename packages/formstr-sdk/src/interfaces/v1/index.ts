@@ -43,10 +43,35 @@ export interface NumberConstraint {
   min: number;
   max: number;
 }
+
+export enum ValidationRuleTypes {
+  range = "range",
+  max = "max",
+  min = "min",
+}
+
+export interface RangeRule {
+  min: number;
+  max: number;
+}
+
+export interface MaxRule {
+  max: number;
+}
+
+export interface MinRule {
+  min: number;
+}
+
 export interface AnswerSettings {
   choices?: Array<Choice>;
   numberConstraints?: NumberConstraint;
   required?: boolean;
+  validationRules?: {
+    [ValidationRuleTypes.range]?: RangeRule;
+    [ValidationRuleTypes.max]?: MaxRule;
+    [ValidationRuleTypes.min]?: MinRule;
+  };
   [key: string]: unknown;
 }
 
