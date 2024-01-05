@@ -62,8 +62,6 @@ export const FormFiller = () => {
 
   const { name, settings, fields } = formTemplate || {};
 
-  console.log("Form template is", formTemplate);
-
   return (
     <FillerStyle>
       <div className="filler-container">

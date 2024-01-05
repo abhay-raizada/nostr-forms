@@ -13,6 +13,7 @@ import { FormFiller } from "../../containers/FormFiller";
 import { NostrHeader } from "../Header";
 import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
 import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
+import { Responses } from "../../containers/Responses/Responses";
 
 const withNostrHeaderWrapper = (Component, props) => {
   return (
@@ -60,6 +61,7 @@ function Routing() {
         element={withNostrHeaderWrapper(PublicForms)}
       />
       <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFiller />} />
+      <Route path={`${ROUTES.RESPONSES}/*`} element={<Responses />} />
     </Routes>
   );
 }
