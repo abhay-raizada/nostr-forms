@@ -7,7 +7,7 @@ const { Text } = Typography;
 function Min({ rule, onChange }: { rule?: MinRule; onChange: Function }) {
   return (
     <InputStyle>
-      <Text className="property-name">Min:</Text>
+      <Text className="property-name">Min length:</Text>
       <input
         className="number-input"
         type="number"

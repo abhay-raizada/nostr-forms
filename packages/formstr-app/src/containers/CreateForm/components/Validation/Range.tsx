@@ -8,7 +8,7 @@ function Min({ rule, onChange }: { rule?: RangeRule; onChange: Function }) {
   return (
     <>
       <InputStyle>
-        <Text className="property-name">Range Min:</Text>
+        <Text className="property-name">Min num:</Text>
         <input
           className="number-input"
           type="number"
@@ -22,7 +22,7 @@ function Min({ rule, onChange }: { rule?: RangeRule; onChange: Function }) {
         />
       </InputStyle>
       <InputStyle>
-        <Text className="property-name">Range Max:</Text>
+        <Text className="property-name">Max num:</Text>
         <input
           className="number-input"
           type="number"

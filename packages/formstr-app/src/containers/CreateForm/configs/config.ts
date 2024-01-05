@@ -57,7 +57,7 @@ const MAX_RULE_ITEM = {
 };
 
 export const ANSWER_TYPE_RULES_MENU = {
-  [AnswerTypes.number]: [RANGE_RULE_ITEM, MIN_RULE_ITEM, MAX_RULE_ITEM],
+  [AnswerTypes.number]: [RANGE_RULE_ITEM],
   [AnswerTypes.paragraph]: [MIN_RULE_ITEM, MAX_RULE_ITEM],
   [AnswerTypes.shortText]: [MIN_RULE_ITEM, MAX_RULE_ITEM],
   [AnswerTypes.checkboxes]: [],

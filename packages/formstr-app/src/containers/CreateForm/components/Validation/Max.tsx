@@ -7,7 +7,7 @@ const { Text } = Typography;
 function Max({ rule, onChange }: { rule?: MaxRule; onChange: Function }) {
   return (
     <InputStyle>
-      <Text className="property-name">Max:</Text>
+      <Text className="property-name">Max length:</Text>
       <input
         className="number-input"
         type="number"
