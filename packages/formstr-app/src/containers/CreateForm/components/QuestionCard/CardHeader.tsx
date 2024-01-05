@@ -6,13 +6,17 @@ import {
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
+import useDeviceType from "../../../../hooks/useDeviceType";
 import { IQuestion } from "../../typeDefs";
+import { classNames } from "../../../../utils/utility";
 
 interface CardHeaderProps {
   required?: boolean;
   onRequired: (required: boolean) => void;
   question: IQuestion;
   onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
+  firstQuestion: boolean;
+  lastQuestion: boolean;
 }
 
 const CardHeader: React.FC<CardHeaderProps> = ({
@@ -20,27 +24,34 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   onRequired,
   onReorderKey,
   question,
+  firstQuestion,
+  lastQuestion,
 }) => {
+  const { MOBILE } = useDeviceType();
   const { toggleSettingsWindow } = useFormBuilderContext();
   return (
     <StyledWrapper>
       <div className="action-wrapper">
         <div style={{ display: "flex" }}>
-          <div className="action-icon">
-            <ArrowUpOutlined
-              className="icon-svg"
-              onClick={() => onReorderKey("UP", question?.tempId)}
-            />
-          </div>
-          <div className="action-icon">
-            <ArrowDownOutlined
-              className="icon-svg"
-              onClick={() => onReorderKey("DOWN", question?.tempId)}
-            />
-          </div>
+          {!firstQuestion && (
+            <div className="action-icon">
+              <ArrowUpOutlined
+                className="icon-svg"
+                onClick={() => onReorderKey("UP", question?.tempId)}
+              />
+            </div>
+          )}
+          {!lastQuestion && (
+            <div className="action-icon">
+              <ArrowDownOutlined
+                className="icon-svg"
+                onClick={() => onReorderKey("DOWN", question?.tempId)}
+              />
+            </div>
+          )}
           <div className="action-icon">
             <Asterisk
-              className={!required ? "asterisk" : "asteriskSelected"}
+              className={classNames("asterisk", { asteriskSelected: required })}
               onClick={() => {
                 onRequired(!required);
               }}
@@ -48,9 +59,11 @@ const CardHeader: React.FC<CardHeaderProps> = ({
           </div>
         </div>
 
-        <div className="action-icon">
-          <MoreOutlined onClick={toggleSettingsWindow} />
-        </div>
+        {MOBILE && (
+          <div className="action-icon">
+            <MoreOutlined onClick={toggleSettingsWindow} />
+          </div>
+        )}
       </div>
     </StyledWrapper>
   );

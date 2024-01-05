@@ -22,9 +22,6 @@ export interface IFormBuilderContext {
   formName: string;
   updateFormName: (formName: string) => void;
   updateQuestionsList: (list: IQuestion[]) => void;
-  openSubmittedWindow: boolean;
-  formCredentials: string[];
-  setOpenSubmittedWindow: (open: boolean) => void;
   getFormSpec: () => FormSpec;
   saveDraft: () => void;
   setFormTempId: (formTempId: string) => void;

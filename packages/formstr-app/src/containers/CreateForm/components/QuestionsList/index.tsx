@@ -6,7 +6,6 @@ import DescriptionStyle from "./description.style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { ChangeEvent, useEffect } from "react";
-import { FormDetails } from "./FormDetails";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
 import { isMobile, isTablet } from "../../../../utils/utility";
@@ -20,9 +19,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     setQuestionIdInFocus,
     updateFormSetting,
     updateQuestionsList,
-    openSubmittedWindow,
-    formCredentials,
-    setOpenSubmittedWindow,
     saveDraft,
   } = useFormBuilderContext();
 
@@ -86,7 +82,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         className="reorder-group"
       >
         <div>
-          {questionsList.map((question) => {
+          {questionsList.map((question, idx) => {
             return (
               <Reorder.Item
                 value={question}
@@ -97,6 +93,8 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
                   question={question}
                   onEdit={editQuestion}
                   onReorderKey={onReorderKey}
+                  firstQuestion={idx === 0}
+                  lastQuestion={idx === questionsList.length - 1}
                 />
               </Reorder.Item>
             );
@@ -118,13 +116,6 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
           +
         </Button>
       </div>
-      <FormDetails
-        isOpen={openSubmittedWindow}
-        formCredentials={formCredentials}
-        onClose={() => {
-          setOpenSubmittedWindow(false);
-        }}
-      />
     </StyleWrapper>
   );
 };
