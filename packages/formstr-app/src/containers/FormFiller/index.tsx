@@ -1,11 +1,12 @@
 import { V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getFormTemplate, sendResponses } from "@formstr/sdk";
 import { Button, Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
+import { ThankYouScreen } from "./ThankYouScreen";
 
 const { Text } = Typography;
 
@@ -13,6 +14,8 @@ export const FormFiller = () => {
   const { formId } = useParams();
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function getForm() {
@@ -53,7 +56,7 @@ export const FormFiller = () => {
         message,
       };
     });
-    console.log("response is", response);
+    setFormSubmitted(true);
     sendResponses(formId, response, true);
   };
 
@@ -103,6 +106,12 @@ export const FormFiller = () => {
             </div>
           </Form>
         </div>
+        <ThankYouScreen
+          isOpen={formSubmitted}
+          onClose={() => {
+            navigate("/");
+          }}
+        ></ThankYouScreen>
       </div>
     </FillerStyle>
   );
