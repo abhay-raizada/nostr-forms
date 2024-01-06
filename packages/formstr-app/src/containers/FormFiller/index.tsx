@@ -7,6 +7,7 @@ import { getFormTemplate, sendResponses } from "@formstr/sdk";
 import { Button, Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
+import { getValidationRules } from "./utils";
 
 const { Text } = Typography;
 
@@ -36,7 +37,7 @@ export const FormFiller = () => {
 
   const handleInput = (
     questionId: string,
-    answer: string,
+    answer?: string | null,
     message?: string
   ) => {
     if (!answer || answer === "") {
@@ -81,15 +82,18 @@ export const FormFiller = () => {
           <Form form={form} onFinish={saveResponse}>
             <div>
               {fields?.map((field) => {
+                let rules = [
+                  {
+                    required: field.answerSettings.required,
+                    message: "This is a required question",
+                  },
+                  ...getValidationRules(field.answerType, field.answerSettings),
+                ];
                 return (
                   <Form.Item
                     key={field.questionId}
-                    rules={[
-                      {
-                        required: field.answerSettings.required,
-                        message: "This is a required question",
-                      },
-                    ]}
+                    // @ts-ignore
+                    rules={rules}
                     name={field.questionId}
                   >
                     <QuestionNode
