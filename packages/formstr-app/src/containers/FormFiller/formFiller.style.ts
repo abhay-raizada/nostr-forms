@@ -2,6 +2,10 @@ import styled from "styled-components";
 import { MEDIA_QUERY_MOBILE } from "../../utils/css";
 
 export default styled.div`
+  position: relative;
+  height: calc(100vh - 48px);
+  overflow: scroll;
+
   .form-filler {
     background-color: #dedede;
     padding-left: 32px;
@@ -16,9 +20,7 @@ export default styled.div`
   }
 
   .filler-container {
-    height: 100%;
     width: 100%;
-    min-height: 100vh;
     background-color: #dedede;
   }
 
