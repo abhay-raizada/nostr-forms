@@ -448,10 +448,10 @@ async function getParsedResponse(
     return null;
   }
   parsedResponse = fillData(parsedResponse, questionMap);
-
+  let dateObj = new Date(createdAt * 1000);
   return {
     response: parsedResponse,
-    createdAt: new Date(createdAt).toString(),
+    createdAt: dateObj.toDateString(),
   };
 }
 
@@ -470,21 +470,12 @@ export const getFormResponses = async (formSecret: string) => {
     responses: Array<FormResponse>;
     authorName: string;
   };
-  console.log("encrypted responses", responses);
   const formTemplate = await getFormTemplate(formId);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   let responsesBy = responses.map((r) => r.pubkey);
   let profiles = await fetchProfiles(responsesBy);
-  console.log("Question Map", questionMap);
   for (const response of responses) {
-    console.log(
-      "response",
-      response,
-      formSecret,
-      response.pubkey,
-      response.content
-    );
     let decryptedResponse;
     try {
       decryptedResponse = await nip04.decrypt(
@@ -495,7 +486,6 @@ export const getFormResponses = async (formSecret: string) => {
     } catch (e) {
       continue;
     }
-    console.log("decrypted response", decryptedResponse);
     let parsedResponse = await getParsedResponse(
       decryptedResponse,
       questionMap,
@@ -512,7 +502,6 @@ export const getFormResponses = async (formSecret: string) => {
     } else {
       entry.responses.push(parsedResponse);
     }
-    console.log("Entry", entry);
     finalResponses[response.pubkey] = entry;
   }
   for (const [pubkey, attrs] of Object.entries(finalResponses)) {
@@ -523,8 +512,11 @@ export const getFormResponses = async (formSecret: string) => {
         "Anon(" + nip19.npubEncode(pubkey).slice(0, 10) + "..)";
     }
   }
-  console.log("Final Responses", finalResponses);
-  return { allResponses: finalResponses, questionMap: questionMap };
+  return {
+    allResponses: finalResponses,
+    questionMap: questionMap,
+    formSummary: formTemplate,
+  };
 };
 
 export const getFormResponsesCount = async (formId: string) => {

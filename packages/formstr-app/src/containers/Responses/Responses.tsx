@@ -1,8 +1,15 @@
 import { getFormResponses } from "@formstr/sdk";
-import { FormResponses, V1Field } from "@formstr/sdk/dist/interfaces";
-import { Table } from "antd";
+import {
+  FormResponses,
+  V1Field,
+  V1FormSpec,
+} from "@formstr/sdk/dist/interfaces";
+import { Card, Divider, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import SummaryStyle from "./summary.style";
+
+const { Text } = Typography;
 
 export const Responses = () => {
   const { formSecret } = useParams();
@@ -11,6 +18,10 @@ export const Responses = () => {
     {}
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [formSummary, setFormSummary] = useState<V1FormSpec>({
+    name: "Loading...",
+    schemaVersion: "v1",
+  });
 
   useEffect(() => {
     async function fetchResponses() {
@@ -18,10 +29,10 @@ export const Responses = () => {
         throw Error("form secret required to view responses");
       }
       const responses = await getFormResponses(formSecret || "");
-      console.log("Responsesssss is,");
       setIsLoading(false);
       setAllResponses(responses.allResponses);
       setQuestionMap(responses.questionMap);
+      setFormSummary(responses.formSummary);
     }
     fetchResponses();
   }, [formSecret, isLoading]);
@@ -60,9 +71,9 @@ export const Responses = () => {
         width: 25,
       },
       {
-        key: "CreatedAt",
+        key: "createdAt",
         title: "Created At",
-        dataIndex: "CreatedAt",
+        dataIndex: "createdAt",
         fixed: "left",
         width: 25,
       },
@@ -80,6 +91,19 @@ export const Responses = () => {
 
   return (
     <div>
+      <Card>
+        <SummaryStyle>
+          <Text className="heading">{formSummary.name}</Text>
+          <Divider />
+          <div className="response-count-container">
+            <Text className="response-count">
+              {Object.keys(allResponses).length}{" "}
+            </Text>
+            <Text className="response-count-label">response(s)</Text>
+          </div>
+        </SummaryStyle>
+      </Card>
+
       <div style={{ overflow: "scroll" }}>
         <Table
           columns={getFlatColumns()}
