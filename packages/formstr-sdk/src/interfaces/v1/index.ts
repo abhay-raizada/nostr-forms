@@ -109,11 +109,16 @@ export interface V1Submission {
   message?: string;
 }
 
-export interface FormResponse {
+export interface FormResponses {
   [pubkey: string]: {
-    responses: Array<Array<V1Response>>;
+    responses: Array<FormResponse>;
     authorName: string;
   };
+}
+
+export interface FormResponse {
+  response: Array<V1Response>;
+  createdAt: string;
 }
 
 export interface IFormSettings {

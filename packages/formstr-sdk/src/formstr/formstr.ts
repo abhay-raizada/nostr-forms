@@ -28,6 +28,7 @@ import {
   V0Response,
   AnswerSettings,
   V1Submission,
+  FormResponse,
 } from "../interfaces";
 import { get } from "http";
 
@@ -405,9 +406,34 @@ async function fetchProfiles(pubkeys: Array<string>) {
   return authors;
 }
 
+function fillData(
+  response: Array<V1Response>,
+  questionMap: { [key: string]: V1Field }
+) {
+  return response.map((questionResponse: V1Response) => {
+    let question = questionMap[questionResponse.questionId];
+    if (!question) {
+      questionResponse.questionLabel = "Unknown Question";
+      questionResponse.displayAnswer = questionResponse.answer;
+      return questionResponse;
+    }
+    questionResponse.questionLabel = question.question;
+    questionResponse.displayAnswer =
+      question.answerSettings.choices
+        ?.filter((choice) => {
+          let answers = questionResponse.answer.split(";");
+          return answers.includes(choice.choiceId);
+        })
+        .map((choice) => choice.label)
+        .join(", ") || questionResponse.answer;
+    return questionResponse;
+  });
+}
+
 async function getParsedResponse(
   response: string,
-  questionMap: { [key: string]: V1Field }
+  questionMap: { [key: string]: V1Field },
+  createdAt: number
 ) {
   let parsedResponse;
   try {
@@ -421,13 +447,12 @@ async function getParsedResponse(
   if (!isValidResponse(await getResponseSchema("v1"), parsedResponse)) {
     return null;
   }
-  parsedResponse = parsedResponse.map((response: V1Response) => {
-    response.questionLabel = questionMap[response.questionId].question;
-    return response;
-  });
-  console.log("question map is", questionMap, parsedResponse);
+  parsedResponse = fillData(parsedResponse, questionMap);
 
-  return parsedResponse;
+  return {
+    response: parsedResponse,
+    createdAt: new Date(createdAt).toString(),
+  };
 }
 
 function createQuestionMap(formTemplate: V1FormSpec) {
@@ -442,23 +467,39 @@ export const getFormResponses = async (formSecret: string) => {
   const formId = getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);
   type ResponseType = {
-    responses: Array<Array<V1Response>>;
+    responses: Array<FormResponse>;
     authorName: string;
   };
+  console.log("encrypted responses", responses);
   const formTemplate = await getFormTemplate(formId);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   let responsesBy = responses.map((r) => r.pubkey);
   let profiles = await fetchProfiles(responsesBy);
+  console.log("Question Map", questionMap);
   for (const response of responses) {
-    const decryptedResponse = await nip04.decrypt(
+    console.log(
+      "response",
+      response,
       formSecret,
       response.pubkey,
       response.content
     );
+    let decryptedResponse;
+    try {
+      decryptedResponse = await nip04.decrypt(
+        formSecret,
+        response.pubkey,
+        response.content
+      );
+    } catch (e) {
+      continue;
+    }
+    console.log("decrypted response", decryptedResponse);
     let parsedResponse = await getParsedResponse(
       decryptedResponse,
-      questionMap
+      questionMap,
+      response.created_at
     );
     if (!parsedResponse) continue;
     let entry = finalResponses[response.pubkey];
@@ -471,16 +512,19 @@ export const getFormResponses = async (formSecret: string) => {
     } else {
       entry.responses.push(parsedResponse);
     }
+    console.log("Entry", entry);
     finalResponses[response.pubkey] = entry;
   }
   for (const [pubkey, attrs] of Object.entries(finalResponses)) {
     if (profiles[pubkey]) {
       attrs.authorName = profiles[pubkey].name;
     } else {
-      attrs.authorName = "Anon(" + nip19.npubEncode(pubkey).slice(0, 10) + ")";
+      attrs.authorName =
+        "Anon(" + nip19.npubEncode(pubkey).slice(0, 10) + "..)";
     }
   }
-  return finalResponses;
+  console.log("Final Responses", finalResponses);
+  return { allResponses: finalResponses, questionMap: questionMap };
 };
 
 export const getFormResponsesCount = async (formId: string) => {
