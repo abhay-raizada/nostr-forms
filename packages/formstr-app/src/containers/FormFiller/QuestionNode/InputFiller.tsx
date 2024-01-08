@@ -9,7 +9,7 @@ import { DateFiller } from "./InputTypes/DateFiller";
 interface InputFillerProps {
   answerType: AnswerTypes;
   answerSettings: V1AnswerSettings;
-  onChange: (answer: string | null, message?: string) => void;
+  onChange: (answer: string, message?: string) => void;
 }
 
 export const InputFiller: React.FC<InputFillerProps> = ({
@@ -24,6 +24,7 @@ export const InputFiller: React.FC<InputFillerProps> = ({
   };
 
   const handleValueChange = (value: string | null) => {
+    if (!value) return;
     onChange(value);
   };
 
@@ -34,7 +35,9 @@ export const InputFiller: React.FC<InputFillerProps> = ({
     const INPUT_TYPE_COMPONENT_MAP: { [key in AnswerTypes]?: JSX.Element } = {
       [AnswerTypes.shortText]: <Input onChange={handleInputChange} />,
       [AnswerTypes.paragraph]: <TextArea onChange={handleInputChange} />,
-      [AnswerTypes.number]: <InputNumber onChange={handleValueChange} style={{ width: '100%' }}/>,
+      [AnswerTypes.number]: (
+        <InputNumber onChange={handleValueChange} style={{ width: "100%" }} />
+      ),
       [AnswerTypes.radioButton]: (
         <ChoiceFiller
           answerType={answerType}

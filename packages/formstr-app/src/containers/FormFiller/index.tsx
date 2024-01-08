@@ -7,7 +7,7 @@ import { getFormTemplate, sendResponses } from "@formstr/sdk";
 import { Button, Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
-import { getValidationRules } from "./utils";
+import { getValidationRules } from "./validations";
 
 const { Text } = Typography;
 
@@ -37,7 +37,7 @@ export const FormFiller = () => {
 
   const handleInput = (
     questionId: string,
-    answer?: string | null,
+    answer: string,
     message?: string
   ) => {
     if (!answer || answer === "") {
@@ -90,7 +90,6 @@ export const FormFiller = () => {
                 return (
                   <Form.Item
                     key={field.questionId}
-                    // @ts-ignore
                     rules={rules}
                     name={field.questionId}
                   >

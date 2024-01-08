@@ -4,7 +4,7 @@ import { InputFiller } from "./InputFiller";
 
 interface QuestionProps {
   field: V1Field;
-  inputHandler: (questionId: string, answer?: string | null, message?: string) => void;
+  inputHandler: (questionId: string, answer: string, message?: string) => void;
   required: boolean;
 }
 
@@ -14,7 +14,7 @@ export const QuestionNode: React.FC<QuestionProps> = ({
   required,
 }) => {
   const answerHandler = (questionId: string) => {
-    return (answer?: string | null, message?: string) => {
+    return (answer: string, message?: string) => {
       return inputHandler(questionId, answer, message);
     };
   };
