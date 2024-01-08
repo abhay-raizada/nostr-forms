@@ -6,6 +6,7 @@ import {
   getPublicKey,
   getSignature,
   nip04,
+  nip19,
 } from "nostr-tools";
 import * as utils from "../utils/utils";
 import {
@@ -26,7 +27,10 @@ import {
   V1Response,
   V0Response,
   AnswerSettings,
+  V1Submission,
+  FormResponse,
 } from "../interfaces";
+import { get } from "http";
 
 declare global {
   // TODO: make this better
@@ -150,14 +154,21 @@ function checkWindowNostr() {
   }
 }
 
-async function encryptMessage(message: string, userSecretKey: string | null) {
-  const userPublicKey = await getUserPublicKey(userSecretKey);
+async function encryptMessage(
+  message: string,
+  receiverPublicKey: string,
+  senderSecretKey: string | null
+) {
   let ciphertext;
-  if (userSecretKey) {
-    ciphertext = await nip04.encrypt(userSecretKey, userPublicKey, message);
+  if (senderSecretKey) {
+    ciphertext = await nip04.encrypt(
+      senderSecretKey,
+      receiverPublicKey,
+      message
+    );
   } else {
     checkWindowNostr();
-    ciphertext = await window.nostr.nip04.encrypt(userPublicKey, message);
+    ciphertext = await window.nostr.nip04.encrypt(receiverPublicKey, message);
   }
   return ciphertext;
 }
@@ -235,7 +246,11 @@ export const saveFormOnNostr = async (
   }
   pastForms.push(["form", formCredentials]);
   const message = JSON.stringify(pastForms);
-  const ciphertext = await encryptMessage(message, userSecretKey);
+  const ciphertext = await encryptMessage(
+    message,
+    userPublicKey,
+    userSecretKey
+  );
   const baseNip51Event = {
     kind: 30001,
     pubkey: userPublicKey,
@@ -295,7 +310,7 @@ export const createForm = async (
 
 export const sendResponses = async (
   formId: string,
-  responses: Array<V1Response>,
+  responses: Array<V1Submission>,
   anonymous: boolean,
   userSecretKey: string | null = null
 ) => {
@@ -327,7 +342,7 @@ export const sendResponses = async (
     userPk = await getUserPublicKey(userSecretKey);
   }
 
-  ciphertext = await encryptMessage(message, userSk);
+  ciphertext = await encryptMessage(message, formId, userSk);
   const baseKind4Event = {
     kind: 4,
     pubkey: userPk,
@@ -369,30 +384,139 @@ function convertV1Response(response: V0Response) {
   };
 }
 
+async function fetchProfiles(pubkeys: Array<string>) {
+  const pool = new SimplePool();
+  const filter = {
+    kinds: [0],
+    authors: pubkeys,
+  };
+  let kind0s = await pool.list(relays, [filter]);
+  let authors = kind0s.reduce(
+    (map: { [key: string]: { name: string } }, kind0) => {
+      let name = "";
+      try {
+        name = JSON.parse(kind0.content).name;
+      } catch (e) {}
+      map[kind0.pubkey] = { name };
+      return map;
+    },
+    {}
+  );
+  pool.close(relays);
+  return authors;
+}
+
+function fillData(
+  response: Array<V1Response>,
+  questionMap: { [key: string]: V1Field }
+) {
+  return response.map((questionResponse: V1Response) => {
+    let question = questionMap[questionResponse.questionId];
+    if (!question) {
+      questionResponse.questionLabel = "Unknown Question";
+      questionResponse.displayAnswer = questionResponse.answer;
+      return questionResponse;
+    }
+    questionResponse.questionLabel = question.question;
+    questionResponse.displayAnswer =
+      question.answerSettings.choices
+        ?.filter((choice) => {
+          let answers = questionResponse.answer.split(";");
+          return answers.includes(choice.choiceId);
+        })
+        .map((choice) => choice.label)
+        .join(", ") || questionResponse.answer;
+    return questionResponse;
+  });
+}
+
+async function getParsedResponse(
+  response: string,
+  questionMap: { [key: string]: V1Field },
+  createdAt: number
+) {
+  let parsedResponse;
+  try {
+    parsedResponse = JSON.parse(response);
+  } catch (e) {
+    return null;
+  }
+  if (isV0Response(parsedResponse)) {
+    parsedResponse = convertV1Response(parsedResponse);
+  }
+  if (!isValidResponse(await getResponseSchema("v1"), parsedResponse)) {
+    return null;
+  }
+  parsedResponse = fillData(parsedResponse, questionMap);
+  let dateObj = new Date(createdAt * 1000);
+  return {
+    response: parsedResponse,
+    createdAt: dateObj.toDateString(),
+  };
+}
+
+function createQuestionMap(formTemplate: V1FormSpec) {
+  let questionMap: { [key: string]: V1Field } = {};
+  formTemplate.fields?.forEach((field) => {
+    questionMap[field.questionId] = field;
+  });
+  return questionMap;
+}
+
 export const getFormResponses = async (formSecret: string) => {
   const formId = getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);
-  const finalResponses: Array<V1Response> = [];
+  type ResponseType = {
+    responses: Array<FormResponse>;
+    authorName: string;
+  };
+  const formTemplate = await getFormTemplate(formId);
+  const questionMap = createQuestionMap(formTemplate);
+  const finalResponses: { [key: string]: ResponseType } = {};
+  let responsesBy = responses.map((r) => r.pubkey);
+  let profiles = await fetchProfiles(responsesBy);
   for (const response of responses) {
-    const decryptedResponse = await nip04.decrypt(
-      formSecret,
-      response.pubkey,
-      response.content
-    );
-    let parsedResponse;
+    let decryptedResponse;
     try {
-      parsedResponse = JSON.parse(decryptedResponse);
+      decryptedResponse = await nip04.decrypt(
+        formSecret,
+        response.pubkey,
+        response.content
+      );
     } catch (e) {
       continue;
     }
-    if (isV0Response(parsedResponse)) {
-      parsedResponse = convertV1Response(parsedResponse);
+    let parsedResponse = await getParsedResponse(
+      decryptedResponse,
+      questionMap,
+      response.created_at
+    );
+    if (!parsedResponse) continue;
+    let entry = finalResponses[response.pubkey];
+
+    if (!entry) {
+      entry = {
+        responses: [parsedResponse],
+        authorName: "",
+      };
+    } else {
+      entry.responses.push(parsedResponse);
     }
-    if (isValidResponse(await getResponseSchema("v1"), parsedResponse)) {
-      finalResponses.push(parsedResponse);
+    finalResponses[response.pubkey] = entry;
+  }
+  for (const [pubkey, attrs] of Object.entries(finalResponses)) {
+    if (profiles[pubkey]) {
+      attrs.authorName = profiles[pubkey].name;
+    } else {
+      attrs.authorName =
+        "Anon(" + nip19.npubEncode(pubkey).slice(0, 10) + "..)";
     }
   }
-  return finalResponses;
+  return {
+    allResponses: finalResponses,
+    questionMap: questionMap,
+    formSummary: formTemplate,
+  };
 };
 
 export const getFormResponsesCount = async (formId: string) => {

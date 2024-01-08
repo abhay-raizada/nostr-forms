@@ -4,5 +4,5 @@ export const ROUTES = {
   PUBLIC_FORMS: "/public",
   FORM_FILLER: "/v1/fill/:formId",
   PREVIEW: "/v1/preview",
-  RESPONSES: "/v1/response",
+  RESPONSES: "/v1/response/:formSecret",
 };

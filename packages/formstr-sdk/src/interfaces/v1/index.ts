@@ -97,8 +97,28 @@ export interface V1Field {
 
 export interface V1Response {
   questionId: string;
+  questionLabel: string;
+  answer: string;
+  displayAnswer: string;
+  message?: string;
+}
+
+export interface V1Submission {
+  questionId: string;
   answer: string;
   message?: string;
+}
+
+export interface FormResponses {
+  [pubkey: string]: {
+    responses: Array<FormResponse>;
+    authorName: string;
+  };
+}
+
+export interface FormResponse {
+  response: Array<V1Response>;
+  createdAt: string;
 }
 
 export interface IFormSettings {
