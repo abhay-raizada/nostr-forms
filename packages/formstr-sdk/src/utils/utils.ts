@@ -13,18 +13,18 @@ export function makeTag(length: number) {
   return result;
 }
 
-export function constructFormUrl(publicKey: string) {
+export function constructFormUrl(publicKey: string, host: string) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `https://formstr.app/#/v1/fill/${publicKey}`;
+  return `${host}/#/v1/fill/${publicKey}`;
 }
 
-export function constructResponseUrl(privateKey: string) {
+export function constructResponseUrl(privateKey: string, host: string) {
   if (!privateKey) {
     throw Error("public key is required");
   }
-  return `https://formstr.app/#/forms/${privateKey}/responses`;
+  return `${host}/#/v1/response/${privateKey}/responses`;
 }
 
 export function detectFormVersion(form: FormSpec & V0FormSpec) {

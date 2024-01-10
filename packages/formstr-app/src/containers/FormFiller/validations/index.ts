@@ -11,40 +11,43 @@ import { Rule } from "antd/es/form";
 //TODO: Find a method better than "any" with overloads for dynamic types
 function NumRange(rule: any): Rule;
 function NumRange(rule: RangeRule): Rule {
-  if (!rule.min && !rule.max) {
-    throw Error("Range rule must have at least a min value or a max value");
-  }
-  if (rule.min && !rule.max) {
-    return {
-      min: rule.min,
-      message: `Please enter number more than ${rule.min}`,
-    };
-  } else if (!rule.min && rule.max) {
-    return {
-      max: rule.max,
-      message: `Please enter number less than ${rule.max}`,
-    };
-  }
   return {
-    min: rule.min,
-    max: rule.max,
-    message: `Please enter number between ${rule.min} and ${rule.max}`,
+    validator: (_: any, value: any) => {
+      if (!rule.min && !rule.max) return Promise.resolve();
+      if (rule.min && value[0] < rule.min) {
+        return Promise.reject(`Please enter number more than ${rule.min}`);
+      }
+      if (rule.max && value[0] > rule.max) {
+        return Promise.reject(`Please enter number less than ${rule.max}`);
+      }
+      return Promise.resolve();
+    },
   };
 }
 
 function MinLength(rule: any): Rule;
 function MinLength(rule: MinRule): Rule {
   return {
-    min: rule.min,
-    message: `Please enter at least ${rule.min} chars`,
+    validator: (_: any, value: any) => {
+      if (!rule.min) return Promise.resolve();
+      if (value[0].length < rule.min) {
+        return Promise.reject(`Please enter more than ${rule.min} chars`);
+      }
+      return Promise.resolve();
+    },
   };
 }
 
 function MaxLength(rule: any): Rule;
 function MaxLength(rule: MaxRule): Rule {
   return {
-    max: rule.max,
-    message: `Please enter less than ${rule.max} chars`,
+    validator: (_: any, value: any) => {
+      if (!rule.max) return Promise.resolve();
+      if (value[0].length > rule.max) {
+        return Promise.reject(`Please enter less than ${rule.max} chars`);
+      }
+      return Promise.resolve();
+    },
   };
 }
 
