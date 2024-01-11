@@ -126,7 +126,11 @@ export default function FormBuilderProvider({
 
   const saveForm = async () => {
     let formToSave = getFormSpec();
-    const formCreds = await createForm(formToSave);
+    let tags: Array<Array<string>> = [];
+    if (formSettings.publicForm === true) {
+      tags = [["l", "formstr"]];
+    }
+    const formCreds = await createForm(formToSave, false, null, tags);
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
     storeLocally(formCreds);

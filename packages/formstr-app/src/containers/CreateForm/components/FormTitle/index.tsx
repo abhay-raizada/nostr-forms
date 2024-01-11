@@ -1,5 +1,5 @@
 import { Input, Typography } from "antd";
-import { DeleteOutlined, MoreOutlined } from "@ant-design/icons";
+import { DeleteOutlined, SettingOutlined } from "@ant-design/icons";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./style";
 import { ChangeEvent } from "react";
@@ -51,7 +51,7 @@ function FormTitle({
               title="Form settings"
               onClick={toggleSettingsWindow}
             >
-              <MoreOutlined />
+              <SettingOutlined />
             </div>
           </>
         )}

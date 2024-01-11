@@ -270,10 +270,9 @@ export const saveFormOnNostr = async (
 export const createForm = async (
   form: FormSpec,
   saveOnNostr = false,
-  userSecretKey: string | null = null
+  userSecretKey: string | null = null,
+  tags: Array<string[]> = []
 ) => {
-  const tags: string[][] = [];
-
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
   const formId = getPublicKey(formSecret);

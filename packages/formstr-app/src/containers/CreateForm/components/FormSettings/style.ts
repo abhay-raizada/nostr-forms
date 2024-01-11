@@ -16,13 +16,6 @@ export default styled.div`
     font-size: 14px;
   }
 
-  .delete-button {
-    margin: 12px 16px;
-    padding: 0;
-    line-height: 16px;
-    height: 20px;
-  }
-
   .file-input {
     border: 1px solid #dedede;
     border-radius: 10px;
@@ -34,5 +27,14 @@ export default styled.div`
     border: 1px solid #dedede;
     box-shadow: 0 0 10px #f00;
     border-radius: 10px;
+  }
+
+  .npub-list {
+    list-style: circle;
+  }
+
+  .npub-list-text {
+    font-size: 12px;
+    font-weight: normal;
   }
 `;
