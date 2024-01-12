@@ -3,6 +3,7 @@ import {
   FormResponses,
   V1Field,
   V1FormSpec,
+  V1Response,
 } from "@formstr/sdk/dist/interfaces";
 import { Card, Divider, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
@@ -48,7 +49,7 @@ export const Responses = () => {
         author: authorName,
         createdAt: createdAt,
       };
-      lastAuthorResponse.response.forEach((response) => {
+      lastAuthorResponse.response.forEach((response: V1Response) => {
         answerObject[response.questionId] = response.displayAnswer;
       });
       return answerObject;

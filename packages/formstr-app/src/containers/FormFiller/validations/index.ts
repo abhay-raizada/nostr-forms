@@ -13,6 +13,7 @@ function NumRange(rule: any): Rule;
 function NumRange(rule: RangeRule): Rule {
   return {
     validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
       if (!rule.min && !rule.max) return Promise.resolve();
       if (rule.min && value[0] < rule.min) {
         return Promise.reject(`Please enter number more than ${rule.min}`);
@@ -29,6 +30,7 @@ function MinLength(rule: any): Rule;
 function MinLength(rule: MinRule): Rule {
   return {
     validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
       if (!rule.min) return Promise.resolve();
       if (value[0].length < rule.min) {
         return Promise.reject(`Please enter more than ${rule.min} chars`);
@@ -42,6 +44,7 @@ function MaxLength(rule: any): Rule;
 function MaxLength(rule: MaxRule): Rule {
   return {
     validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
       if (!rule.max) return Promise.resolve();
       if (value[0].length > rule.max) {
         return Promise.reject(`Please enter less than ${rule.max} chars`);

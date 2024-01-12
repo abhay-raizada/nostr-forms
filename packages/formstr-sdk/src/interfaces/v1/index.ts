@@ -98,14 +98,14 @@ export interface V1Field {
 export interface V1Response {
   questionId: string;
   questionLabel: string;
-  answer: string;
+  answer: string | number | boolean;
   displayAnswer: string;
   message?: string;
 }
 
 export interface V1Submission {
   questionId: string;
-  answer: string;
+  answer: string | number | boolean;
   message?: string;
 }
 

@@ -3,15 +3,11 @@ import EmptyScreen from "../../../../components/EmptyScreen";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
 import { ILocalForm } from "./typeDefs";
 import { LOCAL_STORAGE_KEYS, getItem } from "../../../../utils/localStorage";
-import {
-  makeTag,
-  constructFormUrl,
-  constructResponseUrl,
-  isMobile,
-} from "../../../../utils/utility";
+import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
 import { useState } from "react";
+import { constructFormUrl, constructResponseUrl } from "@formstr/sdk";
 
 const COLUMNS = [
   {
@@ -36,7 +32,7 @@ const COLUMNS = [
     width: isMobile() ? 25 : 30,
     ellipsis: true,
     render: (publicKey: string) => {
-      let link = constructFormUrl(publicKey);
+      let link = constructFormUrl(publicKey, window.location.origin);
       return <ResponsiveLink link={link} />;
     },
   },
@@ -47,7 +43,7 @@ const COLUMNS = [
     width: isMobile() ? 25 : 30,
     ellipsis: true,
     render: (privateKey: string) => {
-      let link = constructResponseUrl(privateKey);
+      let link = constructResponseUrl(privateKey, window.location.origin);
       return <ResponsiveLink link={link} />;
     },
   },

@@ -4,10 +4,11 @@ import FormTitle from "../CreateForm/components/FormTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getFormTemplate, sendResponses } from "@formstr/sdk";
-import { Button, Form, Typography } from "antd";
+import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { getValidationRules } from "./validations";
+import { SubmitButton } from "./SubmitButton/submit";
 
 const { Text } = Typography;
 
@@ -47,7 +48,7 @@ export const FormFiller = () => {
     form.setFieldValue(questionId, [answer, message]);
   };
 
-  const saveResponse = async () => {
+  const saveResponse = async (anonymous: boolean = true) => {
     let formResponses = form.getFieldsValue(true);
     const response = Object.keys(formResponses).map((key: string) => {
       let [answer, message] = formResponses[key];
@@ -57,8 +58,8 @@ export const FormFiller = () => {
         message,
       };
     });
+    await sendResponses(formId, response, anonymous);
     setFormSubmitted(true);
-    sendResponses(formId, response, true);
   };
 
   const { name, settings, fields } = formTemplate || {};
@@ -77,7 +78,7 @@ export const FormFiller = () => {
             <Text>{settings?.description}</Text>
           </div>
 
-          <Form form={form} onFinish={saveResponse}>
+          <Form form={form} onFinish={() => {}}>
             <div>
               {fields?.map((field) => {
                 let rules = [
@@ -101,9 +102,12 @@ export const FormFiller = () => {
                   </Form.Item>
                 );
               })}
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
+              <SubmitButton
+                selfSign={formTemplate?.settings?.disallowAnonymous}
+                edit={false}
+                onSubmit={saveResponse}
+                form={form}
+              />
             </div>
           </Form>
         </div>
