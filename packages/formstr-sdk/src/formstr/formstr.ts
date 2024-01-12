@@ -413,18 +413,18 @@ function fillData(
     let question = questionMap[questionResponse.questionId];
     if (!question) {
       questionResponse.questionLabel = "Unknown Question";
-      questionResponse.displayAnswer = questionResponse.answer;
+      questionResponse.displayAnswer = questionResponse.answer.toString();
       return questionResponse;
     }
     questionResponse.questionLabel = question.question;
     questionResponse.displayAnswer =
       question.answerSettings.choices
         ?.filter((choice) => {
-          let answers = questionResponse.answer.split(";");
+          let answers = questionResponse.answer.toString().split(";");
           return answers.includes(choice.choiceId);
         })
         .map((choice) => choice.label)
-        .join(", ") || questionResponse.answer;
+        .join(", ") || questionResponse.answer.toString();
     return questionResponse;
   });
 }

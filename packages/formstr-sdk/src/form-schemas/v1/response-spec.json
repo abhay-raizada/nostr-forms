@@ -11,7 +11,7 @@
           "examples": ["23DSF1", "AA12D3"]
         },
         "answer": {
-          "type": "string",
+          "type": ["string", "number", "boolean"],
           "examples": ["Correct Answer", "Incorrect answer"]
         },
         "message": {
