@@ -462,6 +462,43 @@ function createQuestionMap(formTemplate: V1FormSpec) {
   return questionMap;
 }
 
+export const sendNotification = async (
+  form: V1FormSpec,
+  response: Array<V1Submission>
+) => {
+  let message = 'New response for form: "' + form.name + '"';
+  let questionMap = createQuestionMap(form);
+  message += "\n" + "Answers: \n";
+  response.forEach((response) => {
+    let question = questionMap[response.questionId];
+    message += "\n" + question.question + ": \n" + response.answer + "\n";
+  });
+  message += "Visit https://formstr.app to view the responses.";
+  let newSk = generatePrivateKey();
+  let newPk = getPublicKey(newSk);
+  const pool = new SimplePool();
+  form.settings?.notifyNpubs?.forEach(async (npub) => {
+    let hexNpub = nip19.decode(npub).data.toString();
+    let encryptedMessage = await nip04.encrypt(newSk, hexNpub, message);
+    let baseKind4Event: Event = {
+      kind: 4,
+      pubkey: newPk,
+      tags: [["p", hexNpub]],
+      content: encryptedMessage,
+      created_at: Math.floor(Date.now() / 1000),
+      id: "",
+      sig: "",
+    };
+    let kind4Event = {
+      ...baseKind4Event,
+      id: getEventHash(baseKind4Event),
+      sig: getSignature(baseKind4Event, newSk),
+    };
+    pool.publish(relays, kind4Event);
+  });
+  pool.close(relays);
+};
+
 export const getFormResponses = async (formSecret: string) => {
   const formId = getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);

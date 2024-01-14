@@ -3,7 +3,7 @@ import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFormTemplate, sendResponses } from "@formstr/sdk";
+import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
 import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
@@ -59,6 +59,7 @@ export const FormFiller = () => {
       };
     });
     await sendResponses(formId, response, anonymous);
+    if (formTemplate) sendNotification(formTemplate, response);
     setFormSubmitted(true);
   };
 
