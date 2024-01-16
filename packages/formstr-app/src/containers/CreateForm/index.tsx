@@ -27,9 +27,10 @@ function CreateForm() {
     return <FormBuilder />;
   }
   if (selectedTab === HEADER_MENU_KEYS.PREVIEW) {
-    console.log("form spec is in filler", getFormSpec());
     return <FormFiller formSpec={getFormSpec()} />;
   }
+
+  return null;
 }
 
 export default CreateForm;

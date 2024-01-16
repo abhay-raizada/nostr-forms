@@ -1,7 +1,6 @@
 import { Layout, Menu, Row, Col, Typography, MenuProps } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
-import { ROUTES } from "../../../../constants/routes";
 import { HEADER_MENU, HEADER_MENU_KEYS } from "./config";
 import { Button } from "antd";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
@@ -14,7 +13,6 @@ export const CreateFormHeader = () => {
   const { saveForm, setSelectedTab } = useFormBuilderContext();
 
   const onClickHandler: MenuProps["onClick"] = (e) => {
-    console.log("click", e);
     setSelectedTab(e.key);
   };
 
@@ -44,7 +42,7 @@ export const CreateFormHeader = () => {
                   Publish
                 </Button>
               </Col>
-              <Col md={10} xs={5} sm={2}>
+              <Col md={12} xs={5} sm={2}>
                 <Menu
                   mode="horizontal"
                   theme="light"

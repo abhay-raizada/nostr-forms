@@ -43,7 +43,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   saveDraft: () => null,
   setFormTempId: (formTempId: string) => "",
   formTempId: "",
-  selectedTab: "BUILDER",
+  selectedTab: HEADER_MENU_KEYS.BUILDER,
   setSelectedTab: (tab: string) => "",
 });
 
@@ -207,7 +207,6 @@ export default function FormBuilderProvider({
 
   const initializeForm = (draft: IDraft) => {
     let formSpec = draft.formSpec;
-    console.log("name", formSpec.name);
     setFormName(formSpec.name);
     if (formSpec.settings) setFormSettings(formSpec.settings);
     setQuestionsList(

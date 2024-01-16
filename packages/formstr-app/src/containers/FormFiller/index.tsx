@@ -31,8 +31,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
 
   const isPreview = !!formSpec;
 
-  console.log("im inside the fillerrrrr");
-
   const convertFromSpecToTemplate = (formSpec: FormSpec): V1FormSpec => {
     let fields = formSpec.fields?.map((field) => {
       let answerSettings = field.answerSettings;
@@ -81,7 +79,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
       }
     }
     getForm();
-  }, [formTemplate, formId]);
+  }, [formTemplate, formId, formSpec]);
 
   if (!formId && !formSpec) {
     return;
@@ -120,8 +118,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
     settings = formTemplate.settings;
     fields = formTemplate.fields;
   }
-
-  console.log("Im here form template is", formTemplate);
 
   return (
     <FillerStyle $isPreview={isPreview}>

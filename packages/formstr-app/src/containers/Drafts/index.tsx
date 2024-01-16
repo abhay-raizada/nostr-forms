@@ -3,6 +3,7 @@ import { Typography } from "antd";
 import { IDraft } from "../MyForms/components/Drafts/typeDefs";
 import { ROUTES } from "../../constants/routes";
 import useFormBuilderContext from "../CreateForm/hooks/useFormBuilderContext";
+import { useEffect } from "react";
 const { Text } = Typography;
 
 export const V1DraftsController = () => {
@@ -16,13 +17,13 @@ export const V1DraftsController = () => {
     draft = window.decodeURIComponent(encodedForm);
     parsedDraft = JSON.parse(decodeURIComponent(window.atob(draft)));
   }
-
-  console.log("parsedDraft", parsedDraft);
+  useEffect(() => {
+    if (!parsedDraft) return;
+    initializeForm(parsedDraft);
+    navigate(ROUTES.CREATE_FORMS, {
+      state: parsedDraft,
+    });
+  }, [encodedForm, initializeForm, navigate, parsedDraft]);
   if (!parsedDraft) return <Text>Invalid draft</Text>;
-  initializeForm(parsedDraft);
-  navigate(ROUTES.CREATE_FORMS, {
-    state: parsedDraft,
-  });
-
   return <Text> Taking you to your draft...</Text>;
 };
