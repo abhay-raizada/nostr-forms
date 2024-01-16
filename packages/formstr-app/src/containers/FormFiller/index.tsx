@@ -124,7 +124,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   console.log("Im here form template is", formTemplate);
 
   return (
-    <FillerStyle>
+    <FillerStyle $isPreview={isPreview}>
       <div className="filler-container">
         <div className="form-filler">
           <FormTitle
