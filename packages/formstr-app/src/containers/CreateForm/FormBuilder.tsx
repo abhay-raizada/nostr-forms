@@ -13,6 +13,7 @@ function FormBuilder() {
 
   const {
     isRightSettingsOpen,
+    formName,
     closeOnOutsideClick: closeSettingsOnOutsideClick,
   } = useFormBuilderContext();
 
@@ -28,6 +29,7 @@ function FormBuilder() {
 
   useOutsideClickHandler(leftSidebarRef, closeOnOutsideClick);
   useOutsideClickHandler(rightSidebarRef, closeSettingsOnOutsideClick);
+  console.log("form name received is", formName);
 
   return (
     <StyledWrapper

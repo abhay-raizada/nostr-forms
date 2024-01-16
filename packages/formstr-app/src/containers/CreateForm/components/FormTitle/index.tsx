@@ -1,5 +1,5 @@
 import { Input, Typography } from "antd";
-import { DeleteOutlined, SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined } from "@ant-design/icons";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./style";
 import { ChangeEvent } from "react";
@@ -17,13 +17,8 @@ function FormTitle({
   imageUrl?: string;
   formTitle?: string;
 }) {
-  const {
-    formSettings,
-    updateFormSetting,
-    formName,
-    updateFormName,
-    toggleSettingsWindow,
-  } = useFormBuilderContext();
+  const { formSettings, formName, updateFormName, toggleSettingsWindow } =
+    useFormBuilderContext();
 
   const settings = {
     name: edit ? formName : formTitle,
@@ -41,13 +36,6 @@ function FormTitle({
           <>
             <div
               className="icon-util"
-              title="Delete cover"
-              onClick={() => updateFormSetting({ titleImageUrl: "" })}
-            >
-              <DeleteOutlined />
-            </div>
-            <div
-              className="icon-util"
               title="Form settings"
               onClick={toggleSettingsWindow}
             >
@@ -60,7 +48,7 @@ function FormTitle({
       {edit && (
         <Input.TextArea
           className="title-text"
-          defaultValue={settings.name}
+          value={settings.name}
           onChange={handleTitleChange}
           autoSize={true}
         />

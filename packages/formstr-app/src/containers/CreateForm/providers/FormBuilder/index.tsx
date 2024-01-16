@@ -16,9 +16,11 @@ import {
 import { makeTag } from "../../../../utils/utility";
 import { useNavigate } from "react-router-dom";
 import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
+import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
+  initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
   addQuestion: (answerType?: AnswerTypes) => null,
@@ -197,9 +199,26 @@ export default function FormBuilderProvider({
     }
   };
 
+  const initializeForm = (draft: IDraft) => {
+    let formSpec = draft.formSpec;
+    console.log("name", formSpec.name);
+    setFormName(formSpec.name);
+    if (formSpec.settings) setFormSettings(formSpec.settings);
+    setQuestionsList(
+      formSpec.fields?.map((field) => {
+        return {
+          ...field,
+          tempId: makeTag(6),
+        };
+      }) || []
+    );
+    setFormTempId(draft.tempId);
+  };
+
   return (
     <FormBuilderContext.Provider
       value={{
+        initializeForm,
         questionsList,
         saveForm,
         editQuestion,

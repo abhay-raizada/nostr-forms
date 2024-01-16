@@ -5,7 +5,7 @@ import StyleWrapper from "./style";
 import DescriptionStyle from "./description.style";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
-import { ChangeEvent, useEffect } from "react";
+import { ChangeEvent } from "react";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
 import { isMobile, isTablet } from "../../../../utils/utility";
@@ -19,14 +19,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     setQuestionIdInFocus,
     updateFormSetting,
     updateQuestionsList,
-    saveDraft,
   } = useFormBuilderContext();
-
-  useEffect(() => {
-    return () => {
-      saveDraft();
-    };
-  }, [saveDraft]);
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === e.key);
@@ -68,7 +61,7 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
         <DescriptionStyle>
           <div className="form-description">
             <Input.TextArea
-              key="description"
+              key={formSettings.description}
               defaultValue={formSettings.description}
               onChange={handleDescriptionChange}
               autoSize

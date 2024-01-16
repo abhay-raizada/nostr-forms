@@ -27,6 +27,19 @@ export function constructResponseUrl(privateKey: string, host: string) {
   return `${host}/#/v1/response/${privateKey}/responses`;
 }
 
+export function constructDraftUrl(
+  draft: { formSpec: unknown; tempId: string } | null,
+  host: string
+) {
+  if (!draft) {
+    return;
+  }
+  let draftHash = window.btoa(encodeURIComponent(JSON.stringify(draft)));
+  draftHash = window.encodeURIComponent(draftHash);
+
+  return `${host}/#/v1/drafts/${draftHash}`;
+}
+
 export function detectFormVersion(form: FormSpec & V0FormSpec) {
   if (form.schemaVersion) {
     return form.schemaVersion;
