@@ -1,13 +1,13 @@
 export const HEADER_MENU_KEYS = {
-  RESPONSES: "RESPONSES",
+  BUILDER: "BUILER",
   PREVIEW: "PREVIEW",
   PUBLISH: "PUBLISH",
 };
 
 export const HEADER_MENU = [
   {
-    key: HEADER_MENU_KEYS.RESPONSES,
-    label: "Responses",
+    key: HEADER_MENU_KEYS.BUILDER,
+    label: "Builder",
   },
   {
     key: HEADER_MENU_KEYS.PREVIEW,

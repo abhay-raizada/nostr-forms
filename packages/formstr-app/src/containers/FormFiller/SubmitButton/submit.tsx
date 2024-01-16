@@ -7,6 +7,7 @@ interface SubmitButtonProps {
   edit: boolean;
   form: FormInstance;
   onSubmit: (anonymous: boolean) => Promise<void>;
+  disabled?: boolean;
 }
 
 export const SubmitButton: React.FC<SubmitButtonProps> = ({
@@ -14,6 +15,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   edit,
   form,
   onSubmit,
+  disabled = false,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
@@ -85,6 +87,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
         type="primary"
         onClick={handleButtonClick}
         icon={<DownOutlined />}
+        disabled={disabled}
       >
         {selfSign
           ? edit

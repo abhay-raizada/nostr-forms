@@ -28,4 +28,6 @@ export interface IFormBuilderContext {
   saveDraft: () => void;
   setFormTempId: (formTempId: string) => void;
   formTempId: string;
+  selectedTab: string;
+  setSelectedTab: (tab: string) => void;
 }
