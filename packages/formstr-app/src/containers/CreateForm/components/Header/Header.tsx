@@ -1,27 +1,19 @@
-import { Layout, Menu, Row, Col, Typography } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Layout, Menu, Row, Col, Typography, MenuProps } from "antd";
+import { Link } from "react-router-dom";
 import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
-import { ROUTES } from "../../../../constants/routes";
 import { HEADER_MENU, HEADER_MENU_KEYS } from "./config";
 import { Button } from "antd";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./Header.style";
 
 export const CreateFormHeader = () => {
-  const location = useLocation();
   const { Header } = Layout;
   const { Text } = Typography;
 
-  const { saveForm } = useFormBuilderContext();
+  const { saveForm, setSelectedTab } = useFormBuilderContext();
 
-  const getSelectedTab = () => {
-    if (location.pathname === ROUTES.RESPONSES) {
-      return HEADER_MENU_KEYS.RESPONSES;
-    }
-    if (location.pathname === ROUTES.PREVIEW) {
-      return HEADER_MENU_KEYS.PREVIEW;
-    }
-    return "";
+  const onClickHandler: MenuProps["onClick"] = (e) => {
+    setSelectedTab(e.key);
   };
 
   return (
@@ -50,13 +42,14 @@ export const CreateFormHeader = () => {
                   Publish
                 </Button>
               </Col>
-              <Col md={10} xs={5} sm={2}>
+              <Col md={12} xs={5} sm={2}>
                 <Menu
                   mode="horizontal"
                   theme="light"
-                  defaultSelectedKeys={[getSelectedTab()]}
+                  defaultSelectedKeys={[HEADER_MENU_KEYS.BUILDER]}
                   overflowedIndicator={<MenuOutlined />}
                   items={HEADER_MENU}
+                  onClick={onClickHandler}
                 />
               </Col>
             </Row>

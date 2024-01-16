@@ -14,6 +14,7 @@ import { NostrHeader } from "../Header";
 import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
 import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
 import { Responses } from "../../containers/Responses/Responses";
+import { V1DraftsController } from "../../containers/Drafts";
 
 const withNostrHeaderWrapper = (Component, props) => {
   return (
@@ -64,6 +65,10 @@ function Routing() {
       <Route
         path={`${ROUTES.RESPONSES}/*`}
         element={withNostrHeaderWrapper(Responses)}
+      />
+      <Route
+        path={`${ROUTES.DRAFT}/*`}
+        element={withNostrHeaderWrapper(V1DraftsController)}
       />
     </Routes>
   );

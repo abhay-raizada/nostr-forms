@@ -16,9 +16,12 @@ import {
 import { makeTag } from "../../../../utils/utility";
 import { useNavigate } from "react-router-dom";
 import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
+import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
+import { HEADER_MENU_KEYS } from "../../components/Header/config";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
+  initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
   addQuestion: (answerType?: AnswerTypes) => null,
@@ -40,6 +43,8 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   saveDraft: () => null,
   setFormTempId: (formTempId: string) => "",
   formTempId: "",
+  selectedTab: HEADER_MENU_KEYS.BUILDER,
+  setSelectedTab: (tab: string) => "",
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -72,6 +77,9 @@ export default function FormBuilderProvider({
   );
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
+  const [selectedTab, setSelectedTab] = useState<string>(
+    HEADER_MENU_KEYS.BUILDER
+  );
 
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
@@ -83,7 +91,7 @@ export default function FormBuilderProvider({
     isRightSettingsOpen && toggleSettingsWindow();
   };
 
-  const getFormSpec = () => {
+  const getFormSpec = (): FormSpec => {
     return {
       name: formName,
       schemaVersion: "v1",
@@ -197,9 +205,25 @@ export default function FormBuilderProvider({
     }
   };
 
+  const initializeForm = (draft: IDraft) => {
+    let formSpec = draft.formSpec;
+    setFormName(formSpec.name);
+    if (formSpec.settings) setFormSettings(formSpec.settings);
+    setQuestionsList(
+      formSpec.fields?.map((field) => {
+        return {
+          ...field,
+          tempId: makeTag(6),
+        };
+      }) || []
+    );
+    setFormTempId(draft.tempId);
+  };
+
   return (
     <FormBuilderContext.Provider
       value={{
+        initializeForm,
         questionsList,
         saveForm,
         editQuestion,
@@ -220,6 +244,8 @@ export default function FormBuilderProvider({
         saveDraft,
         setFormTempId,
         formTempId,
+        selectedTab,
+        setSelectedTab,
       }}
     >
       {children}

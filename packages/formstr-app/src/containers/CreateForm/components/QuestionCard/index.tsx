@@ -66,7 +66,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             <label>
               <Input
                 onChange={handleTextChange}
-                defaultValue="Click to edit"
+                defaultValue={question.question || "Click to edit"}
                 placeholder="Enter a Question"
                 className="question-input"
               />

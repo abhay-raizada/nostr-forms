@@ -4,8 +4,10 @@ import {
   IFormSettings,
 } from "@formstr/sdk/dist/interfaces";
 import { IQuestion } from "../../typeDefs";
+import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 
 export interface IFormBuilderContext {
+  initializeForm: (draft: IDraft) => void;
   questionsList: IQuestion[];
   saveForm: () => void;
   closeOnOutsideClick: () => void;
@@ -26,4 +28,6 @@ export interface IFormBuilderContext {
   saveDraft: () => void;
   setFormTempId: (formTempId: string) => void;
   formTempId: string;
+  selectedTab: string;
+  setSelectedTab: (tab: string) => void;
 }

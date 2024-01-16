@@ -1,5 +1,7 @@
+import { FormSpec } from "@formstr/sdk/dist/interfaces";
+
 export interface Draft {
-  formSpec: { name: string; description: string };
+  formSpec: FormSpec;
   tempId: string;
 }
 

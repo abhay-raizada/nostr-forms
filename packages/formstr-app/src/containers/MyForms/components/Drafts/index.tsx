@@ -8,13 +8,11 @@ import {
   getItem,
   setItem,
 } from "../../../../utils/localStorage";
-import {
-  constructDraftUrl,
-  copyToClipBoard,
-  isMobile,
-} from "../../../../utils/utility";
+import { copyToClipBoard, isMobile } from "../../../../utils/utility";
 import { IDraft } from "./typeDefs";
 import StyleWrapper from "./style";
+import { ROUTES } from "../../../../constants/routes";
+import { constructDraftUrl } from "@formstr/sdk";
 
 const COLUMNS = [
   {
@@ -42,7 +40,7 @@ const COLUMNS = [
     ellipsis: true,
     render: (_: any, draft: IDraft) => (
       <Link
-        to="/forms/new"
+        to={ROUTES.CREATE_FORMS}
         state={{
           formSpec: draft.formSpec,
           tempId: draft.tempId,
@@ -60,7 +58,7 @@ const COLUMNS = [
     width: 25,
     ellipsis: true,
     render: (_: any, draft: IDraft) => {
-      let link = constructDraftUrl(draft);
+      let link = constructDraftUrl(draft, window.location.origin);
       if (!link) return "-";
       return (
         <LinkOutlined

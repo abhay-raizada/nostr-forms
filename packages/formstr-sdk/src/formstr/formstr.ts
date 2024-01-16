@@ -77,6 +77,8 @@ export const constructFormUrl = utils.constructFormUrl;
 
 export const constructResponseUrl = utils.constructResponseUrl;
 
+export const constructDraftUrl = utils.constructDraftUrl;
+
 function generateIds(formSpec: FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: Field): V1Field => {
     const choices = field.answerSettings?.choices?.map((choice) => {

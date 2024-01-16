@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import { MEDIA_QUERY_MOBILE } from "../../utils/css";
 
-export default styled.div`
+export default styled.div<{
+  $isPreview?: boolean;
+}>`
   position: relative;
-  height: calc(100vh - 48px);
+  height: ${(props) =>
+    props.$isPreview ? "calc(100vh - 110px)" : "calc(100vh-48px"};
   overflow: scroll;
 
   .form-filler {
