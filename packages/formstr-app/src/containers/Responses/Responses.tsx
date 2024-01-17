@@ -9,6 +9,7 @@ import { Card, Divider, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SummaryStyle from "./summary.style";
+import { Export } from "./Export";
 
 const { Text } = Typography;
 
@@ -105,6 +106,19 @@ export const Responses = () => {
         </SummaryStyle>
       </Card>
 
+      <div
+        style={{
+          width: "100%",
+          margin: "10px",
+        }}
+      >
+        <Export
+          questionMap={questionMap}
+          answers={getData()}
+          formName={formSummary.name}
+        />
+      </div>
+      <Divider />
       <div style={{ overflow: "scroll" }}>
         <Table
           columns={getFlatColumns()}
