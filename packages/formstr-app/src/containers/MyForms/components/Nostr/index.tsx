@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
-import { Table } from "antd";
-import { getPastUserForms } from "@formstr/sdk";
-import EmptyScreen from "../../../../components/EmptyScreen";
+import { useState } from "react";
+import { Button, Table } from "antd";
+import { getDecoratedPastForms } from "@formstr/sdk";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
 import {
   constructFormUrl,
@@ -11,8 +10,8 @@ import { IForm } from "./typeDefs";
 
 const COLUMNS = [
   {
-    key: "number",
-    title: "Number",
+    key: "name",
+    title: "Name",
     dataIndex: "name",
     width: 25,
     ellipsis: true,
@@ -42,30 +41,35 @@ const COLUMNS = [
 function Nostr() {
   const [isLoading, setIsLoading] = useState(false);
   const [forms, setForms] = useState<IForm[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      let pubKey = await window.nostr.getPublicKey();
-      let forms = (await getPastUserForms(pubKey)) as string[][];
-      let parsedForms = forms.map((form, idx) => ({
-        key: idx + 1,
-        name: form[1][0].slice(0, 6),
-        formUrl: constructFormUrl(form[1][0]),
-        responseUrl: constructResponseUrl(form[1][1]),
-      }));
-      setForms(parsedForms);
-      setIsLoading(false);
-    })();
-  }, []);
+  const loadNostrForms = async () => {
+    setIsLoading(true);
+    let forms = await getDecoratedPastForms();
+    let parsedForms = forms.map((form, idx) => ({
+      key: idx + 1,
+      name: form.formName,
+      formUrl: constructFormUrl(form.formId),
+      responseUrl: constructResponseUrl(form.formName),
+    }));
+    setForms(parsedForms);
+    setIsLoading(false);
+  };
 
   return (
     <div>
+      {!!!forms.length ? (
+        <Button
+          type="primary"
+          style={{ position: "absolute", top: "50%", left: "50%" }}
+          onClick={loadNostrForms}
+        >
+          Fetch forms from nostr
+        </Button>
+      ) : null}
       {(!!forms.length || isLoading) && (
         <Table
           loading={{
             spinning: isLoading,
-            tip: "Traveling through the world to look for forms...",
+            tip: "Please accept the nip-07 request to fetch your forms from Nostr",
           }}
           columns={COLUMNS}
           dataSource={forms}
@@ -73,7 +77,6 @@ function Nostr() {
           scroll={{ y: "calc(100vh - 208px)" }}
         />
       )}
-      {!forms.length && !isLoading && <EmptyScreen />}
     </div>
   );
 }

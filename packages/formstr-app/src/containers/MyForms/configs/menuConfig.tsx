@@ -25,7 +25,7 @@ export const MY_FORM_MENU = [
     children: [
       {
         key: MY_FORM_MENU_KEYS.LOCAL,
-        label: "Local",
+        label: "Local Device",
         icon: (
           <Link to={`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.LOCAL}`}>
             <InboxOutlined />
@@ -34,7 +34,7 @@ export const MY_FORM_MENU = [
       },
       {
         key: MY_FORM_MENU_KEYS.NOSTR,
-        label: "Nostr",
+        label: "Nostr Profile",
         icon: (
           <Link to={`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.NOSTR}`}>
             <NotificationOutlined />

@@ -46,8 +46,8 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
         <div>
           <Text>
             {" "}
-            Your form is backed up on this device, to backup to your nostr
-            profile, sign in via a Nip-07 extension{" "}
+            Your form is backed up on this device, you can sync local forms with
+            your nostr profile on the next screen.
           </Text>
         </div>
       </div>

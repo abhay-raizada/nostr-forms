@@ -1,4 +1,4 @@
-import { Table } from "antd";
+import { Button, Modal, Spin, Table } from "antd";
 import EmptyScreen from "../../../../components/EmptyScreen";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
 import { ILocalForm } from "./typeDefs";
@@ -7,7 +7,12 @@ import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
 import { useState } from "react";
-import { constructFormUrl, constructResponseUrl } from "@formstr/sdk";
+import {
+  constructFormUrl,
+  constructResponseUrl,
+  syncFormsOnNostr,
+} from "@formstr/sdk";
+import { SyncOutlined } from "@ant-design/icons";
 
 const COLUMNS = [
   {
@@ -62,15 +67,38 @@ function Local() {
 
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
+  const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
+
+  const syncFormsWithNostr = async () => {
+    let localForms =
+      getItem<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
+    setShowsyncModal(true);
+    await syncFormsOnNostr(
+      localForms.map((form) => [form.publicKey, form.privateKey])
+    );
+    setShowsyncModal(false);
+  };
 
   return (
     <div>
+      {!!localForms.length && (
+        <div className="button-container">
+          <Button
+            type="primary"
+            onClick={syncFormsWithNostr}
+            className="sync-button"
+            icon={<SyncOutlined />}
+          >
+            Sync with nostr profile
+          </Button>
+        </div>
+      )}
       {!!localForms.length && (
         <Table
           columns={columns}
           dataSource={localForms}
           pagination={false}
-          scroll={{ y: "calc(100vh - 208px)" }}
+          scroll={{ y: "calc(100vh - 228px)" }}
         />
       )}
       {!localForms.length && <EmptyScreen />}
@@ -81,6 +109,18 @@ function Local() {
           setShowFormDetails(false);
         }}
       />
+      <Modal open={showSyncModal} footer={null}>
+        <Spin size="small" />
+        Waiting for you to finish signing save events. Click{" "}
+        <a
+          href="https://nostrcheck.me/register/browser-extension.php"
+          target="_blank"
+          rel="noreferrer"
+        >
+          here
+        </a>{" "}
+        to read more about nip-07 signing
+      </Modal>
     </div>
   );
 }

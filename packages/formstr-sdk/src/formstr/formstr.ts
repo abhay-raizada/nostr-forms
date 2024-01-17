@@ -30,7 +30,6 @@ import {
   V1Submission,
   FormResponse,
 } from "../interfaces";
-import { get } from "http";
 
 declare global {
   // TODO: make this better
@@ -216,10 +215,9 @@ async function getUserPublicKey(userSecretKey: string | null) {
   return userPublicKey;
 }
 
-export async function getPastUserForms<FormStructure = unknown>(
-  userPublicKey: string,
-  userSecretKey: string | null = null
-) {
+export async function getPastUserForms<
+  FormStructure = Array<string | Array<string>>,
+>(userPublicKey: string, userSecretKey: string | null = null) {
   const filters = {
     kinds: [30001],
     "#d": ["forms"],
@@ -236,6 +234,21 @@ export async function getPastUserForms<FormStructure = unknown>(
   );
   return JSON.parse(decryptedForms) as FormStructure[];
 }
+
+export const getDecoratedPastForms = async () => {
+  let userPublicKey = await getUserPublicKey(null);
+  let pastForms: Array<string | Array<string>> = await getPastUserForms(
+    userPublicKey,
+    null
+  );
+  let formTemplates = await fetchProfiles(pastForms.map((form) => form[1][0]));
+  return pastForms.map((form) => {
+    let formId = form[1][0];
+    let formName = formTemplates[formId]?.name || "Unknown Form";
+    let formSecret = form[1][1];
+    return { formId, formName, formSecret };
+  });
+};
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
@@ -265,7 +278,7 @@ export const saveFormOnNostr = async (
   let nip51event: typeof baseNip51Event & { id: string; sig: string };
   nip51event = await signEvent(baseNip51Event, userSecretKey);
   const pool = new SimplePool();
-  await Promise.all(pool.publish(relays, nip51event));
+  pool.publish(relays, nip51event);
   pool.close(relays);
 };
 
@@ -560,4 +573,32 @@ export const getFormResponses = async (formSecret: string) => {
 export const getFormResponsesCount = async (formId: string) => {
   let responses = await getEncryptedResponses(formId);
   return responses.length;
+};
+
+export const syncFormsOnNostr = async (
+  formCredentialsList: Array<Array<string>>
+) => {
+  let publicKey = await getUserPublicKey(null);
+  let pastForms = await getPastUserForms(publicKey);
+  let nostrList = formCredentialsList.map((formCredentials) => {
+    return ["form", formCredentials];
+  });
+  let syncedForms = new Set(pastForms.concat(nostrList));
+  let syncedFormsList = Array.from(syncedForms);
+  const message = JSON.stringify(syncedFormsList);
+  const ciphertext = await encryptMessage(message, publicKey, null);
+  const baseNip51Event = {
+    kind: 30001,
+    pubkey: publicKey,
+    tags: [["d", "forms"]], //don't overwrite tags reuse previous tags
+    content: ciphertext,
+    created_at: Math.floor(Date.now() / 1000),
+    id: "",
+    sig: "",
+  };
+  let nip51event: typeof baseNip51Event & { id: string; sig: string };
+  nip51event = await signEvent(baseNip51Event, null);
+  const pool = new SimplePool();
+  pool.publish(relays, nip51event);
+  pool.close(relays);
 };

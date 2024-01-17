@@ -1,6 +1,5 @@
 import React from "react";
-import { Button, Dropdown, MenuProps, Row } from "antd";
-import { nip19 } from "nostr-tools";
+import { Dropdown, MenuProps } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { V1Field } from "@formstr/sdk/dist/interfaces";
 
@@ -11,8 +10,8 @@ export const Export: React.FC<{
 }> = (props) => {
   const onDownloadClick = async (type: "csv" | "excel") => {
     const XLSX = await import("xlsx");
-    const SheetName = `Responses for ${props.formName}`.substring(0, 20);
-    console.log("Sheet name", SheetName, SheetName.length);
+    const SheetName =
+      `Responses for ${props.formName}`.substring(0, 16) + "...";
     let parsedResponse = props.answers.reduce(
       (
         allResp: Array<{ [key: string]: string }>,
@@ -20,7 +19,6 @@ export const Export: React.FC<{
       ) => {
         let newAnswer: { [key: string]: string } = {};
         Object.keys(answer).forEach((questionId) => {
-          console.log("questionId", questionId, props.questionMap[questionId]);
           newAnswer[props.questionMap[questionId]?.question || questionId] =
             answer[questionId];
         });
@@ -55,7 +53,7 @@ export const Export: React.FC<{
     onDownloadClick(e.key as "csv" | "excel");
   };
 
-  const menuProps = {
+  const menuProps: MenuProps = {
     items,
     onClick: handleMenuClick,
   };
@@ -67,6 +65,7 @@ export const Export: React.FC<{
   return (
     <Dropdown.Button
       menu={menuProps}
+      className="export-excel"
       type="text"
       onClick={handleButtonClick}
       icon={<DownOutlined />}
