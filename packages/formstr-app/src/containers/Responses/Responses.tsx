@@ -9,6 +9,10 @@ import { Card, Divider, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import SummaryStyle from "./summary.style";
+import ResponseWrapper from "./Responses.style";
+
+import { Export } from "./Export";
+import { isMobile } from "../../utils/utility";
 
 const { Text } = Typography;
 
@@ -46,6 +50,7 @@ export const Responses = () => {
       const lastAuthorResponse = authorResponses[authorSubmissions - 1];
       const createdAt = lastAuthorResponse.createdAt;
       const answerObject: { [key: string]: string } = {
+        key: authorId,
         author: authorName,
         createdAt: createdAt,
       };
@@ -65,18 +70,17 @@ export const Responses = () => {
       width?: number;
     }> = [
       {
-        key: "author",
-        title: "Author",
-        dataIndex: "author",
-        fixed: "left",
-        width: 25,
-      },
-      {
         key: "createdAt",
         title: "Created At",
         dataIndex: "createdAt",
         fixed: "left",
-        width: 25,
+        width: isMobile() ? 10 : 20,
+      },
+      {
+        key: "author",
+        title: "Author",
+        dataIndex: "author",
+        width: isMobile() ? 10 : 20,
       },
     ];
     for (const [questionId, field] of Object.entries(questionMap)) {
@@ -84,7 +88,7 @@ export const Responses = () => {
         key: questionId,
         title: field.question,
         dataIndex: questionId,
-        width: 50,
+        width: 12,
       });
     }
     return columns;
@@ -104,19 +108,26 @@ export const Responses = () => {
           </div>
         </SummaryStyle>
       </Card>
-
-      <div style={{ overflow: "scroll" }}>
-        <Table
-          columns={getFlatColumns()}
-          dataSource={getData()}
-          pagination={false}
-          loading={{
-            spinning: isLoading,
-            tip: "🔎 Looking for your responses...",
-          }}
-          scroll={{ x: 1500 }}
+      <ResponseWrapper>
+        <Export
+          questionMap={questionMap}
+          answers={getData()}
+          formName={formSummary.name}
         />
-      </div>
+
+        <div style={{ overflow: "scroll", marginBottom: 60 }}>
+          <Table
+            columns={getFlatColumns()}
+            dataSource={getData()}
+            pagination={false}
+            loading={{
+              spinning: isLoading,
+              tip: "🔎 Looking for your responses...",
+            }}
+            scroll={{ x: isMobile() ? 900 : 1500, y: "calc(65% - 400px)" }}
+          />
+        </div>
+      </ResponseWrapper>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export default styled.div`
   margin: 10px;
+  max-height: 20%;
   .heading {
     font-size: 24px;
   }
@@ -9,6 +10,7 @@ export default styled.div`
   .response-count-container {
     display: flex;
     flex-direction: column;
+    max-height: 10%;
   }
 
   .response-count {

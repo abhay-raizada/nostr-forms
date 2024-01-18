@@ -9,6 +9,17 @@ export default styled.div`
     margin: 20px;
   }
 
+  .button-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+
+  .sync-button {
+    margin: 10px;
+  }
+
   ${MEDIA_QUERY_MOBILE} {
     .my-forms {
       width: calc(100vw - 40px);
@@ -16,4 +27,3 @@ export default styled.div`
     }
   }
 `;
-

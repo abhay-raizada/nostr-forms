@@ -111,10 +111,14 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
           <div>
             <Spin size="small" /> Waiting for you to finish signing your
             response. Click{" "}
-            <a href="https://nostrcheck.me/register/browser-extension.php">
+            <a
+              href="https://nostrcheck.me/register/browser-extension.php"
+              target="_blank"
+              rel="noreferrer"
+            >
               here
             </a>{" "}
-            to read more about nip-07 signing
+            to read more about nip-07 signing.
           </div>
         )}
       </Modal>

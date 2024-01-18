@@ -13,6 +13,7 @@ function App() {
         <Footer
           style={{
             position: "fixed",
+            zIndex: 2,
             bottom: "0",
             width: "100%",
             textAlign: "center",
