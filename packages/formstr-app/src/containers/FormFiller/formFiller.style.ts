@@ -3,14 +3,11 @@ import { MEDIA_QUERY_MOBILE } from "../../utils/css";
 export default styled.div<{
   $isPreview?: boolean; // preciew true for preview tab
 }>`
-  position: relative;
-
-  height: ${(props) =>
-    props.$isPreview ? "calc(100vh - 112px)" : "calc(100vh - 56px)"};
-  overflow: scroll;
-
   .form-filler {
     background-color: #dedede;
+    height: ${(props) =>
+      props.$isPreview ? "calc(100vh - 112px)" : "calc(100vh - 56px)"};
+    overflow: scroll;
     padding-left: 32px;
     padding-right: 32px;
     overflow: scroll;
@@ -25,6 +22,8 @@ export default styled.div<{
   .filler-container {
     width: 100%;
     background-color: #dedede;
+    position: relative;
+    height: 100vh;
   }
 
   .form-title {
