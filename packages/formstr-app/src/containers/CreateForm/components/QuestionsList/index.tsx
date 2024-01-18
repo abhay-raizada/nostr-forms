@@ -97,6 +97,7 @@ export const QuestionsList = () => {
       <div>
         <Button
           type="primary"
+          size="large"
           onClick={onPlusButtonClick}
           className="mobile-add-btn"
         >

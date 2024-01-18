@@ -9,7 +9,7 @@ export default styled.div`
   height: calc(100vh - 112px);
   width: calc(100vw - 482px);
   ${MEDIA_QUERY_MOBILE} {
-    height: calc(100vh - 190px);
+    /* height: calc(100vh - 170px); */
   }
 
   .form-title {
@@ -26,20 +26,16 @@ export default styled.div`
     padding: 1em;
   }
 
-  .desktop-add-btn {
-    position: sticky;
-    ${MEDIA_QUERY_MOBILE} {
-      display: none;
-    }
-  }
   .mobile-add-btn {
     display: none;
     ${MEDIA_QUERY_MOBILE} {
       display: block;
       position: fixed;
       right: 10px;
-      bottom: 50px;
+      bottom: 140px;
       margin: 10px;
+      height: 50px;
+      width: 53px;
     }
   }
   .reorder-group {

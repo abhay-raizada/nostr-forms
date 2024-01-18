@@ -9,6 +9,7 @@ export default styled.div`
     height: calc(100vh - 112px);
     border-inline-end: 1px solid rgba(5, 5, 5, 0.06);
     margin-top: 1px;
+    background-color: white;
   }
 
   .create-sidebar .ant-menu .ant-menu-item-group .ant-menu-item-group-title {
