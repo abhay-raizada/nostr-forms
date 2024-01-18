@@ -4,6 +4,7 @@ export const LOCAL_STORAGE_KEYS = {
 };
 
 export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {
+  console.log("fetching: ");
   let value = localStorage.getItem(key);
   if (value === null) {
     return value;
@@ -16,6 +17,8 @@ export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {
       localStorage.removeItem(key);
     }
   }
+  console.log("fetching: ", value);
+
   return value as T;
 }
 

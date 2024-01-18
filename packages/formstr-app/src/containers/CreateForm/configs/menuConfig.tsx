@@ -8,14 +8,10 @@ import { ReactComponent as InputIcon } from "../../../Images/Frame.svg";
 
 export const BASIC_MENU = [
   {
-    key: BASIC_MENU_KEYS.SECTION,
-    label: "Section",
-    icon: <InputIcon style={{ color: "#800080", fill: "#800080" }} />,
-  },
-  {
     key: BASIC_MENU_KEYS.TITLE,
-    label: "Title",
+    label: "Label",
     icon: <InputIcon style={{ color: "#800080", fill: "#800080" }} />,
+    type: AnswerTypes.label,
   },
 ];
 
@@ -72,28 +68,9 @@ export const INPUTS_MENU = [
 
 export const PRE_BUILT_MENU = [
   {
-    key: PRE_BUILT_MENU_KEYS.EMAIL,
-    label: "Email",
-    icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
-  },
-  {
-    key: PRE_BUILT_MENU_KEYS.ADDRESS,
-    label: "Address",
-    icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
-  },
-  {
-    key: PRE_BUILT_MENU_KEYS.PHONE_NUMBER,
-    label: "Phone number",
-    icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
-  },
-  {
-    key: PRE_BUILT_MENU_KEYS.CARD_INFORMATION,
-    label: "Card information",
-    icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
-  },
-  {
     key: PRE_BUILT_MENU_KEYS.DATE_OF_BIRTH,
     label: "Date of birth",
     icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
+    type: AnswerTypes.date,
   },
 ];

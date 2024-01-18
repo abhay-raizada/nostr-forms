@@ -1,7 +1,15 @@
 import { Menu } from "antd";
 import { PRE_BUILT_MENU } from "../../configs/menuConfig";
+import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
 function PreBuiltMenu() {
+  const { addQuestion } = useFormBuilderContext();
+
+  const onMenuClick = ({ key }: { key: string }) => {
+    const selectedItem = PRE_BUILT_MENU.find((item) => item.key === key);
+    addQuestion(selectedItem?.type, selectedItem?.label);
+  };
+
   const items = [
     {
       key: "Pre-built",
@@ -10,7 +18,7 @@ function PreBuiltMenu() {
       type: "group",
     },
   ];
-  return <Menu selectedKeys={[]} items={items} />;
+  return <Menu selectedKeys={[]} items={items} onClick={onMenuClick} />;
 }
 
 export default PreBuiltMenu;

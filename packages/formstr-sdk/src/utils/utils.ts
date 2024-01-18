@@ -17,14 +17,14 @@ export function constructFormUrl(publicKey: string, host: string) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `${host}/#/v1/fill/${publicKey}`;
+  return `${host}/#/fill/${publicKey}`;
 }
 
 export function constructResponseUrl(privateKey: string, host: string) {
   if (!privateKey) {
     throw Error("public key is required");
   }
-  return `${host}/#/v1/response/${privateKey}/responses`;
+  return `${host}/#/response/${privateKey}/responses`;
 }
 
 export function constructDraftUrl(
@@ -37,7 +37,7 @@ export function constructDraftUrl(
   let draftHash = window.btoa(encodeURIComponent(JSON.stringify(draft)));
   draftHash = window.encodeURIComponent(draftHash);
 
-  return `${host}/#/v1/drafts/${draftHash}`;
+  return `${host}/#/drafts/${draftHash}`;
 }
 
 export function detectFormVersion(form: FormSpec & V0FormSpec) {

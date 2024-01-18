@@ -13,7 +13,7 @@ export interface IFormBuilderContext {
   closeSettingsOnOutsideClick: () => void;
   closeMenuOnOutsideClick: () => void;
   editQuestion: (question: IQuestion, tempId: string) => void;
-  addQuestion: (answerType?: AnswerTypes) => void;
+  addQuestion: (answerType?: AnswerTypes, label?: string) => void;
   deleteQuestion: (tempId: string) => void;
   questionIdInFocus?: string;
   setQuestionIdInFocus: (tempId?: string) => void;

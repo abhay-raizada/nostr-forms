@@ -24,7 +24,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
-  addQuestion: (answerType?: AnswerTypes) => null,
+  addQuestion: (answerType?: AnswerTypes, label?: string) => null,
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
@@ -185,9 +185,9 @@ export default function FormBuilderProvider({
     setQuestionsList(editedList);
   };
 
-  const addQuestion = (answerType?: AnswerTypes) => {
+  const addQuestion = (answerType?: AnswerTypes, label?: string) => {
     setIsLeftMenuOpen(false);
-    setQuestionsList([...questionsList, generateQuestion(answerType)]);
+    setQuestionsList([...questionsList, generateQuestion(answerType, label)]);
     setTimeout(() => {
       bottomElement?.current?.scrollIntoView({ behavior: "smooth" });
     }, 200);

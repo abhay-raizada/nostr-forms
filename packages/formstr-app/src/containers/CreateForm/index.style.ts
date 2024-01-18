@@ -32,7 +32,7 @@ export default styled.div<{
         props.$isRightSettingsOpen ? "absolute" : "static"};
       right: 0;
       background: white;
-      height: 100vh;
+      overflow: scroll;
     }
   }
 

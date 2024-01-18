@@ -66,14 +66,18 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   };
 
   useEffect(() => {
+    console.log("formId", formId);
     async function getForm() {
       if (!formTemplate) {
         if (!formId && !formSpec) {
+          console.log("Form Id not provided");
           throw Error("Form Id not provided");
         }
-        let form;
+        let form = null;
         if (formId) form = await getFormTemplate(formId);
         if (formSpec) form = convertFromSpecToTemplate(formSpec);
+        console.log("formId form", formSpec, form);
+
         if (!form) return;
         setFormTemplate(form);
       }
@@ -82,7 +86,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   }, [formTemplate, formId, formSpec]);
 
   if (!formId && !formSpec) {
-    return;
+    return null;
   }
 
   const handleInput = (
@@ -118,7 +122,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
     settings = formTemplate.settings;
     fields = formTemplate.fields;
   }
-
+  console.log("formTemplate", formTemplate);
   return (
     <FillerStyle $isPreview={isPreview}>
       <div className="filler-container">

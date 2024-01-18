@@ -7,6 +7,7 @@ import {
   constructResponseUrl,
 } from "../../../../utils/utility";
 import { IForm } from "./typeDefs";
+import SyncButtonStyle from "./syncButton.style";
 
 const COLUMNS = [
   {
@@ -57,13 +58,11 @@ function Nostr() {
   return (
     <div>
       {!!!forms.length ? (
-        <Button
-          type="primary"
-          style={{ position: "absolute", top: "50%", left: "50%" }}
-          onClick={loadNostrForms}
-        >
-          Fetch forms from nostr
-        </Button>
+        <SyncButtonStyle>
+          <Button type="primary" onClick={loadNostrForms}>
+            Fetch forms from nostr
+          </Button>
+        </SyncButtonStyle>
       ) : null}
       {(!!forms.length || isLoading) && (
         <Table

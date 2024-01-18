@@ -27,6 +27,11 @@ code {
     background-image: none;
   }
 }
+.ant-card-head-title {
+  text-overflow: unset !important;
+  white-space: unset !important;
+}
+
 .form-details {
   display: flex;
   align-items: center;
