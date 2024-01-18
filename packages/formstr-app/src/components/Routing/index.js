@@ -32,9 +32,9 @@ const withCreateFormHeaderWrapper = (Component, props) => {
 function Routing() {
   return (
     <Routes>
-      <Route path="forms/:npub" element={<FormFiller />} />
+      <Route path="forms/:formId" element={<FormFiller />} />
       <Route
-        path="forms/:nsec/responses"
+        path="forms/:formSecret/responses"
         element={withCreateFormHeaderWrapper(Responses)}
       />
       <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />

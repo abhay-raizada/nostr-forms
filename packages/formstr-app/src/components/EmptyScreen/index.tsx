@@ -3,6 +3,7 @@ import { Typography, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { ReactComponent as NoData } from "../../Images/noData.svg";
 import StyleWrapper from "./style";
+import { ROUTES } from "../../constants/routes";
 
 const { Text } = Typography;
 
@@ -16,7 +17,7 @@ function EmptyScreen() {
         type="primary"
         icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
       >
-        <Link to="/forms/new">Create Form</Link>
+        <Link to={ROUTES.CREATE_FORMS}>Create Form</Link>
       </Button>
     </StyleWrapper>
   );
