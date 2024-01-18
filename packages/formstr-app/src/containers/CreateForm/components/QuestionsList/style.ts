@@ -8,6 +8,9 @@ export default styled.div`
   overflow: scroll;
   height: calc(100vh - 112px);
   width: calc(100vw - 482px);
+  ${MEDIA_QUERY_MOBILE} {
+    height: calc(100vh - 190px);
+  }
 
   .form-title {
     position: relative;

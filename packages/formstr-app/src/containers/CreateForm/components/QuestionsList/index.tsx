@@ -9,7 +9,7 @@ import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
 import { isMobile, isTablet } from "../../../../utils/utility";
 
-export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
+export const QuestionsList = () => {
   const {
     formSettings,
     questionsList,
@@ -17,6 +17,8 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
     setQuestionIdInFocus,
     updateFormSetting,
     updateQuestionsList,
+    setIsLeftMenuOpen,
+    bottomElementRef,
   } = useFormBuilderContext();
 
   const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -42,6 +44,10 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
       questions[selectedQuestionIndex] = replaceQuestion;
     }
     updateQuestionsList(questions);
+  };
+
+  const onPlusButtonClick = () => {
+    setIsLeftMenuOpen(true);
   };
 
   return (
@@ -85,10 +91,15 @@ export const QuestionsList = ({ onAddClick }: { onAddClick: () => void }) => {
               </Reorder.Item>
             );
           })}
+          <div ref={bottomElementRef}></div>
         </div>
       </Reorder.Group>
       <div>
-        <Button type="primary" onClick={onAddClick} className="mobile-add-btn">
+        <Button
+          type="primary"
+          onClick={onPlusButtonClick}
+          className="mobile-add-btn"
+        >
           +
         </Button>
       </div>

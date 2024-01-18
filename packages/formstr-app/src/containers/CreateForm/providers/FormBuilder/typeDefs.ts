@@ -10,7 +10,8 @@ export interface IFormBuilderContext {
   initializeForm: (draft: IDraft) => void;
   questionsList: IQuestion[];
   saveForm: () => void;
-  closeOnOutsideClick: () => void;
+  closeSettingsOnOutsideClick: () => void;
+  closeMenuOnOutsideClick: () => void;
   editQuestion: (question: IQuestion, tempId: string) => void;
   addQuestion: (answerType?: AnswerTypes) => void;
   deleteQuestion: (tempId: string) => void;
@@ -20,6 +21,8 @@ export interface IFormBuilderContext {
   updateFormSetting: (settings: IFormSettings) => void;
   updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => void;
   isRightSettingsOpen: boolean;
+  isLeftMenuOpen: boolean;
+  setIsLeftMenuOpen: (isOpen: boolean) => void;
   toggleSettingsWindow: () => void;
   formName: string;
   updateFormName: (formName: string) => void;
@@ -30,4 +33,5 @@ export interface IFormBuilderContext {
   formTempId: string;
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
+  bottomElementRef: React.RefObject<HTMLDivElement> | null;
 }
