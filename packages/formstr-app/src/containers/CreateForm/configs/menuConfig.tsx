@@ -62,7 +62,7 @@ export const INPUTS_MENU = [
     key: INPUTS_TYPES.TIME,
     label: "Time",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
-    type: AnswerTypes.date,
+    type: AnswerTypes.time,
   },
 ];
 

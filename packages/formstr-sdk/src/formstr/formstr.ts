@@ -398,6 +398,32 @@ function convertV1Response(response: V0Response) {
   };
 }
 
+export async function fetchPublicForms() {
+  const pool = new SimplePool();
+  const filter = {
+    kinds: [0],
+    "#l": ["formstr"],
+    limit: 20,
+  };
+  type IPublicForm = {
+    content: V1FormSpec;
+    pubkey: string;
+  };
+  let kind0s = await pool.list(relays, [filter]);
+  let templates: IPublicForm[] = kind0s
+    .map((kind0) => {
+      let template = null;
+      try {
+        template = JSON.parse(kind0.content) as V1FormSpec;
+      } catch (e) {}
+      if (!template) return null;
+      return { content: template, pubkey: kind0.pubkey };
+    })
+    .filter((template) => template !== null) as IPublicForm[];
+  pool.close(relays);
+  return templates;
+}
+
 async function fetchProfiles(pubkeys: Array<string>) {
   const pool = new SimplePool();
   const filter = {

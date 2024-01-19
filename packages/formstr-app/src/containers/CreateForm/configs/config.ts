@@ -56,7 +56,9 @@ const MAX_RULE_ITEM = {
   label: "Max",
 };
 
-export const ANSWER_TYPE_RULES_MENU = {
+type ANSWER_TYPE_RULES_MENU_TYPE = { [key in AnswerTypes]: any[] };
+
+export const ANSWER_TYPE_RULES_MENU: ANSWER_TYPE_RULES_MENU_TYPE = {
   [AnswerTypes.number]: [RANGE_RULE_ITEM],
   [AnswerTypes.paragraph]: [MIN_RULE_ITEM, MAX_RULE_ITEM],
   [AnswerTypes.shortText]: [MIN_RULE_ITEM, MAX_RULE_ITEM],
@@ -65,4 +67,5 @@ export const ANSWER_TYPE_RULES_MENU = {
   [AnswerTypes.dropdown]: [],
   [AnswerTypes.label]: [],
   [AnswerTypes.date]: [],
+  [AnswerTypes.time]: [],
 };
