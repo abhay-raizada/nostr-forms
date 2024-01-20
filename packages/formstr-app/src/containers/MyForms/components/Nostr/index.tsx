@@ -49,7 +49,7 @@ function Nostr() {
       key: idx + 1,
       name: form.formName,
       formUrl: constructFormUrl(form.formId),
-      responseUrl: constructResponseUrl(form.formName),
+      responseUrl: constructResponseUrl(form.formSecret),
     }));
     setForms(parsedForms);
     setIsLoading(false);
