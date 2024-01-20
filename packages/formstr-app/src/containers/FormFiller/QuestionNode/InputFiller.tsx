@@ -34,6 +34,7 @@ export const InputFiller: React.FC<InputFillerProps> = ({
     answerSettings: V1AnswerSettings
   ) => {
     const INPUT_TYPE_COMPONENT_MAP: { [key in AnswerTypes]?: JSX.Element } = {
+      [AnswerTypes.label]: <></>,
       [AnswerTypes.shortText]: (
         <Input
           onChange={handleInputChange}

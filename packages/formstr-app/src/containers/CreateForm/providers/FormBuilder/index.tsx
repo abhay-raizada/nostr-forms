@@ -53,7 +53,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
 
 const InitialFormSettings: IFormSettings = {
   titleImageUrl:
-    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
+    "https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg",
   description:
     "This is where the description of your form will appear! You can" +
     " tap anywhere on the form to edit it, including this description.",

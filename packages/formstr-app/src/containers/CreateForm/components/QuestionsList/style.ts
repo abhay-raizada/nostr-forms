@@ -6,11 +6,8 @@ export default styled.div`
   padding-left: 32px;
   padding-right: 32px;
   overflow: scroll;
-  height: calc(100vh - 112px);
+  height: calc(100dvh - 112px);
   width: calc(100vw - 482px);
-  ${MEDIA_QUERY_MOBILE} {
-    /* height: calc(100vh - 170px); */
-  }
 
   .form-title {
     position: relative;
@@ -32,10 +29,11 @@ export default styled.div`
       display: block;
       position: fixed;
       right: 10px;
-      bottom: 140px;
+      bottom: 80px;
       margin: 10px;
       height: 50px;
       width: 53px;
+      box-shadow: 0px 0px 5px 5px #dedede;
     }
   }
   .reorder-group {
