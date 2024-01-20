@@ -4,6 +4,7 @@ import {
   MaxRule,
   MinRule,
   RangeRule,
+  RegexRule,
   ValidationRuleTypes,
 } from "@formstr/sdk/dist/interfaces";
 import { Rule } from "antd/es/form";
@@ -54,10 +55,26 @@ function MaxLength(rule: MaxRule): Rule {
   };
 }
 
+function Regex(rule: any): Rule;
+function Regex(rule: RegexRule): Rule {
+  return {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      if (!rule.pattern) return Promise.resolve();
+      if (!new RegExp(rule.pattern).test(value[0])) {
+        return Promise.reject(
+          rule.errorMessage || `Did not match the pattern: ${rule.pattern}`
+        );
+      }
+      return Promise.resolve();
+    },
+  };
+}
 const RuleValidatorMap = {
   [ValidationRuleTypes.range]: NumRange,
   [ValidationRuleTypes.max]: MaxLength,
   [ValidationRuleTypes.min]: MinLength,
+  [ValidationRuleTypes.regex]: Regex,
 };
 
 function createRule(

@@ -49,11 +49,17 @@ export enum ValidationRuleTypes {
   range = "range",
   max = "max",
   min = "min",
+  regex = "regex",
 }
 
 export interface RangeRule {
   min: number;
   max: number;
+}
+
+export interface RegexRule {
+  pattern: string;
+  errorMessage: string;
 }
 
 export interface MaxRule {
@@ -72,6 +78,7 @@ export interface AnswerSettings {
     [ValidationRuleTypes.range]?: RangeRule;
     [ValidationRuleTypes.max]?: MaxRule;
     [ValidationRuleTypes.min]?: MinRule;
+    [ValidationRuleTypes.regex]?: RegexRule;
   };
   [key: string]: unknown;
 }
