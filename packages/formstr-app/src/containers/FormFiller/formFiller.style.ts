@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { MEDIA_QUERY_MOBILE } from "../../utils/css";
 export default styled.div<{
-  $isPreview?: boolean; // preciew true for preview tab
+  $isPreview?: boolean;
 }>`
   .form-filler {
     background-color: #dedede;
@@ -44,5 +44,11 @@ export default styled.div<{
   .form-description {
     text-align: left;
     padding: 1em;
+  }
+
+  .submit-button {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
   }
 `;

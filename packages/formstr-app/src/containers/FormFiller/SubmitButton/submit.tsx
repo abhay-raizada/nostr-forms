@@ -88,12 +88,9 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
         onClick={handleButtonClick}
         icon={<DownOutlined />}
         disabled={disabled}
+        className="submit-button"
       >
-        {selfSign
-          ? edit
-            ? "Update Response"
-            : items[1].label
-          : items[0].label}
+        {selfSign ? (edit ? "Update Response" : items[1].label) : "Submit"}
       </Dropdown.Button>
       <Modal
         open={isModalOpen}
