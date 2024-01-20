@@ -6,7 +6,7 @@ export default styled.div`
   padding-left: 32px;
   padding-right: 32px;
   overflow: scroll;
-  height: calc(100dvh - 112px);
+  height: calc(100dvh - 67px);
   width: calc(100vw - 482px);
 
   .form-title {

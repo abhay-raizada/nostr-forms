@@ -5,8 +5,7 @@ export default styled.div<{
 }>`
   .form-filler {
     background-color: #dedede;
-    height: ${(props) =>
-      props.$isPreview ? "calc(100vh - 112px)" : "calc(100vh - 56px)"};
+    height: ${(props) => (props.$isPreview ? "calc(100vh - 67px)" : "100dvh")};
     overflow: scroll;
     padding-left: 32px;
     padding-right: 32px;
@@ -23,7 +22,7 @@ export default styled.div<{
     width: 100%;
     background-color: #dedede;
     position: relative;
-    height: 100vh;
+    height: ${(props) => (props.$isPreview ? "calc(100vh - 67px)" : "100dvh")};
   }
 
   .form-title {

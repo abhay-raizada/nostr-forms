@@ -104,7 +104,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   const saveResponse = async (anonymous: boolean = true) => {
     let formResponses = form.getFieldsValue(true);
     const response = Object.keys(formResponses).map((key: string) => {
-      let [answer, message] = formResponses[key];
+      let answer = null;
+      let message = null;
+      if (formResponses[key]) [answer, message] = formResponses[key];
       return {
         questionId: key,
         answer,

@@ -1,8 +1,21 @@
 import styled from "styled-components";
+import { MEDIA_QUERY_MOBILE } from "../../utils/css";
 
 export default styled.div`
   margin: 10px;
   max-height: 20%;
+
+  .summary-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .ant-card {
+    width: 60%;
+    ${MEDIA_QUERY_MOBILE} {
+      width: 100%;
+    }
+  }
   .heading {
     font-size: 24px;
   }
