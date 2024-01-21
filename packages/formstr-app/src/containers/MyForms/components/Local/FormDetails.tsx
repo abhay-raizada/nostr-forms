@@ -18,10 +18,10 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   if (formCredentials.length === 0) {
     return <></>;
   }
-  const formUrl = constructFormUrl(formCredentials[0], window.location.host);
+  const formUrl = constructFormUrl(formCredentials[0], window.location.origin);
   const responsesUrl = constructResponseUrl(
     formCredentials[1],
-    window.location.host
+    window.location.origin
   );
   return (
     <Modal
