@@ -16,7 +16,12 @@ function MyForms() {
           <Routing />
         </div>
         <div className="text-container">
-          <Text className="text-style"> Formstr is free and open source</Text>
+          <a
+            href="https://github.com/abhay-raizada/nostr-forms"
+            className="foss-link"
+          >
+            <Text className="text-style"> Formstr is free and open source</Text>
+          </a>
         </div>
       </div>
     </StyleWrapper>

@@ -23,6 +23,10 @@ export default styled.div`
     width: 100%;
   }
 
+  .foss-link {
+    text-decoration: none;
+  }
+
   .button-container {
     width: 100%;
     display: flex;
