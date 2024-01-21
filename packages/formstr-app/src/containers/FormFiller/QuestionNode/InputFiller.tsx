@@ -11,12 +11,14 @@ interface InputFillerProps {
   answerType: AnswerTypes;
   answerSettings: V1AnswerSettings;
   onChange: (answer: string, message?: string) => void;
+  defaultValue?: string | number | boolean;
 }
 
 export const InputFiller: React.FC<InputFillerProps> = ({
   answerType,
   answerSettings,
   onChange,
+  defaultValue,
 }) => {
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -37,18 +39,21 @@ export const InputFiller: React.FC<InputFillerProps> = ({
       [AnswerTypes.label]: <></>,
       [AnswerTypes.shortText]: (
         <Input
+          defaultValue={defaultValue as string}
           onChange={handleInputChange}
           placeholder="Please enter your response"
         />
       ),
       [AnswerTypes.paragraph]: (
         <TextArea
+          defaultValue={defaultValue as string}
           onChange={handleInputChange}
           placeholder="Please enter your response"
         />
       ),
       [AnswerTypes.number]: (
         <InputNumber
+          defaultValue={defaultValue as string}
           onChange={handleValueChange}
           style={{ width: "100%" }}
           placeholder="Please enter your response"
@@ -58,11 +63,13 @@ export const InputFiller: React.FC<InputFillerProps> = ({
         <ChoiceFiller
           answerType={answerType}
           answerSettings={answerSettings}
+          defaultValue={defaultValue as string}
           onChange={handleValueChange}
         />
       ),
       [AnswerTypes.checkboxes]: (
         <ChoiceFiller
+          defaultValue={defaultValue as string}
           answerType={answerType}
           answerSettings={answerSettings}
           onChange={handleValueChange}
@@ -70,12 +77,23 @@ export const InputFiller: React.FC<InputFillerProps> = ({
       ),
       [AnswerTypes.dropdown]: (
         <DropdownFiller
+          defaultValue={defaultValue as string}
           answerSettings={answerSettings}
           onChange={handleValueChange}
         />
       ),
-      [AnswerTypes.date]: <DateFiller onChange={handleValueChange} />,
-      [AnswerTypes.time]: <TimeFiller onChange={handleValueChange} />,
+      [AnswerTypes.date]: (
+        <DateFiller
+          defaultValue={defaultValue as string}
+          onChange={handleValueChange}
+        />
+      ),
+      [AnswerTypes.time]: (
+        <TimeFiller
+          defaultValue={defaultValue as string}
+          onChange={handleValueChange}
+        />
+      ),
     };
 
     return INPUT_TYPE_COMPONENT_MAP[answerType];

@@ -1,4 +1,8 @@
-import { AnswerSettings, AnswerTypes, ValidationRuleTypes } from "@formstr/sdk/dist/interfaces";
+import {
+  AnswerSettings,
+  AnswerTypes,
+  ValidationRuleTypes,
+} from "@formstr/sdk/dist/interfaces";
 
 export interface IProps {
   answerType: AnswerTypes;

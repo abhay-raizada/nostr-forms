@@ -1,6 +1,7 @@
 import {
   AnswerSettings,
   AnswerTypes,
+  MatchRule,
   MaxRule,
   MinRule,
   RangeRule,
@@ -70,11 +71,29 @@ function Regex(rule: RegexRule): Rule {
     },
   };
 }
+
+function Match(rule: any): Rule;
+function Match(rule: MatchRule): Rule {
+  return {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      if (!rule.answer) return Promise.resolve();
+      if (value[0] !== rule.answer) {
+        return Promise.reject(
+          `This is not the correct answer for this question`
+        );
+      }
+      return Promise.resolve();
+    },
+  };
+}
+
 const RuleValidatorMap = {
   [ValidationRuleTypes.range]: NumRange,
   [ValidationRuleTypes.max]: MaxLength,
   [ValidationRuleTypes.min]: MinLength,
   [ValidationRuleTypes.regex]: Regex,
+  [ValidationRuleTypes.match]: Match,
 };
 
 function createRule(

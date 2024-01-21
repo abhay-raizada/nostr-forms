@@ -81,7 +81,7 @@ export const constructDraftUrl = utils.constructDraftUrl;
 function generateIds(formSpec: FormSpec): V1FormSpec {
   const fields = formSpec.fields?.map((field: Field): V1Field => {
     const choices = field.answerSettings?.choices?.map((choice) => {
-      return { ...choice, choiceId: utils.makeTag(6) };
+      return { ...choice, choiceId: choice.choiceId || utils.makeTag(6) };
     });
     let answerSettings = { ...field.answerSettings, choices };
     return { ...field, questionId: utils.makeTag(6), answerSettings };

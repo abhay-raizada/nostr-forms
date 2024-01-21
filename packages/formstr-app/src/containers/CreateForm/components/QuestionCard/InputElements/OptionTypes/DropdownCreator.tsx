@@ -1,13 +1,14 @@
 import { CaretDownOutlined, CloseOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Input, MenuProps } from "antd";
 import { useState } from "react";
-import { IChoice } from "../types";
 import OptionsStyle from "./Options.style";
 import { AddOption } from "./AddOption";
 import { handleDelete, handleLabelChange } from "./utils";
+import { Choice } from "@formstr/sdk/dist/interfaces";
+import { MenuItemType } from "antd/es/menu/hooks/useItems";
 
 interface RadioButtonCreatorProps {
-  initialValues?: Array<IChoice>;
+  initialValues?: Array<Choice>;
   onValuesChange: (key: string, property: unknown) => void;
 }
 
@@ -15,10 +16,10 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
   initialValues,
   onValuesChange,
 }) => {
-  const [choices, setChoices] = useState<Array<IChoice>>(initialValues || []);
+  const [choices, setChoices] = useState<Array<Choice>>(initialValues || []);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const handleNewChoices = (choices: Array<IChoice>) => {
+  const handleNewChoices = (choices: Array<Choice>) => {
     setChoices(choices);
     onValuesChange("choices", choices);
     setIsOpen(true);
@@ -28,14 +29,14 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
     return choices.map((choice) => {
       return {
         label: (
-          <div className="radioButtonItem" key={choice.tempId}>
+          <div className="radioButtonItem" key={choice.choiceId}>
             <Input
               defaultValue={choice.label}
-              key={choice.tempId}
+              key={choice.choiceId}
               onChange={(e) => {
                 handleLabelChange(
                   e.target.value,
-                  choice.tempId,
+                  choice.choiceId!,
                   choices,
                   handleNewChoices
                 );
@@ -48,15 +49,15 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
               {choices.length >= 2 && (
                 <CloseOutlined
                   onClick={(e) => {
-                    handleDelete(choice.tempId, choices, handleNewChoices);
+                    handleDelete(choice.choiceId!, choices, handleNewChoices);
                   }}
                 />
               )}
             </div>
           </div>
         ),
-        key: choice.tempId,
-      };
+        key: choice.choiceId,
+      } as MenuItemType;
     });
   };
   return (

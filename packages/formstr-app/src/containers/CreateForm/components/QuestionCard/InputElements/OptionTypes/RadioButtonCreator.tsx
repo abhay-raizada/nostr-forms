@@ -1,13 +1,13 @@
 import { CloseOutlined } from "@ant-design/icons";
 import { Input, Radio } from "antd";
 import { useState } from "react";
-import { IChoice } from "../types";
 import OptionsStyle from "./Options.style";
 import { AddOption } from "./AddOption";
 import { handleDelete, handleLabelChange, hasOtherOption } from "./utils";
+import { Choice } from "@formstr/sdk/dist/interfaces";
 
 interface RadioButtonCreatorProps {
-  initialValues?: Array<IChoice>;
+  initialValues?: Array<Choice>;
   onValuesChange: (key: string, property: unknown) => void;
 }
 
@@ -15,9 +15,9 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
   initialValues,
   onValuesChange,
 }) => {
-  const [choices, setChoices] = useState<Array<IChoice>>(initialValues || []);
+  const [choices, setChoices] = useState<Array<Choice>>(initialValues || []);
 
-  const handleNewChoices = (choices: Array<IChoice>) => {
+  const handleNewChoices = (choices: Array<Choice>) => {
     setChoices(choices);
     onValuesChange("choices", choices);
   };
@@ -26,15 +26,15 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
     <OptionsStyle>
       {choices?.map((choice) => {
         return (
-          <div className="radioButtonItem" key={choice.tempId}>
+          <div className="radioButtonItem" key={choice.choiceId}>
             <Radio disabled />
             <Input
-              key={choice.tempId}
+              key={choice.choiceId}
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(
                   e.target.value,
-                  choice.tempId,
+                  choice.choiceId!,
                   choices,
                   handleNewChoices
                 );
@@ -46,7 +46,7 @@ export const RadioButtonCreator: React.FC<RadioButtonCreatorProps> = ({
             {choices.length >= 2 && (
               <CloseOutlined
                 onClick={(e) => {
-                  handleDelete(choice.tempId, choices, handleNewChoices);
+                  handleDelete(choice.choiceId!, choices, handleNewChoices);
                 }}
               />
             )}

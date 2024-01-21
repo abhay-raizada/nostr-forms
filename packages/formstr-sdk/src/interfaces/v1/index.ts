@@ -30,6 +30,7 @@ export enum AnswerTypes {
 }
 
 export interface Choice {
+  choiceId?: string;
   label: string;
   isOther?: boolean;
 }
@@ -50,6 +51,7 @@ export enum ValidationRuleTypes {
   max = "max",
   min = "min",
   regex = "regex",
+  match = "match",
 }
 
 export interface RangeRule {
@@ -60,6 +62,10 @@ export interface RangeRule {
 export interface RegexRule {
   pattern: string;
   errorMessage: string;
+}
+
+export interface MatchRule {
+  answer: string | number | boolean;
 }
 
 export interface MaxRule {
@@ -79,6 +85,7 @@ export interface AnswerSettings {
     [ValidationRuleTypes.max]?: MaxRule;
     [ValidationRuleTypes.min]?: MinRule;
     [ValidationRuleTypes.regex]?: RegexRule;
+    [ValidationRuleTypes.match]?: MatchRule;
   };
   [key: string]: unknown;
 }

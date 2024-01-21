@@ -10,6 +10,7 @@ import RangeComponent from "../components/Validation/Range";
 import MaxComponent from "../components/Validation/Max";
 import MinComponent from "../components/Validation/Min";
 import RegexComponent from "../components/Validation/Regex";
+import MatchComponent from "../components/Validation/Match";
 
 export const RULE_CONFIG = {
   [ValidationRuleTypes.range]: {
@@ -41,7 +42,14 @@ export const RULE_CONFIG = {
     key: ValidationRuleTypes.regex,
     component: RegexComponent,
     validator: (val: number | string, rule: MaxRule) => {
-      return isGreaterThanOrEqual(getNumValue(val), rule.max);
+      return null;
+    },
+  },
+  [ValidationRuleTypes.match]: {
+    key: ValidationRuleTypes.match,
+    component: MatchComponent,
+    validator: (val: number | string, rule: MaxRule) => {
+      return null;
     },
   },
 };
