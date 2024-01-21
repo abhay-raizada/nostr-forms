@@ -7,6 +7,7 @@ export default styled.div<{
 }>`
   .left-sidebar {
     overflow: scroll;
+    background-color: white;
     ${MEDIA_QUERY_MOBILE} {
       display: ${(props) => (props.$isOpen ? "block" : "none")};
       box-shadow: 3px 1px 5px -3px gray;
@@ -32,7 +33,7 @@ export default styled.div<{
         props.$isRightSettingsOpen ? "absolute" : "static"};
       right: 0;
       background: white;
-      height: 100vh;
+      overflow: scroll;
     }
   }
 

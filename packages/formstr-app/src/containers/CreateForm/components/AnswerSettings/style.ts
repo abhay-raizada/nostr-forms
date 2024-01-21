@@ -6,6 +6,12 @@ export default styled.div`
     margin: 16px;
   }
 
+  .right-answer {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+  }
+
   .divider {
     margin: 0;
   }

@@ -96,18 +96,20 @@ export const Responses = () => {
 
   return (
     <div>
-      <Card>
-        <SummaryStyle>
-          <Text className="heading">{formSummary.name}</Text>
-          <Divider />
-          <div className="response-count-container">
-            <Text className="response-count">
-              {Object.keys(allResponses).length}{" "}
-            </Text>
-            <Text className="response-count-label">response(s)</Text>
-          </div>
-        </SummaryStyle>
-      </Card>
+      <SummaryStyle>
+        <div className="summary-container">
+          <Card>
+            <Text className="heading">{formSummary.name}</Text>
+            <Divider />
+            <div className="response-count-container">
+              <Text className="response-count">
+                {Object.keys(allResponses).length}{" "}
+              </Text>
+              <Text className="response-count-label">response(s)</Text>
+            </div>
+          </Card>
+        </div>
+      </SummaryStyle>
       <ResponseWrapper>
         <Export
           questionMap={questionMap}

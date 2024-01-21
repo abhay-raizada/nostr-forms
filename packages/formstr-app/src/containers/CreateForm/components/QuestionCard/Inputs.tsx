@@ -4,7 +4,7 @@ import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreat
 import { makeTag } from "../../../../utils/utility";
 import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
 import { DropdownCreator } from "./InputElements/OptionTypes/DropdownCreator";
-import { DatePicker } from "antd";
+import { DatePicker, Input, InputNumber, TimePicker } from "antd";
 
 interface InputsProps {
   inputType: string;
@@ -29,9 +29,10 @@ const Inputs: React.FC<InputsProps> = ({
             <ShortText />
           </>
         );
+      case AnswerTypes.paragraph:
+        return <Input.TextArea disabled={true} />;
       case AnswerTypes.number:
-        break;
-
+        return <InputNumber disabled={true} />;
       case AnswerTypes.radioButton:
         return (
           <RadioButtonCreator
@@ -61,6 +62,8 @@ const Inputs: React.FC<InputsProps> = ({
         );
       case AnswerTypes.date:
         return <DatePicker disabled={true} />;
+      case AnswerTypes.time:
+        return <TimePicker disabled={true} />;
       default:
         <></>;
         break;

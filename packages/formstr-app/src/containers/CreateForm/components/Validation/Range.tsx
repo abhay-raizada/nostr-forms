@@ -4,7 +4,7 @@ import { InputStyle } from "./validation.style";
 
 const { Text } = Typography;
 
-function Min({ rule, onChange }: { rule?: RangeRule; onChange: Function }) {
+function Range({ rule, onChange }: { rule?: RangeRule; onChange: Function }) {
   return (
     <>
       <InputStyle>
@@ -39,4 +39,4 @@ function Min({ rule, onChange }: { rule?: RangeRule; onChange: Function }) {
   );
 }
 
-export default Min;
+export default Range;

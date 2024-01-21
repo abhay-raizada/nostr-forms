@@ -7,6 +7,7 @@ import {
   constructResponseUrl,
 } from "../../../../utils/utility";
 import { IForm } from "./typeDefs";
+import SyncButtonStyle from "./syncButton.style";
 
 const COLUMNS = [
   {
@@ -48,7 +49,7 @@ function Nostr() {
       key: idx + 1,
       name: form.formName,
       formUrl: constructFormUrl(form.formId),
-      responseUrl: constructResponseUrl(form.formName),
+      responseUrl: constructResponseUrl(form.formSecret),
     }));
     setForms(parsedForms);
     setIsLoading(false);
@@ -57,13 +58,11 @@ function Nostr() {
   return (
     <div>
       {!!!forms.length ? (
-        <Button
-          type="primary"
-          style={{ position: "absolute", top: "50%", left: "50%" }}
-          onClick={loadNostrForms}
-        >
-          Fetch forms from nostr
-        </Button>
+        <SyncButtonStyle>
+          <Button type="primary" onClick={loadNostrForms}>
+            Fetch forms from nostr
+          </Button>
+        </SyncButtonStyle>
       ) : null}
       {(!!forms.length || isLoading) && (
         <Table

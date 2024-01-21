@@ -5,6 +5,7 @@ body {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #dedede;
 }
 
 code {
@@ -27,6 +28,11 @@ code {
     background-image: none;
   }
 }
+.ant-card-head-title {
+  text-overflow: unset !important;
+  white-space: unset !important;
+}
+
 .form-details {
   display: flex;
   align-items: center;

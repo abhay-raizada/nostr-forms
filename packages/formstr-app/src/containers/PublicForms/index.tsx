@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import { Table } from "antd";
 import EmptyScreen from "../../components/EmptyScreen";
 import ResponsiveLink from "../../components/ResponsiveLink";
-import { V1Field } from "@formstr/sdk/dist/interfaces";
-import { fetchGlobalFeed } from "../../utils/nostr";
+import {
+  IFormSettings,
+  V1Field,
+  V1FormSpec,
+} from "@formstr/sdk/dist/interfaces";
+import { fetchPublicForms } from "@formstr/sdk";
 import { constructFormUrl, isMobile } from "../../utils/utility";
-import { IPublicForm, IV1FormSpec } from "./typeDefs";
+import { IV1FormSpec } from "./typeDefs";
 import StyleWrapper from "./style";
 
 const COLUMNS = [
@@ -19,10 +23,13 @@ const COLUMNS = [
   {
     key: "description",
     title: "Description",
-    dataIndex: "description",
+    dataIndex: "settings",
     width: 35,
     ellipsis: true,
-    render: (description: string) => description ?? "-",
+    render: (settings: IFormSettings) => {
+      console.log("Settings", settings);
+      return settings?.description || "-";
+    },
     isDisabled: isMobile,
   },
   {
@@ -53,9 +60,10 @@ function PublicForms() {
   useEffect(() => {
     (async () => {
       setIsLoading(true);
-      let formFeed: IPublicForm[] = (await fetchGlobalFeed()) ?? [];
+      let formFeed: { content: V1FormSpec; pubkey: string }[] =
+        await fetchPublicForms();
       let parsedFormFeed = formFeed.map<IV1FormSpec>((form) => ({
-        ...JSON.parse(form.content),
+        ...form.content,
         key: form.pubkey,
         pubkey: form.pubkey,
       }));

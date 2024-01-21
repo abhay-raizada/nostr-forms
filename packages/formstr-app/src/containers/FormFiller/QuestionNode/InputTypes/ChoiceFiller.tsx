@@ -21,12 +21,14 @@ interface ChoiceFillerProps {
   answerType: AnswerTypes;
   answerSettings: V1AnswerSettings;
   onChange: (value: string) => void;
+  defaultValue?: string;
 }
 
 export const ChoiceFiller: React.FC<ChoiceFillerProps> = ({
   answerType,
   answerSettings,
   onChange,
+  defaultValue,
 }) => {
   function handleChoiceChange(e: RadioChangeEvent): void;
 
@@ -34,7 +36,7 @@ export const ChoiceFiller: React.FC<ChoiceFillerProps> = ({
 
   function handleChoiceChange(e: RadioChangeEvent | CheckboxValueType[]) {
     if (Array.isArray(e)) {
-      onChange(e.join(";"));
+      onChange(e.sort().join(";"));
       return;
     }
     onChange(e.target.value);
@@ -49,16 +51,22 @@ export const ChoiceFiller: React.FC<ChoiceFillerProps> = ({
           ForwardRefExoticComponent<CheckboxGroupProps>
         >;
       });
+  let defaultValueToUse;
   if (answerType === AnswerTypes.radioButton) {
     ChoiceElement = Radio;
+    defaultValueToUse = defaultValue;
   } else if (answerType === AnswerTypes.checkboxes) {
     ChoiceElement = Checkbox;
+    defaultValueToUse = defaultValue?.split(";") as CheckboxValueType[];
   } else {
     return <></>;
   }
-
   return (
-    <ChoiceElement.Group onChange={handleChoiceChange}>
+    //@ts-ignore
+    <ChoiceElement.Group
+      onChange={handleChoiceChange}
+      defaultValue={defaultValueToUse}
+    >
       <Space direction="vertical">
         {answerSettings.choices?.map((choice) => {
           return (

@@ -1,16 +1,16 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { Button, Typography } from "antd";
-import { IChoice } from "../types";
 import { makeTag } from "../../../../../../utils/utility";
 import { addOption } from "./utils";
+import { Choice } from "@formstr/sdk/dist/interfaces";
 
 const { Text } = Typography;
 
 interface AddOptionProps {
-  choices: Array<IChoice>;
+  choices: Array<Choice>;
   displayOther: boolean;
   disable: boolean;
-  callback: (choices: Array<IChoice>) => void;
+  callback: (choices: Array<Choice>) => void;
 }
 export const AddOption: React.FC<AddOptionProps> = ({
   displayOther,
@@ -25,7 +25,7 @@ export const AddOption: React.FC<AddOptionProps> = ({
         type="dashed"
         onClick={(e) => {
           addOption(
-            { label: "Add option", tempId: makeTag(6) },
+            { label: "Add option", choiceId: makeTag(6) },
             choices,
             callback
           );
@@ -44,7 +44,7 @@ export const AddOption: React.FC<AddOptionProps> = ({
             disabled={disable}
             onClick={(e) => {
               addOption(
-                { label: "Other", isOther: true, tempId: makeTag(6) },
+                { label: "Other", isOther: true, choiceId: makeTag(6) },
                 choices,
                 callback
               );

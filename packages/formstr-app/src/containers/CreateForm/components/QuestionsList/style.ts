@@ -6,7 +6,7 @@ export default styled.div`
   padding-left: 32px;
   padding-right: 32px;
   overflow: scroll;
-  height: calc(100vh - 112px);
+  height: calc(100dvh - 67px);
   width: calc(100vw - 482px);
 
   .form-title {
@@ -23,20 +23,17 @@ export default styled.div`
     padding: 1em;
   }
 
-  .desktop-add-btn {
-    position: sticky;
-    ${MEDIA_QUERY_MOBILE} {
-      display: none;
-    }
-  }
   .mobile-add-btn {
     display: none;
     ${MEDIA_QUERY_MOBILE} {
       display: block;
       position: fixed;
       right: 10px;
-      bottom: 50px;
+      bottom: 80px;
       margin: 10px;
+      height: 50px;
+      width: 53px;
+      box-shadow: 0px 0px 5px 5px #dedede;
     }
   }
   .reorder-group {

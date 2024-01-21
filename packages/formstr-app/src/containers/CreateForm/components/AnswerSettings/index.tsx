@@ -5,6 +5,7 @@ import Validation from "../Validation";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import StyleWrapper from "./style";
+import { RightAnswer } from "./RightAnswer";
 
 const { Text } = Typography;
 
@@ -20,10 +21,26 @@ function AnswerSettings() {
     (option) => option.type === question.answerType
   );
 
+  const handleRightAnswer = (rightAnswer: string) => {
+    console.log("answer is", rightAnswer);
+    editQuestion(
+      {
+        ...question,
+        answerSettings: {
+          ...answerSettings,
+          validationRules: {
+            ...answerSettings.validationRules,
+            match: { answer: rightAnswer },
+          },
+        },
+      },
+      question.tempId
+    );
+  };
   const updateAnswerType: MenuProps["onClick"] = ({ key }) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === key);
     editQuestion(
-      { ...question, answerType: selectedItem!.type },
+      { ...question, answerType: selectedItem!.type, answerSettings: {} },
       question.tempId
     );
   };
@@ -71,9 +88,17 @@ function AnswerSettings() {
       </div>
       <Divider className="divider" />
       <Validation
+        key={question.tempId + "validation"}
         answerType={question.answerType}
         answerSettings={answerSettings}
         handleAnswerSettings={handleAnswerSettings}
+      />
+      <Divider className="divider" />
+      <RightAnswer
+        key={question.tempId + "rightAnswer"}
+        answerType={question.answerType}
+        answerSettings={answerSettings}
+        onChange={handleRightAnswer}
       />
       <Divider className="divider" />
       <Button

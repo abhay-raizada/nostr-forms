@@ -16,6 +16,7 @@ export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {
       localStorage.removeItem(key);
     }
   }
+
   return value as T;
 }
 

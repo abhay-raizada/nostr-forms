@@ -17,7 +17,7 @@ function Validation(props: IProps) {
 
   useEffect(() => {
     setSelected(defaultSelected);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answerType]);
 
   if (!selected.length && !ANSWER_TYPE_RULES_MENU[answerType].length)

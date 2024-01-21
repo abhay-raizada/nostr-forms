@@ -22,7 +22,9 @@ function FormTitle({
 
   const settings = {
     name: edit ? formName : formTitle,
-    image: edit ? formSettings.titleImageUrl : imageUrl,
+    image:
+      (edit ? formSettings.titleImageUrl : imageUrl) ||
+      "https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg",
   };
 
   const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {

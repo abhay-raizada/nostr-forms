@@ -45,7 +45,8 @@
               "dropdown",
               "number",
               "date",
-              "label"
+              "label",
+              "time"
             ],
             "description": "Can only be one of the above enums"
           },

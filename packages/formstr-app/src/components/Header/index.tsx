@@ -1,27 +1,12 @@
 import { Layout, Menu, Row, Col } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { HEADER_MENU, HEADER_MENU_KEYS } from "./configs";
-import { ROUTES } from "../../constants/routes";
+import { HEADER_MENU } from "./configs";
 
 export const NostrHeader = () => {
-  const location = useLocation();
   const { Header } = Layout;
-  const getSelectedTab = () => {
-    if (location.pathname.includes(ROUTES.MY_FORMS)) {
-      return HEADER_MENU_KEYS.MY_FORMS;
-    }
-    if (location.pathname === "/forms/new") {
-      return HEADER_MENU_KEYS.CREATE_FORMS;
-    }
-    if (location.pathname === "/global") {
-      return HEADER_MENU_KEYS.PUBLIC_FORMS;
-    }
-    return HEADER_MENU_KEYS.MY_FORMS;
-  };
-
   return (
     <>
       <Header
@@ -41,7 +26,7 @@ export const NostrHeader = () => {
             <Menu
               mode="horizontal"
               theme="light"
-              defaultSelectedKeys={[getSelectedTab()]}
+              defaultSelectedKeys={[]}
               overflowedIndicator={<MenuOutlined />}
               items={HEADER_MENU}
             />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   AnswerTypes,
   FormSpec,
@@ -24,15 +24,18 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
   editQuestion: (question: IQuestion, tempId: string) => null,
-  addQuestion: (answerType?: AnswerTypes) => null,
+  addQuestion: (answerType?: AnswerTypes, label?: string) => null,
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
   formSettings: { titleImageUrl: "" },
   updateFormSetting: (settings: IFormSettings) => null,
   updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => null,
-  closeOnOutsideClick: () => null,
+  closeSettingsOnOutsideClick: () => null,
+  closeMenuOnOutsideClick: () => null,
   isRightSettingsOpen: false,
+  isLeftMenuOpen: false,
+  setIsLeftMenuOpen: (open: boolean) => null,
   toggleSettingsWindow: () => null,
   formName: "",
   updateFormName: (name: string) => null,
@@ -45,11 +48,12 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   formTempId: "",
   selectedTab: HEADER_MENU_KEYS.BUILDER,
   setSelectedTab: (tab: string) => "",
+  bottomElementRef: null,
 });
 
 const InitialFormSettings: IFormSettings = {
   titleImageUrl:
-    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Siberian_Husky_pho.jpg",
+    "https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg",
   description:
     "This is where the description of your form will appear! You can" +
     " tap anywhere on the form to edit it, including this description.",
@@ -72,9 +76,11 @@ export default function FormBuilderProvider({
     useState<IFormSettings>(InitialFormSettings);
 
   const [isRightSettingsOpen, setIsRightSettingsOpen] = useState(false);
+  const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [formName, setFormName] = useState<string>(
     "This is the title of your form! Tap to edit."
   );
+  const bottomElement = useRef<HTMLDivElement>(null);
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
@@ -87,8 +93,12 @@ export default function FormBuilderProvider({
     });
   };
 
-  const closeOnOutsideClick = () => {
+  const closeSettingsOnOutsideClick = () => {
     isRightSettingsOpen && toggleSettingsWindow();
+  };
+
+  const closeMenuOnOutsideClick = () => {
+    isLeftMenuOpen && setIsLeftMenuOpen(false);
   };
 
   const getFormSpec = (): FormSpec => {
@@ -175,8 +185,12 @@ export default function FormBuilderProvider({
     setQuestionsList(editedList);
   };
 
-  const addQuestion = (answerType?: AnswerTypes) => {
-    setQuestionsList([...questionsList, generateQuestion(answerType)]);
+  const addQuestion = (answerType?: AnswerTypes, label?: string) => {
+    setIsLeftMenuOpen(false);
+    setQuestionsList([...questionsList, generateQuestion(answerType, label)]);
+    setTimeout(() => {
+      bottomElement?.current?.scrollIntoView({ behavior: "smooth" });
+    }, 200);
   };
 
   const deleteQuestion = (tempId: string) => {
@@ -234,9 +248,12 @@ export default function FormBuilderProvider({
         formSettings,
         updateFormSetting,
         updateFormTitleImage,
-        closeOnOutsideClick,
+        closeSettingsOnOutsideClick,
+        closeMenuOnOutsideClick,
         toggleSettingsWindow,
         isRightSettingsOpen,
+        isLeftMenuOpen,
+        setIsLeftMenuOpen,
         formName,
         updateFormName: setFormName,
         updateQuestionsList,
@@ -246,6 +263,7 @@ export default function FormBuilderProvider({
         formTempId,
         selectedTab,
         setSelectedTab,
+        bottomElementRef: bottomElement,
       }}
     >
       {children}

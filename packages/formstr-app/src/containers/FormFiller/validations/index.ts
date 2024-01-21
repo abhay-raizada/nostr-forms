@@ -1,9 +1,11 @@
 import {
   AnswerSettings,
   AnswerTypes,
+  MatchRule,
   MaxRule,
   MinRule,
   RangeRule,
+  RegexRule,
   ValidationRuleTypes,
 } from "@formstr/sdk/dist/interfaces";
 import { Rule } from "antd/es/form";
@@ -54,10 +56,44 @@ function MaxLength(rule: MaxRule): Rule {
   };
 }
 
+function Regex(rule: any): Rule;
+function Regex(rule: RegexRule): Rule {
+  return {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      if (!rule.pattern) return Promise.resolve();
+      if (!new RegExp(rule.pattern).test(value[0])) {
+        return Promise.reject(
+          rule.errorMessage || `Did not match the pattern: ${rule.pattern}`
+        );
+      }
+      return Promise.resolve();
+    },
+  };
+}
+
+function Match(rule: any): Rule;
+function Match(rule: MatchRule): Rule {
+  return {
+    validator: (_: any, value: any) => {
+      if (!value) return Promise.resolve();
+      if (!rule.answer) return Promise.resolve();
+      if (value[0] !== rule.answer) {
+        return Promise.reject(
+          `This is not the correct answer for this question`
+        );
+      }
+      return Promise.resolve();
+    },
+  };
+}
+
 const RuleValidatorMap = {
   [ValidationRuleTypes.range]: NumRange,
   [ValidationRuleTypes.max]: MaxLength,
   [ValidationRuleTypes.min]: MinLength,
+  [ValidationRuleTypes.regex]: Regex,
+  [ValidationRuleTypes.match]: Match,
 };
 
 function createRule(

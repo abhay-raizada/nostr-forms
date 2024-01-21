@@ -33,8 +33,8 @@ export default styled.div<{ $titleImageUrl?: string }>`
     display: flex;
     justify-content: center;
     margin-left: 12px;
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     background-color: lightgrey;
     border-radius: 16px;
     opacity: 0.5;

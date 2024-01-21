@@ -6,7 +6,7 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
 import { Form, Typography } from "antd";
@@ -14,7 +14,8 @@ import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { getValidationRules } from "./validations";
 import { SubmitButton } from "./SubmitButton/submit";
-import { makeTag } from "../../utils/utility";
+import { isMobile, makeTag } from "../../utils/utility";
+import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
 
 const { Text } = Typography;
 
@@ -66,14 +67,18 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   };
 
   useEffect(() => {
+    console.log("formId", formId);
     async function getForm() {
       if (!formTemplate) {
         if (!formId && !formSpec) {
+          console.log("Form Id not provided");
           throw Error("Form Id not provided");
         }
-        let form;
+        let form = null;
         if (formId) form = await getFormTemplate(formId);
         if (formSpec) form = convertFromSpecToTemplate(formSpec);
+        console.log("formId form", formSpec, form);
+
         if (!form) return;
         setFormTemplate(form);
       }
@@ -82,7 +87,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   }, [formTemplate, formId, formSpec]);
 
   if (!formId && !formSpec) {
-    return;
+    return null;
   }
 
   const handleInput = (
@@ -100,7 +105,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   const saveResponse = async (anonymous: boolean = true) => {
     let formResponses = form.getFieldsValue(true);
     const response = Object.keys(formResponses).map((key: string) => {
-      let [answer, message] = formResponses[key];
+      let answer = null;
+      let message = null;
+      if (formResponses[key]) [answer, message] = formResponses[key];
       return {
         questionId: key,
         answer,
@@ -118,7 +125,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
     settings = formTemplate.settings;
     fields = formTemplate.fields;
   }
-
+  console.log("formTemplate", formTemplate);
   return (
     <FillerStyle $isPreview={isPreview}>
       <div className="filler-container">
@@ -172,7 +179,22 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
           onClose={() => {
             navigate("/");
           }}
-        ></ThankYouScreen>
+        />
+        <div className="branding-container">
+          <Link to="/">
+            <CreatedUsingFormstr />
+          </Link>
+          {!isMobile() && (
+            <a
+              href="https://github.com/abhay-raizada/nostr-forms"
+              className="foss-link"
+            >
+              <Text className="text-style">
+                Formstr is free and Open Source
+              </Text>
+            </a>
+          )}
+        </div>
       </div>
     </FillerStyle>
   );

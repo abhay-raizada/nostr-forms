@@ -1,10 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import App from "../V0/App";
-import NewForm from "../NewForm";
-import FillForm from "../FillForm";
-import ViewResponses from "../ViewResponses";
-import { GlobalForms } from "../GlobalForms";
-import { DraftsController } from "../MyForms/DraftsController";
 import CreateForm from "../../containers/CreateForm";
 import MyForms from "../../containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
@@ -38,17 +32,12 @@ const withCreateFormHeaderWrapper = (Component, props) => {
 function Routing() {
   return (
     <Routes>
-      <Route path="/" element={withNostrHeaderWrapper(App)}>
-        <Route path="global" element={<GlobalForms />} />
-        <Route path="forms/new" element={<NewForm />} />
-        <Route path="forms/fill" element={<FillForm />} />
-        <Route path="forms/:npub" element={<FillForm />} />
-        <Route path="forms/:nsec/responses" element={<ViewResponses />} />
-        <Route path="drafts/:encodedForm" element={<DraftsController />} />
-        <Route path="forms/responses" element={<ViewResponses />} />
-        <Route path="*" element={<NewForm />} />
-        <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
-      </Route>
+      <Route path="forms/:formId" element={<FormFiller />} />
+      <Route
+        path="forms/:formSecret/responses"
+        element={withCreateFormHeaderWrapper(Responses)}
+      />
+      <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
       <Route
         path={`${ROUTES.CREATE_FORMS}/*`}
         element={withCreateFormHeaderWrapper(CreateForm)}

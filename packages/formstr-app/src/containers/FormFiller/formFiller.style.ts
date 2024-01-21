@@ -1,16 +1,11 @@
 import styled from "styled-components";
 import { MEDIA_QUERY_MOBILE } from "../../utils/css";
-
 export default styled.div<{
   $isPreview?: boolean;
 }>`
-  position: relative;
-  height: ${(props) =>
-    props.$isPreview ? "calc(100vh - 110px)" : "calc(100vh-48px"};
-  overflow: scroll;
-
   .form-filler {
     background-color: #dedede;
+    overflow: scroll;
     padding-left: 32px;
     padding-right: 32px;
     overflow: scroll;
@@ -25,6 +20,33 @@ export default styled.div<{
   .filler-container {
     width: 100%;
     background-color: #dedede;
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+
+    div:last-of-type {
+      margin-top: auto;
+    }
+  }
+
+  .branding-container {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    ${MEDIA_QUERY_MOBILE} {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .text-style {
+    color: #a8a29e;
+    font-size: 14;
   }
 
   .form-title {
@@ -45,5 +67,15 @@ export default styled.div<{
   .form-description {
     text-align: left;
     padding: 1em;
+  }
+
+  .submit-button {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+  }
+
+  .foss-link {
+    text-decoration: none;
   }
 `;

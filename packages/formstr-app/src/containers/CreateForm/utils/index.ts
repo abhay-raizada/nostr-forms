@@ -3,11 +3,12 @@ import { IQuestion } from "../typeDefs";
 import { makeTag } from "../../../utils/utility";
 
 export const generateQuestion = (
-  answerType: AnswerTypes = AnswerTypes.shortText
+  answerType: AnswerTypes = AnswerTypes.shortText,
+  label: string | null = null
 ): IQuestion => {
   return {
     tempId: makeTag(6),
-    question: "Click here to edit",
+    question: label || "Click here to edit",
     answerType,
     answerSettings: {},
   };

@@ -5,17 +5,20 @@ import { ChangeEvent } from "react";
 import { ChoiceFiller } from "./InputTypes/ChoiceFiller";
 import { DropdownFiller } from "./InputTypes/DropdownFiller";
 import { DateFiller } from "./InputTypes/DateFiller";
+import { TimeFiller } from "./InputTypes/TimeFiller";
 
 interface InputFillerProps {
   answerType: AnswerTypes;
   answerSettings: V1AnswerSettings;
   onChange: (answer: string, message?: string) => void;
+  defaultValue?: string | number | boolean;
 }
 
 export const InputFiller: React.FC<InputFillerProps> = ({
   answerType,
   answerSettings,
   onChange,
+  defaultValue,
 }) => {
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -33,20 +36,40 @@ export const InputFiller: React.FC<InputFillerProps> = ({
     answerSettings: V1AnswerSettings
   ) => {
     const INPUT_TYPE_COMPONENT_MAP: { [key in AnswerTypes]?: JSX.Element } = {
-      [AnswerTypes.shortText]: <Input onChange={handleInputChange} />,
-      [AnswerTypes.paragraph]: <TextArea onChange={handleInputChange} />,
+      [AnswerTypes.label]: <></>,
+      [AnswerTypes.shortText]: (
+        <Input
+          defaultValue={defaultValue as string}
+          onChange={handleInputChange}
+          placeholder="Please enter your response"
+        />
+      ),
+      [AnswerTypes.paragraph]: (
+        <TextArea
+          defaultValue={defaultValue as string}
+          onChange={handleInputChange}
+          placeholder="Please enter your response"
+        />
+      ),
       [AnswerTypes.number]: (
-        <InputNumber onChange={handleValueChange} style={{ width: "100%" }} />
+        <InputNumber
+          defaultValue={defaultValue as string}
+          onChange={handleValueChange}
+          style={{ width: "100%" }}
+          placeholder="Please enter your response"
+        />
       ),
       [AnswerTypes.radioButton]: (
         <ChoiceFiller
           answerType={answerType}
           answerSettings={answerSettings}
+          defaultValue={defaultValue as string}
           onChange={handleValueChange}
         />
       ),
       [AnswerTypes.checkboxes]: (
         <ChoiceFiller
+          defaultValue={defaultValue as string}
           answerType={answerType}
           answerSettings={answerSettings}
           onChange={handleValueChange}
@@ -54,11 +77,23 @@ export const InputFiller: React.FC<InputFillerProps> = ({
       ),
       [AnswerTypes.dropdown]: (
         <DropdownFiller
+          defaultValue={defaultValue as string}
           answerSettings={answerSettings}
           onChange={handleValueChange}
         />
       ),
-      [AnswerTypes.date]: <DateFiller onChange={handleValueChange} />,
+      [AnswerTypes.date]: (
+        <DateFiller
+          defaultValue={defaultValue as string}
+          onChange={handleValueChange}
+        />
+      ),
+      [AnswerTypes.time]: (
+        <TimeFiller
+          defaultValue={defaultValue as string}
+          onChange={handleValueChange}
+        />
+      ),
     };
 
     return INPUT_TYPE_COMPONENT_MAP[answerType];
