@@ -5,7 +5,6 @@ export default styled.div<{
 }>`
   .form-filler {
     background-color: #dedede;
-    height: ${(props) => (props.$isPreview ? "calc(100vh - 67px)" : "100dvh")};
     overflow: scroll;
     padding-left: 32px;
     padding-right: 32px;
@@ -22,7 +21,32 @@ export default styled.div<{
     width: 100%;
     background-color: #dedede;
     position: relative;
-    height: ${(props) => (props.$isPreview ? "calc(100vh - 67px)" : "100dvh")};
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+
+    div:last-of-type {
+      margin-top: auto;
+    }
+  }
+
+  .branding-container {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    ${MEDIA_QUERY_MOBILE} {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
+  .text-style {
+    color: #a8a29e;
+    font-size: 14;
   }
 
   .form-title {
@@ -49,5 +73,9 @@ export default styled.div<{
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
+  }
+
+  .foss-link {
+    text-decoration: none;
   }
 `;

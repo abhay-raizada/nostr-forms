@@ -6,7 +6,7 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
 import { Form, Typography } from "antd";
@@ -14,7 +14,8 @@ import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { getValidationRules } from "./validations";
 import { SubmitButton } from "./SubmitButton/submit";
-import { makeTag } from "../../utils/utility";
+import { isMobile, makeTag } from "../../utils/utility";
+import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
 
 const { Text } = Typography;
 
@@ -178,7 +179,22 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
           onClose={() => {
             navigate("/");
           }}
-        ></ThankYouScreen>
+        />
+        <div className="branding-container">
+          <Link to="/">
+            <CreatedUsingFormstr />
+          </Link>
+          {!isMobile() && (
+            <a
+              href="https://github.com/abhay-raizada/nostr-forms"
+              className="foss-link"
+            >
+              <Text className="text-style">
+                Formstr is free and Open Source
+              </Text>
+            </a>
+          )}
+        </div>
       </div>
     </FillerStyle>
   );
