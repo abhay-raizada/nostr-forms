@@ -11,7 +11,7 @@ function EmptyScreen() {
   return (
     <StyleWrapper>
       <NoData className="empty-screen" />
-      <Text className="no-data">No data available!</Text>
+      <Text className="no-data">You don't have any forms yet!</Text>
       <Button
         className="add-form"
         type="primary"
