@@ -4,9 +4,11 @@ export default style.div`
   display: flex;
   flex-direction: column;
   height: calc(100vh - 208px);
+  align-items: center;
+  justify-content: center;
 
   .empty-screen {
-    height: 60%;
+    height: 40%;
   }
 
   .no-data {
