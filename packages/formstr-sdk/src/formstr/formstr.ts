@@ -370,6 +370,7 @@ export const sendResponses = async (
   const pool = new SimplePool();
   pool.publish(relays, kind4Event);
   pool.close(relays);
+  return userPk;
 };
 
 async function getEncryptedResponses(formId: string) {
@@ -410,6 +411,7 @@ export async function fetchPublicForms() {
     pubkey: string;
   };
   let kind0s = await pool.list(relays, [filter]);
+  pool.close(relays);
   let templates: IPublicForm[] = kind0s
     .map((kind0) => {
       let template = null;
@@ -420,29 +422,39 @@ export async function fetchPublicForms() {
       return { content: template, pubkey: kind0.pubkey };
     })
     .filter((template) => template !== null) as IPublicForm[];
-  pool.close(relays);
   return templates;
 }
 
-async function fetchProfiles(pubkeys: Array<string>) {
+export async function fetchProfiles(pubkeys: Array<string>) {
   const pool = new SimplePool();
   const filter = {
     kinds: [0],
     authors: pubkeys,
   };
   let kind0s = await pool.list(relays, [filter]);
-  let authors = kind0s.reduce(
+  pool.close(relays);
+  let kind0sMap = kind0s.reduce(
     (map: { [key: string]: { name: string } }, kind0) => {
       let name = "";
       try {
         name = JSON.parse(kind0.content).name;
-      } catch (e) {}
+      } catch (e) {
+        name = "Anon(" + nip19.npubEncode(kind0.pubkey).slice(0, 10) + "..)";
+      }
       map[kind0.pubkey] = { name };
       return map;
     },
     {}
   );
-  pool.close(relays);
+  let authors = pubkeys.reduce(
+    (acc: { [key: string]: { name: string } }, p: string) => {
+      acc[p] = kind0sMap[p] || {
+        name: "Anon(" + nip19.npubEncode(p).slice(0, 10) + "..)",
+      };
+      return acc;
+    },
+    {}
+  );
   return authors;
 }
 
@@ -582,12 +594,7 @@ export const getFormResponses = async (formSecret: string) => {
     finalResponses[response.pubkey] = entry;
   }
   for (const [pubkey, attrs] of Object.entries(finalResponses)) {
-    if (profiles[pubkey]) {
-      attrs.authorName = profiles[pubkey].name;
-    } else {
-      attrs.authorName =
-        "Anon(" + nip19.npubEncode(pubkey).slice(0, 10) + "..)";
-    }
+    attrs.authorName = profiles[pubkey].name;
   }
   return {
     allResponses: finalResponses,

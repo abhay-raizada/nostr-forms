@@ -103,7 +103,7 @@ export const Responses = () => {
             <Divider />
             <div className="response-count-container">
               <Text className="response-count">
-                {Object.keys(allResponses).length}{" "}
+                {isLoading ? "Loading..." : Object.keys(allResponses).length}{" "}
               </Text>
               <Text className="response-count-label">response(s)</Text>
             </div>

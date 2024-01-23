@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import {
   FileOutlined,
-  InboxOutlined,
+  LaptopOutlined,
   NotificationOutlined,
+  RightSquareOutlined,
 } from "@ant-design/icons";
 import { ROUTES as GLOBAL_ROUTES } from "../../../constants/routes";
 import { MY_FORM_MENU_KEYS } from "./constants";
@@ -19,16 +20,25 @@ export const MY_FORM_MENU = [
     ),
   },
   {
+    key: "Submissions",
+    label: "Submissions",
+    icon: (
+      <Link to={`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`}>
+        <RightSquareOutlined />
+      </Link>
+    ),
+  },
+  {
     key: "Saved",
-    label: "Saved on",
+    label: "Saved Forms",
     type: "group",
     children: [
       {
         key: MY_FORM_MENU_KEYS.LOCAL,
-        label: "Local Device",
+        label: "This Device",
         icon: (
           <Link to={`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.LOCAL}`}>
-            <InboxOutlined />
+            <LaptopOutlined />
           </Link>
         ),
       },
