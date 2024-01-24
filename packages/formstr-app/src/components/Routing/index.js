@@ -35,7 +35,7 @@ function Routing() {
       <Route path="forms/:formId" element={<FormFiller />} />
       <Route
         path="forms/:formSecret/responses"
-        element={withCreateFormHeaderWrapper(Responses)}
+        element={withNostrHeaderWrapper(Responses)}
       />
       <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
       <Route

@@ -7,17 +7,27 @@ import { ROUTES } from "../../constants/routes";
 
 const { Text } = Typography;
 
-function EmptyScreen() {
+interface EmptyScreenProps {
+  message?: string;
+  linkTo?: string;
+  linkLabel?: string;
+}
+
+function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
   return (
     <StyleWrapper>
       <NoData className="empty-screen" />
-      <Text className="no-data">Get started by creating your first form!</Text>
+      <Text className="no-data">
+        {message || "Get started by creating your first form!"}
+      </Text>
       <Button
         className="add-form"
         type="primary"
-        icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
+        icon={linkTo ? null : <PlusOutlined style={{ paddingTop: "2px" }} />}
       >
-        <Link to={ROUTES.CREATE_FORMS}>Create Form</Link>
+        <Link to={linkTo || ROUTES.CREATE_FORMS}>
+          {linkLabel || "Create Form"}
+        </Link>
       </Button>
     </StyleWrapper>
   );

@@ -1,6 +1,7 @@
 export const LOCAL_STORAGE_KEYS = {
   LOCAL_FORMS: "formstr:forms",
   DRAFT_FORMS: "formstr:drafts",
+  SUBMISSIONS: "formstr:submissions",
 };
 
 export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {

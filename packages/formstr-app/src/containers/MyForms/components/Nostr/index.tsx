@@ -41,7 +41,7 @@ const COLUMNS = [
 
 function Nostr() {
   const [isLoading, setIsLoading] = useState(false);
-  const [forms, setForms] = useState<IForm[]>([]);
+  const [forms, setForms] = useState<IForm[] | null>(null);
   const loadNostrForms = async () => {
     setIsLoading(true);
     let forms = await getDecoratedPastForms();
@@ -57,25 +57,25 @@ function Nostr() {
 
   return (
     <div>
-      {!!!forms.length ? (
+      {forms === null && !isLoading ? (
         <SyncButtonStyle>
           <Button type="primary" onClick={loadNostrForms}>
             Fetch forms from nostr
           </Button>
         </SyncButtonStyle>
       ) : null}
-      {(!!forms.length || isLoading) && (
+      {forms !== null || isLoading ? (
         <Table
           loading={{
             spinning: isLoading,
             tip: "Please accept the nip-07 request to fetch your forms from Nostr",
           }}
           columns={COLUMNS}
-          dataSource={forms}
+          dataSource={forms || []}
           pagination={false}
           scroll={{ y: "calc(100vh - 208px)" }}
         />
-      )}
+      ) : null}
     </div>
   );
 }

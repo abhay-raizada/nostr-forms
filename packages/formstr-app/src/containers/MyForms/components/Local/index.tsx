@@ -89,7 +89,7 @@ function Local() {
             className="sync-button"
             icon={<SyncOutlined />}
           >
-            Sync with nostr profile
+            Sync to nostr
           </Button>
         </div>
       )}

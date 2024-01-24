@@ -11,5 +11,5 @@ export const getSelectedKey = (location: any) => {
   if (location.pathname.includes(ROUTES.NOSTR)) {
     return MY_FORM_MENU_KEYS.NOSTR;
   }
-  return MY_FORM_MENU_KEYS.DRAFTS;
+  return MY_FORM_MENU_KEYS.LOCAL;
 };
