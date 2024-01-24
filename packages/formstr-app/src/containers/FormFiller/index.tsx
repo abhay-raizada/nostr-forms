@@ -71,17 +71,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({ formSpec }) => {
   };
 
   useEffect(() => {
-    console.log("formId", formId);
     async function getForm() {
       if (!formTemplate) {
         if (!formId && !formSpec) {
-          console.log("Form Id not provided");
           throw Error("Form Id not provided");
         }
         let form = null;
         if (formId) form = await getFormTemplate(formId);
         if (formSpec) form = convertFromSpecToTemplate(formSpec);
-        console.log("formId form", formSpec, form);
 
         if (!form) return;
         setFormTemplate(form);

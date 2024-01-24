@@ -27,10 +27,6 @@ export const RightAnswer: React.FC<RightAnswerProps> = ({
     };
     return newAnswerSettings;
   }
-  console.log(
-    "default value of this is",
-    answerSettings?.validationRules?.match?.answer
-  );
 
   return (
     <Tooltip title="For quiz-like forms where you want users to choose the right answer">

@@ -22,7 +22,6 @@ function AnswerSettings() {
   );
 
   const handleRightAnswer = (rightAnswer: string) => {
-    console.log("answer is", rightAnswer);
     editQuestion(
       {
         ...question,

@@ -2,6 +2,7 @@ import { ROUTES } from "../configs/routes";
 import { MY_FORM_MENU_KEYS } from "../configs/constants";
 
 export const getSelectedKey = (location: any) => {
+  console.log("location got was", location.pathname);
   if (location.pathname.includes(ROUTES.DRAFTS)) {
     return MY_FORM_MENU_KEYS.DRAFTS;
   }
@@ -10,6 +11,9 @@ export const getSelectedKey = (location: any) => {
   }
   if (location.pathname.includes(ROUTES.NOSTR)) {
     return MY_FORM_MENU_KEYS.NOSTR;
+  }
+  if (location.pathname.includes(ROUTES.SUBMISSIONS)) {
+    return MY_FORM_MENU_KEYS.SUBMISSIONS;
   }
   return MY_FORM_MENU_KEYS.LOCAL;
 };
