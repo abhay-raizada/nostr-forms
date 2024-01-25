@@ -23,6 +23,16 @@ export default styled.div`
     padding: 10px;
   }
 
+  .warning-text {
+    font-size: 12px;
+    color: #ea8dea;
+  }
+
+  .warning-text a {
+    color: #ea8dea;
+    text-decoration: underline;
+  }
+
   .file-input:focus {
     outline: none;
     border: 1px solid #dedede;
