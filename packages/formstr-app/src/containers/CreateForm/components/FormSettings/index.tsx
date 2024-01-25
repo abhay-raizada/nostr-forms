@@ -42,8 +42,24 @@ function FormSettings() {
       <div className="form-setting">
         <div className="property-setting">
           <Text className="property-text">Disallow Anonymous Submissions</Text>
-          <Switch onChange={handleAnonymousToggle} />
+          <Switch
+            defaultChecked={formSettings.disallowAnonymous}
+            onChange={handleAnonymousToggle}
+          />
         </div>
+        {formSettings.disallowAnonymous && (
+          <Text className="warning-text">
+            *This will require participants to have a nostr profile with a
+            <a
+              href="https://nostrcheck.me/register/browser-extension.php"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {" "}
+              nip-07 extension
+            </a>
+          </Text>
+        )}
       </div>
       <Divider className="divider" />
     </StyleWrapper>
