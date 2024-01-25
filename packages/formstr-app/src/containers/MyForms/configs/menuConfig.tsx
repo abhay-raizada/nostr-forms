@@ -20,7 +20,7 @@ export const MY_FORM_MENU = [
     ),
   },
   {
-    key: "Submissions",
+    key: MY_FORM_MENU_KEYS.SUBMISSIONS,
     label: "Submissions",
     icon: (
       <Link to={`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`}>

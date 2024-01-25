@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
+  AnswerSettings,
   AnswerTypes,
   FormSpec,
   IFormSettings,
@@ -185,9 +186,16 @@ export default function FormBuilderProvider({
     setQuestionsList(editedList);
   };
 
-  const addQuestion = (answerType?: AnswerTypes, label?: string) => {
+  const addQuestion = (
+    answerType?: AnswerTypes,
+    label?: string,
+    answerSettings?: AnswerSettings
+  ) => {
     setIsLeftMenuOpen(false);
-    setQuestionsList([...questionsList, generateQuestion(answerType, label)]);
+    setQuestionsList([
+      ...questionsList,
+      generateQuestion(answerType, label, answerSettings),
+    ]);
     setTimeout(() => {
       bottomElement?.current?.scrollIntoView({ behavior: "smooth" });
     }, 200);

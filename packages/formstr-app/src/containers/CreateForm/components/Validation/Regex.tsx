@@ -20,14 +20,11 @@ function Regex({ rule, onChange }: { rule?: RegexRule; onChange: Function }) {
   const [tempPattern, setTempPattern] = useState<string>(rule?.pattern || "");
 
   function handlePatternChange(e: ChangeEvent<HTMLInputElement>) {
-    console.log("Pattern", e.target.value);
     setTempPattern(e.target.value);
     if (!isValidRegex(e.target.value)) {
       setPatternError("Invalid regex pattern");
-      console.log("Regex is invalid");
       return;
     }
-    console.log("Regex is valid");
     setPatternError(null);
     onChange(ValidationRuleTypes.regex, {
       pattern: e.target.value,

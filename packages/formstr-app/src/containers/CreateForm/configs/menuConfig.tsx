@@ -73,4 +73,18 @@ export const PRE_BUILT_MENU = [
     icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
     type: AnswerTypes.date,
   },
+  {
+    key: PRE_BUILT_MENU_KEYS.EMAIL,
+    label: "Email",
+    icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
+    type: AnswerTypes.shortText,
+    answerSettings: {
+      validationRules: {
+        regex: {
+          pattern: "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}",
+          errorMessage: "This is not a valid email",
+        },
+      },
+    },
+  },
 ];

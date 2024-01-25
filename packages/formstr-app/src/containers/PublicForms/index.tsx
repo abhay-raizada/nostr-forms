@@ -27,7 +27,6 @@ const COLUMNS = [
     width: 35,
     ellipsis: true,
     render: (settings: IFormSettings) => {
-      console.log("Settings", settings);
       return settings?.description || "-";
     },
     isDisabled: isMobile,

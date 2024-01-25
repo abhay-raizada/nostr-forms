@@ -1,16 +1,17 @@
-import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
+import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import { IQuestion } from "../typeDefs";
 import { makeTag } from "../../../utils/utility";
 
 export const generateQuestion = (
   answerType: AnswerTypes = AnswerTypes.shortText,
-  label: string | null = null
+  label: string | null = null,
+  answerSettings: AnswerSettings = {}
 ): IQuestion => {
   return {
     tempId: makeTag(6),
     question: label || "Click here to edit",
     answerType,
-    answerSettings: {},
+    answerSettings: answerSettings,
   };
 };
 

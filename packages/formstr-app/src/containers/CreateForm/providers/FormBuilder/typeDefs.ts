@@ -1,4 +1,5 @@
 import {
+  AnswerSettings,
   AnswerTypes,
   FormSpec,
   IFormSettings,
@@ -13,7 +14,11 @@ export interface IFormBuilderContext {
   closeSettingsOnOutsideClick: () => void;
   closeMenuOnOutsideClick: () => void;
   editQuestion: (question: IQuestion, tempId: string) => void;
-  addQuestion: (answerType?: AnswerTypes, label?: string) => void;
+  addQuestion: (
+    answerType?: AnswerTypes,
+    label?: string,
+    answerSettings?: AnswerSettings
+  ) => void;
   deleteQuestion: (tempId: string) => void;
   questionIdInFocus?: string;
   setQuestionIdInFocus: (tempId?: string) => void;

@@ -29,9 +29,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   const submitForm = async (anonymous: boolean = true) => {
     try {
       await form.validateFields();
-    } catch (err) {
-      console.log("Errors", err);
-    }
+    } catch (err) {}
     let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
     if (errors.length === 0) {
       await onSubmit(anonymous);
