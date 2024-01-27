@@ -10,7 +10,7 @@ export default styled.div<{
     padding-right: 32px;
     overflow: scroll;
     width: 60%;
-    margin: 10px auto 0 auto;
+    margin: 0 auto 0 auto;
     ${MEDIA_QUERY_MOBILE} {
       width: 100%;
       padding: 0;
@@ -77,5 +77,13 @@ export default styled.div<{
 
   .foss-link {
     text-decoration: none;
+  }
+
+  .with-description {
+    margin-top: 1px;
+  }
+
+  .hidden-description {
+    margin-top: 10px;
   }
 `;

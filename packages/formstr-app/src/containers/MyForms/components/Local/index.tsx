@@ -66,7 +66,7 @@ function Local() {
   });
 
   const { state } = useLocation();
-  const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
+  const [showFormDetails, setShowFormDetails] = useState<boolean>(true);
   const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
 
   const syncFormsWithNostr = async () => {
@@ -78,6 +78,8 @@ function Local() {
     );
     setShowsyncModal(false);
   };
+
+  console.log("Form details should ppen? ", showFormDetails);
 
   return (
     <div>

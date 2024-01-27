@@ -25,7 +25,6 @@ import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../../utils/localStorage";
 import { ISubmission } from "../MyForms/components/Submissions/submissions.types";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
-import TitleImage from "../CreateForm/components/FormSettings/TitleImage";
 
 const { Text } = Typography;
 
@@ -43,7 +42,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [thankYouScreen, setThankYouScreen] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
@@ -181,7 +180,13 @@ export const FormFiller: React.FC<FormFillerProps> = ({
               </div>
             )}
 
-            <Form form={form} onFinish={() => {}}>
+            <Form
+              form={form}
+              onFinish={() => {}}
+              className={
+                hideDescription ? "hidden-description" : "with-description"
+              }
+            >
               <div>
                 {fields?.map((field) => {
                   let rules = [
