@@ -10,7 +10,7 @@ export default styled.div<{
     padding-right: 32px;
     overflow: scroll;
     width: 60%;
-    margin: 0 auto 0 auto;
+    margin: 10px auto 0 auto;
     ${MEDIA_QUERY_MOBILE} {
       width: 100%;
       padding: 0;
