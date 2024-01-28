@@ -6,7 +6,6 @@ export default styled.div`
     align-items: center;
     text-align: center;
     flex-direction: column;
-    word-break: break-all;
   }
 
   .form-details-card {
@@ -17,12 +16,12 @@ export default styled.div`
   }
 
   .settings-container {
-    display: flex;
     justify-content: center;
-    width: 50%;
+    width: 100%;
   }
 
   .settings-item {
+    margin: 5px;
     padding: 5px;
   }
 
@@ -36,10 +35,15 @@ export default styled.div`
 
   .embedded-code {
     width: 50%;
+    word-wrap: break-word;
   }
   .ant-checkbox {
     margin-bottom: 4px;
-    /* Add your styles here */
+    overflow-wrap: normal;
+  }
+
+  .share-links {
+    word-wrap: break-word;
   }
 
   .embed-container {

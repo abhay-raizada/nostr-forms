@@ -83,7 +83,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
 
   const TabContent = {
     share: (
-      <>
+      <div className="share-links">
         <div>
           <Success />
         </div>
@@ -102,7 +102,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
             your nostr profile on the next screen.
           </Text>
         </div>
-      </>
+      </div>
     ),
     embed: (
       <div className="embedded-share">
