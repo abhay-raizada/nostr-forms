@@ -43,8 +43,13 @@ export default styled.div`
   }
 
   .embed-container {
-    border: 1px solid black;
-    background-color: lightgray;
+    padding: 10px;
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      rgba(199, 199, 199, 1) 0%,
+      rgba(255, 255, 255, 1) 100%
+    );
+    margin-bottom: 10px;
     width: 60%;
   }
 `;

@@ -14,7 +14,7 @@ export const CopyButton = ({ getText }: { getText: () => string }) => {
   };
   return (
     <CopyStyle>
-      <label className="copy-label">Copy</label>
+      <label className="copy-label">{copied ? "Copied!" : "Copy"}</label>
       <Button
         disabled={copied}
         icon={copied ? <CheckCircleOutlined /> : <CopyOutlined />}

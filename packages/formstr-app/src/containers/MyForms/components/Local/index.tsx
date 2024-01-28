@@ -66,8 +66,13 @@ function Local() {
   });
 
   const { state } = useLocation();
-  const [showFormDetails, setShowFormDetails] = useState<boolean>(true);
+  const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
   const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
+  const [formCredentials, setFormCredentials] = useState<string[]>([]);
+
+  if (state) {
+    setFormCredentials(state);
+  }
 
   const syncFormsWithNostr = async () => {
     let localForms =
@@ -101,12 +106,20 @@ function Local() {
           dataSource={localForms}
           pagination={false}
           scroll={{ y: "calc(100vh - 228px)" }}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                setShowFormDetails(true);
+                setFormCredentials([record.publicKey, record.privateKey]);
+              },
+            };
+          }}
         />
       )}
       {!localForms.length && <EmptyScreen />}
       <FormDetails
         isOpen={showFormDetails}
-        formCredentials={state || []}
+        formCredentials={formCredentials}
         onClose={() => {
           setShowFormDetails(false);
         }}
