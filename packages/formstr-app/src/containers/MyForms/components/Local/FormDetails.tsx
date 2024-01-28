@@ -48,7 +48,8 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   ) {
     let embeddedUrl = `${constructFormUrl(
       formId,
-      window.location.origin
+      window.location.origin,
+      true
     )}/${formId}`;
 
     if (options.hideTitleImage) {

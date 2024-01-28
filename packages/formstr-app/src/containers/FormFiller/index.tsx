@@ -226,7 +226,12 @@ export const FormFiller: React.FC<FormFillerProps> = ({
           </div>
         </div>
       )}
-      {formSubmitted && <Text>Form is Submitted</Text>}
+      {formSubmitted && (
+        <div className="embed-submitted">
+          {" "}
+          <Text>Form Submitted</Text>{" "}
+        </div>
+      )}
     </FillerStyle>
   );
 };

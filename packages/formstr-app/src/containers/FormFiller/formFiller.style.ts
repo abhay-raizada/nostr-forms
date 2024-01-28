@@ -83,4 +83,12 @@ export default styled.div<{
   .hidden-description {
     margin-top: 10px;
   }
+
+  .embed-submitted {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 `;
