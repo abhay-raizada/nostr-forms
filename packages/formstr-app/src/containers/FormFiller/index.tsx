@@ -199,16 +199,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({
               </div>
             </Form>
           </div>
-          <ThankYouScreen
-            isOpen={thankYouScreen}
-            onClose={() => {
-              if (!embedded) {
-                navigate(`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`);
-              } else {
-                setThankYouScreen(false);
-              }
-            }}
-          />
           <div className="branding-container">
             <Link to="/">
               <CreatedUsingFormstr />
@@ -226,11 +216,24 @@ export const FormFiller: React.FC<FormFillerProps> = ({
           </div>
         </div>
       )}
-      {formSubmitted && (
-        <div className="embed-submitted">
-          {" "}
-          <Text>Response Submitted</Text>{" "}
-        </div>
+      {embedded ? (
+        formSubmitted && (
+          <div className="embed-submitted">
+            {" "}
+            <Text>Response Submitted</Text>{" "}
+          </div>
+        )
+      ) : (
+        <ThankYouScreen
+          isOpen={thankYouScreen}
+          onClose={() => {
+            if (!embedded) {
+              navigate(`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`);
+            } else {
+              setThankYouScreen(false);
+            }
+          }}
+        />
       )}
     </FillerStyle>
   );
