@@ -5,10 +5,8 @@ export default styled.div<{
 }>`
   .form-filler {
     background-color: #dedede;
-    overflow: scroll;
     padding-left: 32px;
     padding-right: 32px;
-    overflow: scroll;
     width: 60%;
     margin: 0 auto 0 auto;
     ${MEDIA_QUERY_MOBILE} {
@@ -24,7 +22,6 @@ export default styled.div<{
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: scroll;
 
     div:last-of-type {
       margin-top: auto;

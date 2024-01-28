@@ -1,9 +1,4 @@
-import {
-  AnswerTypes,
-  FormSpec,
-  V1Choice,
-  V1FormSpec,
-} from "@formstr/sdk/dist/interfaces";
+import { FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import {
@@ -51,28 +46,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
   const convertFromSpecToTemplate = (formSpec: FormSpec): V1FormSpec => {
     let fields = formSpec.fields?.map((field) => {
-      let answerSettings = field.answerSettings;
-      let answerType = field.answerType;
-      let newChoices: V1Choice[] | undefined;
-      if (
-        answerType ===
-        (AnswerTypes.checkboxes ||
-          AnswerTypes.radioButton ||
-          AnswerTypes.dropdown)
-      ) {
-        newChoices = field.answerSettings.choices?.map((choice) => {
-          return {
-            label: choice.label,
-            isOther: choice.isOther,
-            choiceId: makeTag(6),
-          };
-        });
-      }
       return {
+        ...field,
         questionId: makeTag(6),
-        question: field.question,
-        answerType,
-        answerSettings: { ...answerSettings, choices: newChoices },
       };
     });
     return {

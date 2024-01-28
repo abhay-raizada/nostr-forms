@@ -27,9 +27,9 @@ export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
       {choices?.map((choice) => {
         return (
           <div className="radioButtonItem" key={choice.choiceId}>
-            <Checkbox disabled />
+            <Checkbox disabled key={choice.choiceId + "checkbox"} />
             <Input
-              key={choice.choiceId}
+              key={choice.choiceId + "input"}
               defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(
@@ -48,6 +48,7 @@ export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
                 onClick={(e) => {
                   handleDelete(choice.choiceId!, choices, handleNewChoices);
                 }}
+                key={choice.choiceId + "close"}
               />
             )}
           </div>

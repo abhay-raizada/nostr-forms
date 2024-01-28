@@ -1,7 +1,6 @@
 import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import ShortText from "./InputElements/ShortText";
 import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreator";
-import { makeTag } from "../../../../utils/utility";
 import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
 import { DropdownCreator } from "./InputElements/OptionTypes/DropdownCreator";
 import { DatePicker, Input, InputNumber, TimePicker } from "antd";
@@ -37,7 +36,11 @@ const Inputs: React.FC<InputsProps> = ({
         return (
           <RadioButtonCreator
             initialValues={answerSettings.choices?.map((c) => {
-              return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
+              return {
+                label: c.label,
+                isOther: c.isOther,
+                choiceId: c.choiceId,
+              };
             })}
             onValuesChange={updateAnswerSettings}
           />
@@ -46,7 +49,11 @@ const Inputs: React.FC<InputsProps> = ({
         return (
           <CheckboxCreator
             initialValues={answerSettings.choices?.map((c) => {
-              return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
+              return {
+                label: c.label,
+                isOther: c.isOther,
+                choiceId: c.choiceId,
+              };
             })}
             onValuesChange={updateAnswerSettings}
           />
@@ -55,7 +62,11 @@ const Inputs: React.FC<InputsProps> = ({
         return (
           <DropdownCreator
             initialValues={answerSettings.choices?.map((c) => {
-              return { label: c.label, isOther: c.isOther, tempId: makeTag(6) };
+              return {
+                label: c.label,
+                isOther: c.isOther,
+                choiceId: c.choiceId,
+              };
             })}
             onValuesChange={updateAnswerSettings}
           />
