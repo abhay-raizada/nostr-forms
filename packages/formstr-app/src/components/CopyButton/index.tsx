@@ -4,20 +4,30 @@ import { useState } from "react";
 import CopyStyle from "./copy.style";
 
 export const CopyButton = ({ getText }: { getText: () => string }) => {
-  const [copied, setCopied] = useState(false);
+  const [copyMessage, setCopyMessage] = useState<"Copy" | "Copied!" | "Error!">(
+    "Copy"
+  );
   const copyText = () => {
-    navigator.clipboard.writeText(getText());
-    setCopied(true);
+    navigator.clipboard.writeText(getText()).then(
+      (resolve) => {
+        setCopyMessage("Copied!");
+      },
+      (reject) => {
+        setCopyMessage("Error!");
+      }
+    );
     setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+      setCopyMessage("Copy");
+    }, 5000);
   };
   return (
     <CopyStyle>
-      <label className="copy-label">{copied ? "Copied!" : "Copy"}</label>
+      <label className="copy-label">{copyMessage}</label>
       <Button
-        disabled={copied}
-        icon={copied ? <CheckCircleOutlined /> : <CopyOutlined />}
+        disabled={copyMessage === "Copied!"}
+        icon={
+          copyMessage === "Copied!" ? <CheckCircleOutlined /> : <CopyOutlined />
+        }
         onClick={copyText}
       />
     </CopyStyle>

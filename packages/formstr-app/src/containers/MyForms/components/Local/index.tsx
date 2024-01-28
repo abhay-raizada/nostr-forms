@@ -6,7 +6,7 @@ import { LOCAL_STORAGE_KEYS, getItem } from "../../../../utils/localStorage";
 import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   constructFormUrl,
   constructResponseUrl,
@@ -70,9 +70,12 @@ function Local() {
   const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
   const [formCredentials, setFormCredentials] = useState<string[]>([]);
 
-  if (state) {
-    setFormCredentials(state);
-  }
+  useEffect(() => {
+    if (state) {
+      setShowFormDetails(true);
+      setFormCredentials(state);
+    }
+  }, [state]);
 
   const syncFormsWithNostr = async () => {
     let localForms =
@@ -83,8 +86,6 @@ function Local() {
     );
     setShowsyncModal(false);
   };
-
-  console.log("Form details should ppen? ", showFormDetails);
 
   return (
     <div>
