@@ -13,11 +13,15 @@ export function makeTag(length: number) {
   return result;
 }
 
-export function constructFormUrl(publicKey: string, host: string) {
+export function constructFormUrl(
+  publicKey: string,
+  host: string,
+  embedded: boolean = false
+) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `${host}/#/fill/${publicKey}`;
+  return `${host}/#/${embedded ? "embedded" : "fill"}/${publicKey}`;
 }
 
 export function constructResponseUrl(privateKey: string, host: string) {

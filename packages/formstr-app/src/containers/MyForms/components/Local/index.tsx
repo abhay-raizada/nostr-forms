@@ -6,7 +6,7 @@ import { LOCAL_STORAGE_KEYS, getItem } from "../../../../utils/localStorage";
 import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   constructFormUrl,
   constructResponseUrl,
@@ -68,6 +68,14 @@ function Local() {
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
   const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
+  const [formCredentials, setFormCredentials] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (state) {
+      setShowFormDetails(true);
+      setFormCredentials(state);
+    }
+  }, [state]);
 
   const syncFormsWithNostr = async () => {
     let localForms =
@@ -99,12 +107,20 @@ function Local() {
           dataSource={localForms}
           pagination={false}
           scroll={{ y: "calc(100vh - 228px)" }}
+          onRow={(record) => {
+            return {
+              onClick: () => {
+                setShowFormDetails(true);
+                setFormCredentials([record.publicKey, record.privateKey]);
+              },
+            };
+          }}
         />
       )}
       {!localForms.length && <EmptyScreen />}
       <FormDetails
         isOpen={showFormDetails}
-        formCredentials={state || []}
+        formCredentials={formCredentials}
         onClose={() => {
           setShowFormDetails(false);
         }}

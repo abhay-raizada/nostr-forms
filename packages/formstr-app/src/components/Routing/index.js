@@ -51,6 +51,7 @@ function Routing() {
         element={withNostrHeaderWrapper(PublicForms)}
       />
       <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFiller />} />
+      <Route path={`${ROUTES.EMBEDDED}/*`} element={<FormFiller />} />
       <Route
         path={`${ROUTES.RESPONSES}/*`}
         element={withNostrHeaderWrapper(Responses)}

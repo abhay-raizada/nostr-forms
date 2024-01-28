@@ -30,7 +30,7 @@ export enum AnswerTypes {
 }
 
 export interface Choice {
-  choiceId?: string;
+  choiceId: string;
   label: string;
   isOther?: boolean;
 }

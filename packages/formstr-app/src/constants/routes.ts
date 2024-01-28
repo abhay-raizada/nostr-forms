@@ -6,4 +6,5 @@ export const ROUTES = {
   PREVIEW: "/preview",
   RESPONSES: "/response/:formSecret",
   DRAFT: "/drafts/:encodedForm",
+  EMBEDDED: "/embedded/:formId",
 };
