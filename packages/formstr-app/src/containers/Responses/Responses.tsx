@@ -7,7 +7,7 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import { Card, Divider, Table, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import SummaryStyle from "./summary.style";
 import ResponseWrapper from "./Responses.style";
 
@@ -18,6 +18,8 @@ const { Text } = Typography;
 
 export const Responses = () => {
   const { formSecret } = useParams();
+  const [searchParams] = useSearchParams();
+  const formId = searchParams.get("formId");
   const [allResponses, setAllResponses] = useState<FormResponses>({});
   const [questionMap, setQuestionMap] = useState<{ [key: string]: V1Field }>(
     {}
@@ -33,14 +35,14 @@ export const Responses = () => {
       if (!formSecret) {
         throw Error("form secret required to view responses");
       }
-      const responses = await getFormResponses(formSecret || "");
+      const responses = await getFormResponses(formSecret || "", formId);
       setIsLoading(false);
       setAllResponses(responses.allResponses);
       setQuestionMap(responses.questionMap);
       setFormSummary(responses.formSummary);
     }
     fetchResponses();
-  }, [formSecret, isLoading]);
+  }, [formSecret, isLoading, formId]);
 
   const getData = () => {
     return Object.keys(allResponses).map((authorId) => {

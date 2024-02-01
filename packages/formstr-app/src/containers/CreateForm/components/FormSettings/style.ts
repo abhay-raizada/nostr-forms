@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 export default styled.div`
   background-color: white;
+  overflow: auto;
   .divider {
     margin: 0;
   }
@@ -47,5 +48,24 @@ export default styled.div`
   .npub-list-text {
     font-size: 12px;
     font-weight: normal;
+  }
+
+  .ant-collapse-header {
+    padding: 0 !important;
+  }
+
+  .relay-text-container {
+    width: 60%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .relay-icons {
+    padding-left: 10px;
+  }
+
+  .relay-item {
+    display: flex;
+    justify-content: space-between;
   }
 `;

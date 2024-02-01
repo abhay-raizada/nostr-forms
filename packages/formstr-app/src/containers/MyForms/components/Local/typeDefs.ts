@@ -4,4 +4,5 @@ export interface ILocalForm {
   createdAt: string;
   publicKey: string;
   privateKey: string;
+  formCredentials?: Array<string>;
 }
