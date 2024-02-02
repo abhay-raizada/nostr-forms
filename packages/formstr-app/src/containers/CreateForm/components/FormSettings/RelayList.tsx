@@ -1,7 +1,12 @@
 import { Button, Collapse, Input, Typography } from "antd";
 import { getDefaultRelays } from "@formstr/sdk";
 import { makeTag } from "@formstr/sdk/dist/utils/utils";
-import { DeleteOutlined, EditOutlined, SaveFilled } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import { ChangeEvent, useState } from "react";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 
@@ -82,11 +87,21 @@ const RelayListItem = ({
         )}
         {edit && (
           <>
-            <Input defaultValue={relay.url} onChange={handleInputChange} />
+            <CloseOutlined
+              onClick={() => {
+                setEdit(false);
+              }}
+              className="relay-edit-item"
+            />
+            <Input
+              defaultValue={relay.url}
+              onChange={handleInputChange}
+              className="relay-edit-item"
+            />
             <Button
               size="middle"
-              icon={<SaveFilled />}
-              type="primary"
+              icon={<SaveOutlined className="relay-icon" />}
+              type="dashed"
               onClick={onEditRelay}
             />
           </>
@@ -102,7 +117,19 @@ const RelayListItems = () => {
     return { url: relay, tempId: makeTag(6) };
   });
   const { relayList, setRelayList } = useFormBuilderContext();
+  const [newRelay, setNewRelay] = useState(false);
+  const [newRelayUrl, setNewRelayUrl] = useState("");
+  const [isError, setIsError] = useState(false);
 
+  const onAdd = () => {
+    if (!isValidWebSocketUrl(newRelayUrl)) {
+      setIsError(true);
+      return;
+    }
+    setIsError(false);
+    setRelayList([...relayList, { url: newRelayUrl, tempId: makeTag(6) }]);
+    setNewRelay(false);
+  };
   const onEdit = (newRelay: string, tempId: string) => {
     relays = relayList.map((relay) => {
       if (relay.tempId === tempId) {
@@ -120,6 +147,36 @@ const RelayListItems = () => {
 
   return (
     <>
+      {newRelay && (
+        <div className="relay-item">
+          <CloseOutlined onClick={() => setNewRelay(false)} />
+          <Input
+            placeholder="Enter relay url"
+            onChange={(e) => {
+              setNewRelayUrl(e.target.value);
+            }}
+          />
+          <Button
+            size="middle"
+            icon={<SaveOutlined className="relay-icon" />}
+            type="dashed"
+            onClick={onAdd}
+          />
+        </div>
+      )}
+      {isError && <Text type="danger"> Not a valid websocket url</Text>}
+      <div className="add-relay-container">
+        {!newRelay && (
+          <Button
+            type="link"
+            onClick={() => {
+              setNewRelay(true);
+            }}
+          >
+            + Add Relay
+          </Button>
+        )}
+      </div>
       {relayList.map((relay) => (
         <RelayListItem
           relay={relay}

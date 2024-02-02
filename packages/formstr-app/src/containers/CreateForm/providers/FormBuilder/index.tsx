@@ -150,6 +150,11 @@ export default function FormBuilderProvider({
     setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
   }
 
+  const areArraysSame = (arr1: Array<string>, arr2: Array<string>) => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every((element, index) => element === arr2[index]);
+  };
+
   const saveForm = async () => {
     let formToSave = getFormSpec();
     let tags: Array<Array<string>> = [];
@@ -158,17 +163,13 @@ export default function FormBuilderProvider({
     }
     let relayUrls = relayList.map((relay) => relay.url);
 
-    const relaysSame = getDefaultRelays().every(
-      (element, index) => element === relayUrls[index]
-    );
-
     const formCreds = await createForm(
       formToSave,
       false,
       null,
       tags,
       relayUrls,
-      !relaysSame
+      !areArraysSame(relayUrls, getDefaultRelays())
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft

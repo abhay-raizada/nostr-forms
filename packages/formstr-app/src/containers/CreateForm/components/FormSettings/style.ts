@@ -67,5 +67,19 @@ export default styled.div`
   .relay-item {
     display: flex;
     justify-content: space-between;
+    margin: 5px;
+  }
+
+  .relay-edit-item {
+    padding-right: 5px;
+  }
+
+  .add-relay-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .ant-btn-icon-only {
+    padding-top: 6px !important;
   }
 `;
