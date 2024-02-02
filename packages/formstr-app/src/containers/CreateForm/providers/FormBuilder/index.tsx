@@ -58,8 +58,8 @@ const InitialFormSettings: IFormSettings = {
   titleImageUrl:
     "https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg",
   description:
-    "This is where the description of your form will appear! You can" +
-    " tap anywhere on the form to edit it, including this description.",
+    "This is the description, you can use markdown while editing it!" +
+    " tap anywhere on the form to edit, including this description.",
   thankYouPage: true,
 };
 
