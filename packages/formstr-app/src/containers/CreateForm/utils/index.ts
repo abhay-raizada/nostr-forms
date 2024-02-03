@@ -15,6 +15,31 @@ export const generateQuestion = (
   };
 };
 
+export const websocketUrlPattern =
+  /^(wss?:\/\/)([^:@/]+(?::[^@/]+)?@)?([^:/]+)(?::(\d+))?(\/.*)?$/;
+
+export function isValidWebSocketUrl(url: string): boolean {
+  const match = url.match(websocketUrlPattern);
+
+  if (!match) {
+    return false;
+  }
+
+  const [, scheme, , , port] = match;
+
+  if (!scheme || (scheme !== "ws://" && scheme !== "wss://")) {
+    return false;
+  }
+  if (port !== undefined) {
+    const portNumber = parseInt(port, 10);
+    if (!(0 <= portNumber && portNumber <= 65535)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export const isGreaterThanOrEqual = (val: number, compareVal: number) =>
   val >= compareVal;
 
