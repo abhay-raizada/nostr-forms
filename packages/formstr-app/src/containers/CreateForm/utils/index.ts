@@ -20,11 +20,9 @@ export const websocketUrlPattern =
 
 export function isValidWebSocketUrl(url: string): boolean {
   const match = url.match(websocketUrlPattern);
-
   if (!match) {
     return false;
   }
-
   const [, scheme, , , port] = match;
 
   if (!scheme || (scheme !== "ws://" && scheme !== "wss://")) {
@@ -39,6 +37,11 @@ export function isValidWebSocketUrl(url: string): boolean {
 
   return true;
 }
+
+export const areArraysSame = (arr1: Array<string>, arr2: Array<string>) => {
+  if (arr1.length !== arr2.length) return false;
+  return arr1.every((element, index) => element === arr2[index]);
+};
 
 export const isGreaterThanOrEqual = (val: number, compareVal: number) =>
   val >= compareVal;

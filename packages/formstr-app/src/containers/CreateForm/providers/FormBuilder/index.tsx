@@ -7,7 +7,7 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
-import { generateQuestion } from "../../utils";
+import { areArraysSame, generateQuestion } from "../../utils";
 import { createForm, getDefaultRelays } from "@formstr/sdk";
 import {
   LOCAL_STORAGE_KEYS,
@@ -149,11 +149,6 @@ export default function FormBuilderProvider({
     forms.push(saveObject);
     setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
   }
-
-  const areArraysSame = (arr1: Array<string>, arr2: Array<string>) => {
-    if (arr1.length !== arr2.length) return false;
-    return arr1.every((element, index) => element === arr2[index]);
-  };
 
   const saveForm = async () => {
     let formToSave = getFormSpec();
