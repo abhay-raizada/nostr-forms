@@ -44,11 +44,15 @@ const COLUMNS = [
   {
     key: "privateKey",
     title: "Response Url",
-    dataIndex: "privateKey",
+    dataIndex: "formCredentials",
     width: isMobile() ? 25 : 30,
     ellipsis: true,
-    render: (privateKey: string) => {
-      let link = constructResponseUrl(privateKey, window.location.origin);
+    render: (formCredentials: string) => {
+      let link = constructResponseUrl(
+        formCredentials[1],
+        window.location.origin,
+        formCredentials[0]
+      );
       return <ResponsiveLink link={link} />;
     },
   },
@@ -56,7 +60,11 @@ const COLUMNS = [
 
 function Local() {
   let localForms = getItem<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
-  localForms = localForms.map((form) => ({ ...form, key: makeTag(6) }));
+  localForms = localForms.map((form) => ({
+    ...form,
+    key: makeTag(6),
+    formCredentials: [form.publicKey, form.privateKey],
+  }));
 
   let columns = COLUMNS.filter(({ isDisabled }) => {
     if (isDisabled && isDisabled()) {

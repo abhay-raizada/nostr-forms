@@ -39,4 +39,6 @@ export interface IFormBuilderContext {
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
   bottomElementRef: React.RefObject<HTMLDivElement> | null;
+  relayList: { url: string; tempId: string }[];
+  setRelayList: (list: { url: string; tempId: string }[]) => void;
 }

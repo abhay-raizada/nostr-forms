@@ -3,6 +3,7 @@ import StyleWrapper from "./style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import TitleImage from "./TitleImage";
 import { Notifications } from "./Notifications";
+import { RelayList } from "./RelayList";
 
 const { Text } = Typography;
 
@@ -62,6 +63,9 @@ function FormSettings() {
         )}
       </div>
       <Divider className="divider" />
+      <div className="form-setting">
+        <RelayList />
+      </div>
     </StyleWrapper>
   );
 }

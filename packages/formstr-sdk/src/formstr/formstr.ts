@@ -30,6 +30,7 @@ import {
   V1Submission,
   FormResponse,
 } from "../interfaces";
+import { ProfilePointer } from "nostr-tools/lib/types/nip19";
 
 declare global {
   // TODO: make this better
@@ -53,13 +54,24 @@ declare global {
   }
 }
 
-const relays = [
+let defaultRelays = [
   "wss://relay.damus.io/",
   "wss://relay.primal.net/",
-  "wss://nos.lol/",
+  "wss://nos.lol",
   "wss://relay.nostr.wirednet.jp/",
+  "wss://nostr-01.yakihonne.com",
+  "wss://relay.leligobit.link",
+  "wss://relay.snort.social",
+  "wss://relay.swisslightning.net",
   "wss://relay.hllo.live",
+  "wss://relay.nostr.band",
+  "wss://nostr21.com",
+  "wss://relay.mutinywallet.com",
 ];
+
+export const getDefaultRelays = () => {
+  return defaultRelays;
+};
 
 function transformAnswerType(field: V0Field): AnswerTypes {
   const answerTypes = Object.keys(V0AnswerTypes);
@@ -130,12 +142,20 @@ function convertV1Form(formSpec: V0FormSpec): V1FormSpec {
 
 export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
   const pool = new SimplePool();
+  let formIdPubkey = formId;
+  let relayList = defaultRelays;
+  if (formId.startsWith("nprofile")) {
+    const { pubkey, relays } = nip19.decode(formId)
+      .data as nip19.ProfilePointer;
+    formIdPubkey = pubkey;
+    relayList = relays || defaultRelays;
+  }
   const filter = {
     kinds: [0],
-    authors: [formId], //formId is the npub of the form
+    authors: [formIdPubkey], //formId is the npub of the form
   };
-  const kind0 = await pool.get(relays, filter);
-  pool.close(relays);
+  const kind0 = await pool.get(relayList!, filter);
+  pool.close(relayList!);
   let formTemplate;
   if (kind0) {
     formTemplate = JSON.parse(kind0.content);
@@ -224,8 +244,8 @@ export async function getPastUserForms<
     authors: [userPublicKey],
   };
   const pool = new SimplePool();
-  const saveEvent = await pool.list(relays, [filters]);
-  pool.close(relays);
+  const saveEvent = await pool.list(defaultRelays, [filters]);
+  pool.close(defaultRelays);
   if (Array.isArray(saveEvent) && !saveEvent.length)
     return saveEvent as FormStructure[];
   const decryptedForms = await decryptPastForms(
@@ -278,15 +298,17 @@ export const saveFormOnNostr = async (
   let nip51event: typeof baseNip51Event & { id: string; sig: string };
   nip51event = await signEvent(baseNip51Event, userSecretKey);
   const pool = new SimplePool();
-  pool.publish(relays, nip51event);
-  pool.close(relays);
+  pool.publish(defaultRelays, nip51event);
+  pool.close(defaultRelays);
 };
 
 export const createForm = async (
   form: FormSpec,
   saveOnNostr = false,
   userSecretKey: string | null = null,
-  tags: Array<string[]> = []
+  tags: Array<string[]> = [],
+  relayList: Array<string> = defaultRelays,
+  encodeProfile: boolean = false
 ) => {
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
@@ -313,13 +335,20 @@ export const createForm = async (
     id: getEventHash(baseKind0Event),
     sig: getSignature(baseKind0Event, formSecret),
   };
-  pool.publish(relays, kind0Event);
-  const formCredentials = [formId, formSecret];
+  pool.publish(relayList, kind0Event);
+  let useId = formId;
+  if (encodeProfile) {
+    useId = nip19.nprofileEncode({
+      pubkey: formId,
+      relays: relayList,
+    });
+  }
+  const formCredentials = [useId, formSecret];
   if (saveOnNostr) {
     await saveFormOnNostr(formCredentials, userSecretKey);
   }
-  pool.close(relays);
-  return [formId, formSecret];
+  pool.close(relayList);
+  return formCredentials;
 };
 
 export const sendResponses = async (
@@ -328,7 +357,14 @@ export const sendResponses = async (
   anonymous: boolean,
   userSecretKey: string | null = null
 ) => {
-  // TODO Validate Response Spec
+  let formIdPubkey = formId;
+  let relayList = defaultRelays;
+  if (formId.startsWith("nprofile")) {
+    const { pubkey, relays } = nip19.decode(formId)
+      .data as nip19.ProfilePointer;
+    formIdPubkey = pubkey;
+    relayList = relays || defaultRelays;
+  }
   const form = await getFormTemplate(formId);
   let questionIds = form.fields?.map((field) => field.questionId) || [];
   responses.forEach((response) => {
@@ -356,11 +392,11 @@ export const sendResponses = async (
     userPk = await getUserPublicKey(userSecretKey);
   }
 
-  ciphertext = await encryptMessage(message, formId, userSk);
+  ciphertext = await encryptMessage(message, formIdPubkey, userSk);
   const baseKind4Event = {
     kind: 4,
     pubkey: userPk,
-    tags: [["p", formId]],
+    tags: [["p", formIdPubkey]],
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
     id: "",
@@ -368,19 +404,27 @@ export const sendResponses = async (
   };
   let kind4Event = await signEvent(baseKind4Event, userSk);
   const pool = new SimplePool();
-  pool.publish(relays, kind4Event);
-  pool.close(relays);
+  pool.publish(relayList, kind4Event);
+  pool.close(relayList);
   return userPk;
 };
 
 async function getEncryptedResponses(formId: string) {
+  let relayList = defaultRelays;
+  let formIdPubkey = formId;
+  if (formId.startsWith("nprofile")) {
+    const { pubkey, relays } = nip19.decode(formId)
+      .data as nip19.ProfilePointer;
+    relayList = relays || defaultRelays;
+    formIdPubkey = pubkey;
+  }
   const pool = new SimplePool();
   const filter = {
     kinds: [4],
-    "#p": [formId],
+    "#p": [formIdPubkey],
   };
-  const responses = await pool.list(relays, [filter]);
-  pool.close(relays);
+  const responses = await pool.list(relayList, [filter]);
+  pool.close(relayList);
   return responses;
 }
 
@@ -410,8 +454,8 @@ export async function fetchPublicForms() {
     content: V1FormSpec;
     pubkey: string;
   };
-  let kind0s = await pool.list(relays, [filter]);
-  pool.close(relays);
+  let kind0s = await pool.list(defaultRelays, [filter]);
+  pool.close(defaultRelays);
   let templates: IPublicForm[] = kind0s
     .map((kind0) => {
       let template = null;
@@ -426,13 +470,23 @@ export async function fetchPublicForms() {
 }
 
 export async function fetchProfiles(pubkeys: Array<string>) {
+  const nprofileNpubMap: { [keys: string]: string } = {};
+  let newPubkeys = pubkeys.map((npub) => {
+    if (npub.startsWith("nprofile")) {
+      const { pubkey: profilePubkey } = nip19.decode(npub)
+        .data as ProfilePointer;
+      nprofileNpubMap[npub] = profilePubkey;
+      return profilePubkey;
+    }
+    return npub;
+  });
   const pool = new SimplePool();
   const filter = {
     kinds: [0],
-    authors: pubkeys,
+    authors: newPubkeys,
   };
-  let kind0s = await pool.list(relays, [filter]);
-  pool.close(relays);
+  let kind0s = await pool.list(defaultRelays, [filter]);
+  pool.close(defaultRelays);
   let kind0sMap = kind0s.reduce(
     (map: { [key: string]: { name: string } }, kind0) => {
       let name = "";
@@ -448,7 +502,9 @@ export async function fetchProfiles(pubkeys: Array<string>) {
   );
   let authors = pubkeys.reduce(
     (acc: { [key: string]: { name: string } }, p: string) => {
-      acc[p] = kind0sMap[p] || {
+      let pub = p;
+      if (nprofileNpubMap[p]) pub = nprofileNpubMap[p];
+      acc[p] = kind0sMap[pub] || {
         name: "Anon(" + nip19.npubEncode(p).slice(0, 10) + "..)",
       };
       return acc;
@@ -547,13 +603,16 @@ export const sendNotification = async (
       id: getEventHash(baseKind4Event),
       sig: getSignature(baseKind4Event, newSk),
     };
-    pool.publish(relays, kind4Event);
+    pool.publish(defaultRelays, kind4Event);
   });
-  pool.close(relays);
+  pool.close(defaultRelays);
 };
 
-export const getFormResponses = async (formSecret: string) => {
-  const formId = getPublicKey(formSecret);
+export const getFormResponses = async (
+  formSecret: string,
+  nprofile?: string | null
+) => {
+  let formId = nprofile ? nprofile : getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);
   type ResponseType = {
     responses: Array<FormResponse>;
@@ -632,6 +691,6 @@ export const syncFormsOnNostr = async (
   let nip51event: typeof baseNip51Event & { id: string; sig: string };
   nip51event = await signEvent(baseNip51Event, null);
   const pool = new SimplePool();
-  pool.publish(relays, nip51event);
-  pool.close(relays);
+  pool.publish(defaultRelays, nip51event);
+  pool.close(defaultRelays);
 };

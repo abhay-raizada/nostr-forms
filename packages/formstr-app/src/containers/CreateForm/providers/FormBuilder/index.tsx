@@ -7,8 +7,8 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
-import { generateQuestion } from "../../utils";
-import { createForm } from "@formstr/sdk";
+import { areArraysSame, generateQuestion } from "../../utils";
+import { createForm, getDefaultRelays } from "@formstr/sdk";
 import {
   LOCAL_STORAGE_KEYS,
   getItem,
@@ -50,14 +50,16 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   selectedTab: HEADER_MENU_KEYS.BUILDER,
   setSelectedTab: (tab: string) => "",
   bottomElementRef: null,
+  relayList: [],
+  setRelayList: (relayList: { url: string; tempId: string }[]) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
   titleImageUrl:
     "https://images.pexels.com/photos/733857/pexels-photo-733857.jpeg",
   description:
-    "This is where the description of your form will appear! You can" +
-    " tap anywhere on the form to edit it, including this description.",
+    "This is the description, you can use markdown while editing it!" +
+    " tap anywhere on the form to edit, including this description.",
   thankYouPage: true,
 };
 
@@ -82,6 +84,11 @@ export default function FormBuilderProvider({
     "This is the title of your form! Tap to edit."
   );
   const bottomElement = useRef<HTMLDivElement>(null);
+  const [relayList, setRelayList] = useState(
+    getDefaultRelays().map((relay) => {
+      return { url: relay, tempId: makeTag(6) };
+    })
+  );
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
@@ -149,7 +156,16 @@ export default function FormBuilderProvider({
     if (formSettings.publicForm === true) {
       tags = [["l", "formstr"]];
     }
-    const formCreds = await createForm(formToSave, false, null, tags);
+    let relayUrls = relayList.map((relay) => relay.url);
+
+    const formCreds = await createForm(
+      formToSave,
+      false,
+      null,
+      tags,
+      relayUrls,
+      !areArraysSame(relayUrls, getDefaultRelays())
+    );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
     storeLocally(formCreds);
@@ -272,6 +288,8 @@ export default function FormBuilderProvider({
         selectedTab,
         setSelectedTab,
         bottomElementRef: bottomElement,
+        relayList,
+        setRelayList,
       }}
     >
       {children}

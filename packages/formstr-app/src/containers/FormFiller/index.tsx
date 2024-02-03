@@ -20,6 +20,7 @@ import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../../utils/localStorage";
 import { ISubmission } from "../MyForms/components/Submissions/submissions.types";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
+import Markdown from "react-markdown";
 
 const { Text } = Typography;
 
@@ -152,7 +153,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             )}
             {!hideDescription && (
               <div className="form-description">
-                <Text>{settings?.description}</Text>
+                <Text>
+                  <Markdown>{settings?.description}</Markdown>
+                </Text>
               </div>
             )}
 
