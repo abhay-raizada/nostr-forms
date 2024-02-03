@@ -1396,19 +1396,6 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.53.0.tgz#bea56f2ed2b5baea164348ff4d5a879f6f81f20d"
   integrity sha512-Kn7K8dx/5U6+cT1yEhpX1w4PCSg0M+XyRILPgvwcEBjerFWCwQj5sbr3/VmxqV0JGHCBCzyd6LxypEuehypY1w==
 
-"@formstr/sdk@^0.0.2-pre":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@formstr/sdk/-/sdk-0.0.2.tgz#daffd2da47a9168873aeea086158a64c2787ab87"
-  integrity sha512-YuRAK1PdAjGpv6oOlAX5GmIP3fXiWCAiKoLOFZZ6CRWu+6X0ngsRFSxIdXh9Jj4ZDNnxQ64dFblFww7pqFrWiw==
-  dependencies:
-    "@types/jest" "^29.5.8"
-    "@types/node" "^16.7.13"
-    jest "^29.7.0"
-    jsonschema "^1.4.1"
-    nostr-tools "^1.17.0"
-    ts-jest "^29.1.1"
-    typescript "^5.2.2"
-
 "@humanwhocodes/config-array@^0.11.13":
   version "0.11.13"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.13.tgz#075dc9684f40a531d9b26b0822153c1e832ee297"

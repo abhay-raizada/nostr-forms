@@ -4,7 +4,7 @@
   "homepage": "https://formstr.app",
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
-    "@formstr/sdk": "^0.0.2-pre",
+    "@formstr/sdk": "^0.0.4-alpha",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
