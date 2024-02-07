@@ -1,8 +1,9 @@
 import { ROUTES } from "../configs/routes";
 import { MY_FORM_MENU_KEYS } from "../configs/constants";
+import {log} from "../../../utils/logger";
 
 export const getSelectedKey = (location: any) => {
-  console.log("location got was", location.pathname);
+  log("location got was", location.pathname);
   if (location.pathname.includes(ROUTES.DRAFTS)) {
     return MY_FORM_MENU_KEYS.DRAFTS;
   }

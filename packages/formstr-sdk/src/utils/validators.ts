@@ -13,7 +13,7 @@ export async function getResponseSchema(version: string): Promise<Schema> {
 
 export function isValidSpec(
   formSchema: Schema,
-  formSpec: unknown
+  formSpec: unknown,
 ): formSchema is FormSpec {
   const v = new Validator();
   v.validate(formSpec, formSchema, {
@@ -24,6 +24,6 @@ export function isValidSpec(
 
 export function isValidResponse(responseSchema: Schema, response: unknown) {
   const v = new Validator();
-  let result = v.validate(response, responseSchema);
+  const result = v.validate(response, responseSchema);
   return result.valid;
 }
