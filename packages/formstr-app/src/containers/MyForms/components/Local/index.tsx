@@ -71,7 +71,6 @@ const COLUMNS = [
 
 function Local() {
   let localForms = useLocalStorageItems<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
-  console.log(localForms)
   localForms = localForms.map((form) => ({
     ...form,
     storageId: form.key,

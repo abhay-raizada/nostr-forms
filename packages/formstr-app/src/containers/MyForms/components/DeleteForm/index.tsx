@@ -1,5 +1,5 @@
 import {IDeleteFormsLocal, IDeleteFormsTrigger} from "./types";
-import {DeleteFilled} from "@ant-design/icons";
+import {DeleteOutlined} from "@ant-design/icons";
 import {Button, Modal} from "antd";
 import {useState} from "react";
 import {getItem, LOCAL_STORAGE_KEYS, setItem} from "../../../../utils/localStorage";
@@ -25,7 +25,7 @@ function DeleteFormTrigger({formId, type}: Optional<IDeleteFormsTrigger, "onDele
     return <>
         <Button type={'text'} onClick={(e) => {
         updateDeleteConfirmationOpen(true)
-        }}><DeleteFilled /></Button>
+        }}><DeleteOutlined /></Button>
         {deleteConfirmationOpen && type ==='local' &&
             <DeleteConfirmationLocal
                 formId={formId}
