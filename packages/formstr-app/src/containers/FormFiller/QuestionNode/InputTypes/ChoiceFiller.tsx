@@ -16,6 +16,8 @@ import {
   RefAttributes,
   MemoExoticComponent,
 } from "react";
+import Markdown from "react-markdown";
+import ChoiceFillerStyle from "./choiceFiller.style";
 
 interface ChoiceFillerProps {
   answerType: AnswerTypes;
@@ -63,19 +65,21 @@ export const ChoiceFiller: React.FC<ChoiceFillerProps> = ({
   }
   return (
     //@ts-ignore
-    <ChoiceElement.Group
-      onChange={handleChoiceChange}
-      defaultValue={defaultValueToUse}
-    >
-      <Space direction="vertical">
-        {answerSettings.choices?.map((choice) => {
-          return (
-            <ChoiceElement key={choice.choiceId} value={choice.choiceId}>
-              {choice.label}
-            </ChoiceElement>
-          );
-        })}
-      </Space>
-    </ChoiceElement.Group>
+    <ChoiceFillerStyle>
+      <ChoiceElement.Group
+        onChange={handleChoiceChange}
+        defaultValue={defaultValueToUse as any}
+      >
+        <Space direction="vertical">
+          {answerSettings.choices?.map((choice) => {
+            return (
+              <ChoiceElement key={choice.choiceId} value={choice.choiceId}>
+                <Markdown>{choice.label}</Markdown>
+              </ChoiceElement>
+            );
+          })}
+        </Space>
+      </ChoiceElement.Group>
+    </ChoiceFillerStyle>
   );
 };
