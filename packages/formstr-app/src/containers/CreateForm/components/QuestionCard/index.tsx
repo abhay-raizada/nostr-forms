@@ -27,7 +27,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   const answerSettings = question.answerSettings;
   const { setQuestionIdInFocus } = useFormBuilderContext();
 
-  const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    event.stopPropagation();
     onEdit({ ...question, question: event.target.value }, question.tempId);
   };
 
@@ -64,11 +65,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         <div className="question-text">
           <QuestionTextStyle>
             <label>
-              <Input
+              <Input.TextArea
+                className="question-input"
                 onChange={handleTextChange}
                 defaultValue={question.question || "Click to edit"}
                 placeholder="Enter a Question"
-                className="question-input"
+                autoSize
               />
             </label>
           </QuestionTextStyle>
