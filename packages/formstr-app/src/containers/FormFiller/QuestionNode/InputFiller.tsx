@@ -61,7 +61,7 @@ export const InputFiller: React.FC<InputFillerProps> = ({
       ),
       [AnswerTypes.radioButton]: (
         <ChoiceFiller
-          answerType={answerType}
+          answerType={answerType as AnswerTypes.radioButton}
           answerSettings={answerSettings}
           defaultValue={defaultValue as string}
           onChange={handleValueChange}
@@ -70,7 +70,7 @@ export const InputFiller: React.FC<InputFillerProps> = ({
       [AnswerTypes.checkboxes]: (
         <ChoiceFiller
           defaultValue={defaultValue as string}
-          answerType={answerType}
+          answerType={answerType as AnswerTypes.checkboxes}
           answerSettings={answerSettings}
           onChange={handleValueChange}
         />
