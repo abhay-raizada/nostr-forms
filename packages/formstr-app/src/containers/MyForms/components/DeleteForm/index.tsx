@@ -23,7 +23,7 @@ function DeleteConfirmationLocal({
   };
   return (
     <Modal
-      title={"Are you sure you want to delete this form from device storage?"}
+      title={"Are you sure you want to delete this form from your device?"}
       open
       onOk={onDeleteForm}
       onCancel={onCancel}
