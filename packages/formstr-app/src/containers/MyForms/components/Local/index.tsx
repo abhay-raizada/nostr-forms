@@ -2,7 +2,11 @@ import { Button, Modal, Spin, Table } from "antd";
 import EmptyScreen from "../../../../components/EmptyScreen";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
 import { ILocalForm } from "./typeDefs";
-import {LOCAL_STORAGE_KEYS, getItem, useLocalStorageItems} from "../../../../utils/localStorage";
+import {
+  LOCAL_STORAGE_KEYS,
+  getItem,
+  useLocalStorageItems,
+} from "../../../../utils/localStorage";
 import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
@@ -12,7 +16,7 @@ import {
   constructResponseUrl,
   syncFormsOnNostr,
 } from "@formstr/sdk";
-import {SyncOutlined} from "@ant-design/icons";
+import { SyncOutlined } from "@ant-design/icons";
 import DeleteForm from "../DeleteForm";
 
 const COLUMNS = [
@@ -33,9 +37,9 @@ const COLUMNS = [
   },
   {
     key: "publicKey",
-    title: "Form Url",
+    title: isMobile() ? "Form" : "Form Url",
     dataIndex: "publicKey",
-    width: isMobile() ? 25 : 30,
+    width: isMobile() ? 20 : 30,
     ellipsis: true,
     render: (publicKey: string) => {
       let link = constructFormUrl(publicKey, window.location.origin);
@@ -46,7 +50,7 @@ const COLUMNS = [
     key: "privateKey",
     title: "Response Url",
     dataIndex: "formCredentials",
-    width: isMobile() ? 25 : 30,
+    width: isMobile() ? 20 : 30,
     ellipsis: true,
     render: (formCredentials: string) => {
       let link = constructResponseUrl(
@@ -59,18 +63,28 @@ const COLUMNS = [
   },
   {
     key: "actions",
-    title:"Actions",
+    title: "Actions",
     ellipsis: true,
     dataIndex: "storageId",
-    width: 10,
+    width: isMobile() ? 20 : 30,
     render: (storageId: string, ...args: any[]) => {
-      return <div tabIndex={0} onClick={(e) => {e.stopPropagation()}}><DeleteForm type={"local"} formId={storageId} /></div>
-    }
-  }
+      return (
+        <div
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <DeleteForm type={"local"} formId={storageId} />
+        </div>
+      );
+    },
+  },
 ];
 
 function Local() {
-  let localForms = useLocalStorageItems<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
+  let localForms =
+    useLocalStorageItems<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
   localForms = localForms.map((form) => ({
     ...form,
     storageId: form.key,
