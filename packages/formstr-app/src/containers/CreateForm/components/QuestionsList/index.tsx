@@ -7,7 +7,6 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { ChangeEvent } from "react";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
-import { isMobile, isTablet } from "../../../../utils/utility";
 
 export const QuestionsList = () => {
   const {
@@ -79,7 +78,7 @@ export const QuestionsList = () => {
               <Reorder.Item
                 value={question}
                 key={question.tempId}
-                dragListener={!(isMobile() || isTablet())}
+                dragListener={false}
               >
                 <QuestionCard
                   question={question}

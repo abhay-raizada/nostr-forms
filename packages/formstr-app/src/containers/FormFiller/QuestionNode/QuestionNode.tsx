@@ -1,6 +1,7 @@
 import { V1Field } from "@formstr/sdk/dist/interfaces";
 import { Card, Divider } from "antd";
 import { InputFiller } from "./InputFiller";
+import Markdown from "react-markdown";
 
 interface QuestionProps {
   field: V1Field;
@@ -21,11 +22,9 @@ export const QuestionNode: React.FC<QuestionProps> = ({
 
   return (
     <Card type="inner" className="filler-question">
-      <div>
-        <label>
-          {required && <span style={{ color: "#ea8dea" }}>* &nbsp;</span>}
-          {field.question}
-        </label>
+      {required && <span style={{ color: "#ea8dea" }}>* &nbsp;</span>}
+      <div className="question-text">
+        <Markdown>{field.question}</Markdown>
       </div>
       <Divider />
       <InputFiller
