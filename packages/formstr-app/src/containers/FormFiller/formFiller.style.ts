@@ -91,4 +91,11 @@ export default styled.div<{
     align-items: center;
     justify-content: center;
   }
+
+  .question-text {
+    img {
+      max-width: 40%;
+      height: auto;
+    }
+  }
 `;

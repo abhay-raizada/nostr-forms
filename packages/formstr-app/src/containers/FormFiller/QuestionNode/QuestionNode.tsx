@@ -22,11 +22,9 @@ export const QuestionNode: React.FC<QuestionProps> = ({
 
   return (
     <Card type="inner" className="filler-question">
+      {required && <span style={{ color: "#ea8dea" }}>* &nbsp;</span>}
       <div className="question-text">
-        <label>
-          {required && <span style={{ color: "#ea8dea" }}>* &nbsp;</span>}
-          <Markdown>{field.question}</Markdown>
-        </label>
+        <Markdown>{field.question}</Markdown>
       </div>
       <Divider />
       <InputFiller
