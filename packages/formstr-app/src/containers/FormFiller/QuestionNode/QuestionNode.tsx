@@ -2,6 +2,7 @@ import { V1Field } from "@formstr/sdk/dist/interfaces";
 import { Card, Divider } from "antd";
 import { InputFiller } from "./InputFiller";
 import Markdown from "react-markdown";
+import { AnswerTypes } from "../../../constants";
 
 interface QuestionProps {
   field: V1Field;
@@ -26,7 +27,7 @@ export const QuestionNode: React.FC<QuestionProps> = ({
       <div className="question-text">
         <Markdown>{field.question}</Markdown>
       </div>
-      <Divider />
+      {field.answerType === AnswerTypes.label ? null : <Divider />}
       <InputFiller
         answerType={field.answerType}
         answerSettings={field.answerSettings}

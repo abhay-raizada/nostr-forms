@@ -97,5 +97,7 @@ export default styled.div<{
       max-width: 40%;
       height: auto;
     }
+    word-wrap: break-word;
+    overflow: auto;
   }
 `;
