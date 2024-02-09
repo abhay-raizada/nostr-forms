@@ -44,9 +44,7 @@ describe("constructFormUrl function", () => {
 
   test("Construct URL with an empty public key throws an error", () => {
     const publicKey = "";
-    expect(() => constructFormUrl(publicKey)).toThrowError(
-      "public key is required"
-    );
+    expect(() => constructFormUrl(publicKey)).toThrow("public key is required");
   });
 });
 
@@ -60,8 +58,8 @@ describe("constructResponseUrl function", () => {
 
   test("Construct URL with an empty private key throws an error", () => {
     const privateKey = "";
-    expect(() => constructResponseUrl(privateKey)).toThrowError(
-      "public key is required"
+    expect(() => constructResponseUrl(privateKey)).toThrow(
+      "public key is required",
     );
   });
 });

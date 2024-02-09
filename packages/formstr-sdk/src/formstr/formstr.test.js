@@ -27,7 +27,7 @@ jest.mock("nostr-tools", () => {
         }),
         list: jest.fn((relays) => {
           return new Promise((resolve) =>
-            resolve([{ content: '{"name": "test"}' }])
+            resolve([{ content: '{"name": "test"}' }]),
           );
         }),
         close: jest.fn(),
@@ -54,7 +54,7 @@ const mockWindow = {
       encrypt: jest.fn(),
       decrypt: jest.fn(() => {
         return new Promise((resolve) =>
-          resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+          resolve(JSON.stringify([["form", ["pub", "priv"]]])),
         );
       }),
     },
@@ -72,7 +72,7 @@ beforeEach(() => {
     encrypt: jest.fn(),
     decrypt: jest.fn(() => {
       return new Promise((resolve) =>
-        resolve(JSON.stringify([["form", ["pub", "priv"]]]))
+        resolve(JSON.stringify([["form", ["pub", "priv"]]])),
       );
     }),
   };
@@ -139,7 +139,7 @@ test("throws error if bad answer type is added", async () => {
         { question: "Short question", answerType: AnswerTypes.shortText },
         { question: "Wrong question", answerType: "i don't exist" },
       ],
-    })
+    }),
   ).rejects.toThrow(Error);
 });
 
@@ -154,7 +154,7 @@ test("saves form on nostr if flag is set", async () => {
       name: "vale",
       schemaVersion: "v1",
     },
-    true
+    true,
   );
   expect(spy).toHaveBeenCalledTimes(1);
 });
@@ -259,8 +259,8 @@ describe("getFormTemplate", () => {
                     },
                   ],
                 }),
-              })
-            )
+              }),
+            ),
         ),
         close: jest.fn(),
       };
@@ -305,8 +305,8 @@ describe("getFormTemplate", () => {
                     },
                   ],
                 }),
-              })
-            )
+              }),
+            ),
         ),
         close: jest.fn(),
       };
@@ -395,7 +395,7 @@ describe("sendResponses", () => {
     const userSecretKey = null;
 
     await expect(
-      formstr.sendResponses(formId, responses, true, userSecretKey)
+      formstr.sendResponses(formId, responses, true, userSecretKey),
     ).rejects.toThrow();
   });
 
@@ -428,8 +428,8 @@ describe("getFormResponses", () => {
                   content: "gibberish",
                   pubkey: "Some key",
                 },
-              ])
-            )
+              ]),
+            ),
         ),
         close: jest.fn(),
       };
@@ -440,8 +440,8 @@ describe("getFormResponses", () => {
     decrypt: jest.fn(
       () =>
         new Promise((resolve) =>
-          resolve(JSON.stringify({ questionId: "234ed", answer: "sada" }))
-        )
+          resolve(JSON.stringify({ questionId: "234ed", answer: "sada" })),
+        ),
     ),
   };
   it("should return valid responses", async () => {
@@ -472,7 +472,7 @@ describe("getFormResponses", () => {
             tag: "123456",
             answerType: "string",
             inputValue: "Hello",
-          })
+          }),
         );
       });
     });
@@ -511,8 +511,8 @@ describe("getFormResponses", () => {
                   content: "gibberish",
                   pubkey: "Some key2",
                 },
-              ])
-            )
+              ]),
+            ),
         ),
         close: jest.fn(),
       };

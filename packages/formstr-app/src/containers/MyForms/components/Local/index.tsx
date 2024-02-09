@@ -2,7 +2,7 @@ import { Button, Modal, Spin, Table } from "antd";
 import EmptyScreen from "../../../../components/EmptyScreen";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
 import { ILocalForm } from "./typeDefs";
-import { LOCAL_STORAGE_KEYS, getItem } from "../../../../utils/localStorage";
+import {LOCAL_STORAGE_KEYS, getItem, useLocalStorageItems} from "../../../../utils/localStorage";
 import { makeTag, isMobile } from "../../../../utils/utility";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "./FormDetails";
@@ -12,7 +12,8 @@ import {
   constructResponseUrl,
   syncFormsOnNostr,
 } from "@formstr/sdk";
-import { SyncOutlined } from "@ant-design/icons";
+import {SyncOutlined} from "@ant-design/icons";
+import DeleteForm from "../DeleteForm";
 
 const COLUMNS = [
   {
@@ -56,12 +57,23 @@ const COLUMNS = [
       return <ResponsiveLink link={link} />;
     },
   },
+  {
+    key: "actions",
+    title:"Actions",
+    ellipsis: true,
+    dataIndex: "storageId",
+    width: 10,
+    render: (storageId: string, ...args: any[]) => {
+      return <div tabIndex={0} onClick={(e) => {e.stopPropagation()}}><DeleteForm type={"local"} formId={storageId} /></div>
+    }
+  }
 ];
 
 function Local() {
-  let localForms = getItem<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
+  let localForms = useLocalStorageItems<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
   localForms = localForms.map((form) => ({
     ...form,
+    storageId: form.key,
     key: makeTag(6),
     formCredentials: [form.publicKey, form.privateKey],
   }));
