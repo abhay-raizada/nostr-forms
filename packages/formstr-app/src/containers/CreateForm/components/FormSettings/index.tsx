@@ -1,4 +1,4 @@
-import { Divider, Switch, Typography } from "antd";
+import { Divider, Switch, Tooltip, Typography } from "antd";
 import StyleWrapper from "./style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import TitleImage from "./TitleImage";
@@ -34,10 +34,12 @@ function FormSettings() {
       </div>
       <Divider className="divider" />
       <div className="form-setting">
-        <div className="property-setting">
-          <Text className="property-text">Public Form</Text>
-          <Switch onChange={handlePublicForm} />
-        </div>
+        <Tooltip title="This will make the form appear on the Public Forms section on formstr">
+          <div className="property-setting">
+            <Text className="property-text">Show in public feed</Text>
+            <Switch onChange={handlePublicForm} />
+          </div>
+        </Tooltip>
       </div>
       <Divider className="divider" />
       <div className="form-setting">
