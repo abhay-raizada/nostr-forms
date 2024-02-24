@@ -10,8 +10,8 @@ export default styled.div<{
     width: 60%;
     margin: 0 auto 0 auto;
     ${MEDIA_QUERY_MOBILE} {
-      width: 100%;
-      padding: 0;
+      width: calc(100% - 32px);
+      padding: 0 16px;
     }
   }
 
