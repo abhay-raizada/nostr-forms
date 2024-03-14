@@ -31,6 +31,7 @@ import {
   FormResponse,
 } from "../interfaces";
 import { ProfilePointer } from "nostr-tools/lib/types/nip19";
+import { decryptFormContentAes, encryptFormContentAes } from "../utils/utils";
 
 declare global {
   // TODO: make this better
@@ -38,16 +39,16 @@ declare global {
     nostr: {
       getPublicKey: () => Promise<string>;
       signEvent: <Event>(
-        event: Event
+        event: Event,
       ) => Promise<Event & { id: string; sig: string }>;
       nip04: {
         encrypt: (
           pubKey: string,
-          message: string
+          message: string,
         ) => ReturnType<typeof nip04.encrypt>;
         decrypt: (
           pubkey: string,
-          nessage: string
+          nessage: string,
         ) => ReturnType<typeof nip04.decrypt>;
       };
     };
@@ -163,6 +164,15 @@ export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
     if (formVersion === "v0") {
       formTemplate = convertV1Form(formTemplate);
     }
+    if (formTemplate?.metadata?.encryption === "aes") {
+      const formPassword = "7364872yr823hd8h8";
+      formTemplate = {
+        ...formTemplate,
+        fields: JSON.parse(
+          decryptFormContentAes(formTemplate.fields, formPassword),
+        ),
+      };
+    }
   } else {
     throw Error("Form template not found");
   }
@@ -178,14 +188,14 @@ function checkWindowNostr() {
 async function encryptMessage(
   message: string,
   receiverPublicKey: string,
-  senderSecretKey: string | null
+  senderSecretKey: string | null,
 ) {
   let ciphertext;
   if (senderSecretKey) {
     ciphertext = await nip04.encrypt(
       senderSecretKey,
       receiverPublicKey,
-      message
+      message,
     );
   } else {
     checkWindowNostr();
@@ -196,7 +206,7 @@ async function encryptMessage(
 
 async function decryptPastForms(
   ciphertext: string,
-  userSecretKey: string | null
+  userSecretKey: string | null,
 ) {
   const publicKey = await getUserPublicKey(userSecretKey);
   let decryptedForms;
@@ -250,7 +260,7 @@ export async function getPastUserForms<
     return saveEvent as FormStructure[];
   const decryptedForms = await decryptPastForms(
     saveEvent[0].content,
-    userSecretKey
+    userSecretKey,
   );
   return JSON.parse(decryptedForms) as FormStructure[];
 }
@@ -259,10 +269,10 @@ export const getDecoratedPastForms = async () => {
   const userPublicKey = await getUserPublicKey(null);
   const pastForms: Array<string | Array<string>> = await getPastUserForms(
     userPublicKey,
-    null
+    null,
   );
   const formTemplates = await fetchProfiles(
-    pastForms.map((form) => form[1][0])
+    pastForms.map((form) => form[1][0]),
   );
   return pastForms.map((form) => {
     const formId = form[1][0];
@@ -274,7 +284,7 @@ export const getDecoratedPastForms = async () => {
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
-  userSecretKey: string | null = null
+  userSecretKey: string | null = null,
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
   let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
@@ -286,7 +296,7 @@ export const saveFormOnNostr = async (
   const ciphertext = await encryptMessage(
     message,
     userPublicKey,
-    userSecretKey
+    userSecretKey,
   );
   const baseNip51Event = {
     kind: 30001,
@@ -310,7 +320,7 @@ export const createForm = async (
   userSecretKey: string | null = null,
   tags: Array<string[]> = [],
   relayList: Array<string> = defaultRelays,
-  encodeProfile = false
+  encodeProfile = false,
 ) => {
   const pool = new SimplePool();
   const formSecret = generatePrivateKey();
@@ -320,9 +330,21 @@ export const createForm = async (
   } catch (e) {
     throw Error("Invalid form spec" + e);
   }
+  const formPassword = "7364872yr823hd8h8";
   const v1form = generateIds(form);
-  const content = JSON.stringify(v1form);
-
+  const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
+    fields: string;
+  } = {
+    ...v1form,
+    metadata: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      ...v1form.metadata,
+      encryption: "aes",
+    },
+    fields: encryptFormContentAes(JSON.stringify(v1form.fields), formPassword),
+  };
+  const content = JSON.stringify(formWithEncryptedContent);
   const baseKind0Event: Event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
@@ -357,7 +379,7 @@ export const sendResponses = async (
   formId: string,
   responses: Array<V1Submission>,
   anonymous: boolean,
-  userSecretKey: string | null = null
+  userSecretKey: string | null = null,
 ) => {
   let formIdPubkey = formId;
   let relayList = defaultRelays;
@@ -372,7 +394,7 @@ export const sendResponses = async (
   responses.forEach((response) => {
     if (!questionIds.includes(response.questionId)) {
       throw Error(
-        `No such question ID: ${response.questionId} found in the template`
+        `No such question ID: ${response.questionId} found in the template`,
       );
     }
   });
@@ -500,7 +522,7 @@ export async function fetchProfiles(pubkeys: Array<string>) {
       map[kind0.pubkey] = { name };
       return map;
     },
-    {}
+    {},
   );
   const authors = pubkeys.reduce(
     (acc: { [key: string]: { name: string } }, p: string) => {
@@ -511,14 +533,14 @@ export async function fetchProfiles(pubkeys: Array<string>) {
       };
       return acc;
     },
-    {}
+    {},
   );
   return authors;
 }
 
 function fillData(
   response: Array<V1Response>,
-  questionMap: { [key: string]: V1Field }
+  questionMap: { [key: string]: V1Field },
 ) {
   return response.map((questionResponse: V1Response) => {
     const question = questionMap[questionResponse.questionId];
@@ -530,7 +552,7 @@ function fillData(
     questionResponse.questionLabel = question.question;
     questionResponse.displayAnswer = getDisplayAnswer(
       questionResponse.answer,
-      question
+      question,
     );
     return questionResponse;
   });
@@ -539,7 +561,7 @@ function fillData(
 async function getParsedResponse(
   response: string,
   questionMap: { [key: string]: V1Field },
-  createdAt: number
+  createdAt: number,
 ) {
   let parsedResponse;
   try {
@@ -571,7 +593,7 @@ function createQuestionMap(formTemplate: V1FormSpec) {
 
 const getDisplayAnswer = (
   answer: string | number | boolean,
-  field: V1Field
+  field: V1Field,
 ) => {
   return (
     field.answerSettings.choices
@@ -586,7 +608,7 @@ const getDisplayAnswer = (
 
 export const sendNotification = async (
   form: V1FormSpec,
-  response: Array<V1Submission>
+  response: Array<V1Submission>,
 ) => {
   let message = 'New response for form: "' + form.name + '"';
   const questionMap = createQuestionMap(form);
@@ -628,7 +650,7 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
-  nprofile?: string | null
+  nprofile?: string | null,
 ) => {
   const formId = nprofile ? nprofile : getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);
@@ -647,7 +669,7 @@ export const getFormResponses = async (
       decryptedResponse = await nip04.decrypt(
         formSecret,
         response.pubkey,
-        response.content
+        response.content,
       );
     } catch (e) {
       continue;
@@ -655,7 +677,7 @@ export const getFormResponses = async (
     const parsedResponse = await getParsedResponse(
       decryptedResponse,
       questionMap,
-      response.created_at
+      response.created_at,
     );
     if (!parsedResponse) continue;
     let entry = finalResponses[response.pubkey];
@@ -686,7 +708,7 @@ export const getFormResponsesCount = async (formId: string) => {
 };
 
 export const syncFormsOnNostr = async (
-  formCredentialsList: Array<Array<string>>
+  formCredentialsList: Array<Array<string>>,
 ) => {
   const publicKey = await getUserPublicKey(null);
   const pastForms = await getPastUserForms(publicKey);
