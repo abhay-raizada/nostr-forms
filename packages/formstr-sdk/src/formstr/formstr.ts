@@ -1,37 +1,39 @@
 import {
   Event,
-  SimplePool,
   generatePrivateKey,
   getEventHash,
   getPublicKey,
   getSignature,
   nip04,
   nip19,
+  SimplePool,
 } from "nostr-tools";
 import * as utils from "../utils/utils";
 import {
   getResponseSchema,
   getSchema,
-  isValidSpec,
   isValidResponse,
+  isValidSpec,
 } from "../utils/validators";
 import {
+  AnswerSettings,
   AnswerTypes,
+  Errors,
   Field,
+  FormPassword,
+  FormResponse,
   FormSpec,
   V0AnswerTypes,
   V0Field,
   V0FormSpec,
+  V0Response,
   V1Field,
   V1FormSpec,
   V1Response,
-  V0Response,
-  AnswerSettings,
   V1Submission,
-  FormResponse,
 } from "../interfaces";
 import { ProfilePointer } from "nostr-tools/lib/types/nip19";
-import { decryptFormContentAes, encryptFormContentAes } from "../utils/utils";
+import { ENCRYPTION_TYPES, EncryptionConfig } from "../encryption";
 
 declare global {
   // TODO: make this better
@@ -163,15 +165,6 @@ export const getFormTemplate = async (formId: string): Promise<V1FormSpec> => {
     const formVersion = utils.detectFormVersion(formTemplate);
     if (formVersion === "v0") {
       formTemplate = convertV1Form(formTemplate);
-    }
-    if (formTemplate?.metadata?.encryption === "aes") {
-      const formPassword = "7364872yr823hd8h8";
-      formTemplate = {
-        ...formTemplate,
-        fields: JSON.parse(
-          decryptFormContentAes(formTemplate.fields, formPassword),
-        ),
-      };
     }
   } else {
     throw Error("Form template not found");
@@ -330,21 +323,8 @@ export const createForm = async (
   } catch (e) {
     throw Error("Invalid form spec" + e);
   }
-  const formPassword = "7364872yr823hd8h8";
   const v1form = generateIds(form);
-  const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
-    fields: string;
-  } = {
-    ...v1form,
-    metadata: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...v1form.metadata,
-      encryption: "aes",
-    },
-    fields: encryptFormContentAes(JSON.stringify(v1form.fields), formPassword),
-  };
-  const content = JSON.stringify(formWithEncryptedContent);
+  const content = JSON.stringify(v1form);
   const baseKind0Event: Event = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
@@ -733,4 +713,132 @@ export const syncFormsOnNostr = async (
   const pool = new SimplePool();
   pool.publish(defaultRelays, nip51event);
   pool.close(defaultRelays);
+};
+
+export const getFormTemplateWithPassword = async (
+  formId: string,
+  formPassword: FormPassword,
+): Promise<V1FormSpec> => {
+  const pool = new SimplePool();
+  let formIdPubkey = formId;
+  let relayList = defaultRelays;
+  if (formId.startsWith("nprofile")) {
+    const { pubkey, relays } = nip19.decode(formId)
+      .data as nip19.ProfilePointer;
+    formIdPubkey = pubkey;
+    relayList = relays || defaultRelays;
+  }
+  const filter = {
+    kinds: [0],
+    authors: [formIdPubkey], //formId is the npub of the form
+  };
+  const kind0 = await pool.get(relayList, filter);
+  pool.close(relayList);
+  let formTemplate;
+  if (kind0) {
+    formTemplate = JSON.parse(kind0.content);
+    const formVersion = utils.detectFormVersion(formTemplate);
+    if (formVersion === "v0") {
+      formTemplate = convertV1Form(formTemplate);
+    }
+    if (
+      formTemplate?.metadata?.encryption &&
+      formTemplate.metadata.encryption in EncryptionConfig
+    ) {
+      if (!formPassword) {
+        throw new Error(Errors.FORM_PASSWORD_REQUIRED);
+      }
+      try {
+        const formFields = JSON.parse(
+          EncryptionConfig[
+            formTemplate.metadata.encryption as ENCRYPTION_TYPES
+          ].decryptFormContent(formTemplate.fields, formPassword),
+        );
+        formTemplate = {
+          ...formTemplate,
+          fields: formFields,
+        };
+      } catch {
+        throw new Error(Errors.WRONG_PASSWORD);
+      }
+    }
+  } else {
+    throw Error("Form template not found");
+  }
+  return formTemplate;
+};
+
+export const createFormWithPassword = async (
+  form: FormSpec,
+  formPassword: FormPassword,
+  saveOnNostr = false,
+  userSecretKey: string | null = null,
+  tags: Array<string[]> = [],
+  relayList: Array<string> = defaultRelays,
+  encodeProfile = false,
+  encryptionType: ENCRYPTION_TYPES = ENCRYPTION_TYPES.AES,
+) => {
+  if (!formPassword) {
+    return createForm(
+      form,
+      saveOnNostr,
+      userSecretKey,
+      tags,
+      relayList,
+      encodeProfile,
+    );
+  }
+  const pool = new SimplePool();
+  const formSecret = generatePrivateKey();
+  const formId = getPublicKey(formSecret);
+  try {
+    isValidSpec(await getSchema("v1"), form);
+  } catch (e) {
+    throw Error("Invalid form spec" + e);
+  }
+  const v1form = generateIds(form);
+  const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
+    fields: string;
+  } = {
+    ...v1form,
+    metadata: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      ...v1form.metadata,
+      encryption: encryptionType,
+    },
+    fields: EncryptionConfig[encryptionType].encryptFormContent(
+      JSON.stringify(v1form.fields),
+      formPassword,
+    ),
+  };
+  const content = JSON.stringify(formWithEncryptedContent);
+  const baseKind0Event: Event = {
+    kind: 0,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: tags,
+    content: content,
+    pubkey: formId,
+    id: "",
+    sig: "",
+  };
+  const kind0Event: Event = {
+    ...baseKind0Event,
+    id: getEventHash(baseKind0Event),
+    sig: getSignature(baseKind0Event, formSecret),
+  };
+  pool.publish(relayList, kind0Event);
+  let useId = formId;
+  if (encodeProfile) {
+    useId = nip19.nprofileEncode({
+      pubkey: formId,
+      relays: relayList,
+    });
+  }
+  const formCredentials = [useId, formSecret];
+  if (saveOnNostr) {
+    await saveFormOnNostr(formCredentials, userSecretKey);
+  }
+  pool.close(relayList);
+  return formCredentials;
 };

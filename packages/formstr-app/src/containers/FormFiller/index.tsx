@@ -1,14 +1,19 @@
-import { FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
+import { Errors, FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import {
   Link,
+  Location,
   useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
+import {
+  getFormTemplateWithPassword,
+  sendNotification,
+  sendResponses,
+} from "@formstr/sdk";
 import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
@@ -16,11 +21,12 @@ import { getValidationRules } from "./validations";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile, makeTag } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
-import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../../utils/localStorage";
+import { getItem, LOCAL_STORAGE_KEYS, setItem } from "../../utils/localStorage";
 import { ISubmission } from "../MyForms/components/Submissions/submissions.types";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
 import Markdown from "react-markdown";
+import { PasswordInput } from "./PasswordInput";
 
 const { Text } = Typography;
 
@@ -29,11 +35,19 @@ interface FormFillerProps {
   embedded?: boolean;
 }
 
+const getPasswordFromUrl = (location: Location) => {
+  const queryParams = new URLSearchParams(location.search);
+  const password = queryParams.get("password")?.replace(/\/$/, "");
+  return password;
+};
+
 export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
   const { formId } = useParams();
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [password, setPassword] = useState(getPasswordFromUrl(window.location));
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -46,7 +60,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const isPreview = !!formSpec;
 
   const convertFromSpecToTemplate = (formSpec: FormSpec): V1FormSpec => {
-    let fields = formSpec.fields?.map((field) => {
+    const fields = formSpec.fields?.map((field) => {
       return {
         ...field,
         questionId: makeTag(6),
@@ -59,23 +73,33 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       fields,
     };
   };
+  async function getForm() {
+    if (!formTemplate) {
+      if (!formId && !formSpec) {
+        throw Error("Form Id not provided");
+      }
+      let form = null;
+      try {
+        if (formId) form = await getFormTemplateWithPassword(formId, password);
+      } catch (e: any) {
+        if (
+          [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
+            e.message,
+          )
+        ) {
+          setShowPasswordPrompt(true);
+        }
+      }
+      if (formSpec) form = convertFromSpecToTemplate(formSpec);
+
+      if (!form) return;
+      setFormTemplate(form);
+    }
+  }
 
   useEffect(() => {
-    async function getForm() {
-      if (!formTemplate) {
-        if (!formId && !formSpec) {
-          throw Error("Form Id not provided");
-        }
-        let form = null;
-        if (formId) form = await getFormTemplate(formId);
-        if (formSpec) form = convertFromSpecToTemplate(formSpec);
-
-        if (!form) return;
-        setFormTemplate(form);
-      }
-    }
     getForm();
-  }, [formTemplate, formId, formSpec]);
+  }, [formTemplate, formId, formSpec, password]);
 
   if (!formId && !formSpec) {
     return null;
@@ -84,7 +108,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const handleInput = (
     questionId: string,
     answer: string,
-    message?: string
+    message?: string,
   ) => {
     if (!answer || answer === "") {
       form.setFieldValue(questionId, null);
@@ -96,7 +120,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const saveSubmissionLocally = (
     formId: string,
     userId: string,
-    createdAt: string
+    createdAt: string,
   ) => {
     let submissions = getItem<ISubmission[]>(LOCAL_STORAGE_KEYS.SUBMISSIONS);
     if (!submissions) {
@@ -110,8 +134,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     setItem(LOCAL_STORAGE_KEYS.SUBMISSIONS, submissions);
   };
 
-  const saveResponse = async (anonymous: boolean = true) => {
-    let formResponses = form.getFieldsValue(true);
+  const saveResponse = async (anonymous = true) => {
+    const formResponses = form.getFieldsValue(true);
     const response = Object.keys(formResponses).map((key: string) => {
       let answer = null;
       let message = null;
@@ -132,12 +156,26 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     setThankYouScreen(true);
   };
 
+  const onPasswordInput = (enteredPassword: string) => {
+    setPassword(enteredPassword);
+    setShowPasswordPrompt(false);
+  };
+
   let name, settings, fields;
   if (formTemplate) {
     name = formTemplate.name;
     settings = formTemplate.settings;
     fields = formTemplate.fields;
   }
+  if (showPasswordPrompt) {
+    return (
+      <PasswordInput
+        previousPassword={password}
+        onPasswordEnter={onPasswordInput}
+      />
+    );
+  }
+
   return (
     <FillerStyle $isPreview={isPreview}>
       {!formSubmitted && (
@@ -168,14 +206,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             >
               <div>
                 {fields?.map((field) => {
-                  let rules = [
+                  const rules = [
                     {
                       required: field.answerSettings.required,
                       message: "This is a required question",
                     },
                     ...getValidationRules(
                       field.answerType,
-                      field.answerSettings
+                      field.answerSettings,
                     ),
                   ];
                   return (
