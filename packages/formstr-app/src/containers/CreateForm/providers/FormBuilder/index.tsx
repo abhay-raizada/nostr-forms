@@ -5,10 +5,11 @@ import {
   FormSpec,
   IFormSettings,
 } from "@formstr/sdk/dist/interfaces";
+import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { areArraysSame, generateQuestion } from "../../utils";
-import { createForm, getDefaultRelays } from "@formstr/sdk";
+import { createFormWithPassword, getDefaultRelays } from "@formstr/sdk";
 import {
   LOCAL_STORAGE_KEYS,
   getItem,
@@ -81,18 +82,18 @@ export default function FormBuilderProvider({
   const [isRightSettingsOpen, setIsRightSettingsOpen] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [formName, setFormName] = useState<string>(
-    "This is the title of your form! Tap to edit."
+    "This is the title of your form! Tap to edit.",
   );
   const bottomElement = useRef<HTMLDivElement>(null);
   const [relayList, setRelayList] = useState(
     getDefaultRelays().map((relay) => {
       return { url: relay, tempId: makeTag(6) };
-    })
+    }),
   );
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
-    HEADER_MENU_KEYS.BUILDER
+    HEADER_MENU_KEYS.BUILDER,
   );
 
   const toggleSettingsWindow = () => {
@@ -131,15 +132,19 @@ export default function FormBuilderProvider({
     setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
   };
 
-  function storeLocally(formCredentials: Array<string>) {
-    let saveObject: ILocalForm = {
+  function storeLocally(
+    formCredentials: Array<string>,
+    formPassword: string | null,
+  ) {
+    const saveObject: ILocalForm = {
       key: formCredentials[0],
       publicKey: formCredentials[0],
       privateKey: formCredentials[1],
+      formPassword,
       name: formName,
       createdAt: new Date().toString(),
     };
-    let forms =
+    const forms =
       getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
 
     const existingKeys = forms.map((form) => form.publicKey);
@@ -151,25 +156,28 @@ export default function FormBuilderProvider({
   }
 
   const saveForm = async () => {
-    let formToSave = getFormSpec();
+    const formToSave = getFormSpec();
+    let formPassword: string | null = generateRandomPassword();
     let tags: Array<Array<string>> = [];
     if (formSettings.publicForm === true) {
       tags = [["l", "formstr"]];
+      formPassword = null;
     }
-    let relayUrls = relayList.map((relay) => relay.url);
+    const relayUrls = relayList.map((relay) => relay.url);
 
-    const formCreds = await createForm(
+    const formCreds = await createFormWithPassword(
       formToSave,
+      formPassword,
       false,
       null,
       tags,
       relayUrls,
-      !areArraysSame(relayUrls, getDefaultRelays())
+      !areArraysSame(relayUrls, getDefaultRelays()),
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
-    storeLocally(formCreds);
-    navigate("/myForms/local", { state: formCreds });
+    storeLocally(formCreds, formPassword);
+    navigate("/myForms/local", { state: { formCreds, formPassword } });
   };
 
   const saveDraft = () => {
@@ -193,7 +201,7 @@ export default function FormBuilderProvider({
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
-    let editedList = questionsList.map((existingQuestion: IQuestion) => {
+    const editedList = questionsList.map((existingQuestion: IQuestion) => {
       if (existingQuestion.tempId === tempId) {
         return question;
       }
@@ -205,7 +213,7 @@ export default function FormBuilderProvider({
   const addQuestion = (
     answerType?: AnswerTypes,
     label?: string,
-    answerSettings?: AnswerSettings
+    answerSettings?: AnswerSettings,
   ) => {
     setIsLeftMenuOpen(false);
     setQuestionsList([
@@ -235,7 +243,7 @@ export default function FormBuilderProvider({
   };
 
   const updateFormTitleImage = (e: React.FormEvent<HTMLInputElement>) => {
-    let imageUrl = e.currentTarget.value;
+    const imageUrl = e.currentTarget.value;
     if (imageUrl) {
       updateFormSetting({
         titleImageUrl: imageUrl,
@@ -244,7 +252,7 @@ export default function FormBuilderProvider({
   };
 
   const initializeForm = (draft: IDraft) => {
-    let formSpec = draft.formSpec;
+    const formSpec = draft.formSpec;
     setFormName(formSpec.name);
     if (formSpec.settings) setFormSettings(formSpec.settings);
     setQuestionsList(
@@ -253,7 +261,7 @@ export default function FormBuilderProvider({
           ...field,
           tempId: makeTag(6),
         };
-      }) || []
+      }) || [],
     );
     setFormTempId(draft.tempId);
   };

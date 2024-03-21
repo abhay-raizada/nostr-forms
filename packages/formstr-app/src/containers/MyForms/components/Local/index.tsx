@@ -18,6 +18,7 @@ import {
 } from "@formstr/sdk";
 import { SyncOutlined } from "@ant-design/icons";
 import DeleteForm from "../DeleteForm";
+import { FormPassword } from "@formstr/sdk/dist/interfaces";
 
 const COLUMNS = [
   {
@@ -41,8 +42,12 @@ const COLUMNS = [
     dataIndex: "publicKey",
     width: isMobile() ? 20 : 30,
     ellipsis: true,
-    render: (publicKey: string) => {
-      let link = constructFormUrl(publicKey, window.location.origin);
+    render: (publicKey: string, record: ILocalForm) => {
+      const link = constructFormUrl(
+        publicKey,
+        record.formPassword,
+        window.location.origin,
+      );
       return <ResponsiveLink link={link} />;
     },
   },
@@ -53,10 +58,10 @@ const COLUMNS = [
     width: isMobile() ? 20 : 30,
     ellipsis: true,
     render: (formCredentials: string) => {
-      let link = constructResponseUrl(
+      const link = constructResponseUrl(
         formCredentials[1],
         window.location.origin,
-        formCredentials[0]
+        formCredentials[0],
       );
       return <ResponsiveLink link={link} />;
     },
@@ -67,7 +72,7 @@ const COLUMNS = [
     ellipsis: true,
     dataIndex: "storageId",
     width: isMobile() ? 20 : 30,
-    render: (storageId: string, ...args: any[]) => {
+    render: (storageId: string) => {
       return (
         <div
           tabIndex={0}
@@ -92,7 +97,7 @@ function Local() {
     formCredentials: [form.publicKey, form.privateKey],
   }));
 
-  let columns = COLUMNS.filter(({ isDisabled }) => {
+  const columns = COLUMNS.filter(({ isDisabled }) => {
     if (isDisabled && isDisabled()) {
       return false;
     }
@@ -102,7 +107,10 @@ function Local() {
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
   const [showSyncModal, setShowsyncModal] = useState<boolean>(false);
-  const [formCredentials, setFormCredentials] = useState<string[]>([]);
+  const [formCredentials, setFormCredentials] = useState<{
+    formCreds: string[];
+    formPassword: FormPassword;
+  }>({ formPassword: "", formCreds: [] });
 
   useEffect(() => {
     if (state) {
@@ -112,11 +120,11 @@ function Local() {
   }, [state]);
 
   const syncFormsWithNostr = async () => {
-    let localForms =
+    const localForms =
       getItem<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
     setShowsyncModal(true);
     await syncFormsOnNostr(
-      localForms.map((form) => [form.publicKey, form.privateKey])
+      localForms.map((form) => [form.publicKey, form.privateKey]),
     );
     setShowsyncModal(false);
   };
@@ -145,7 +153,10 @@ function Local() {
             return {
               onClick: () => {
                 setShowFormDetails(true);
-                setFormCredentials([record.publicKey, record.privateKey]);
+                setFormCredentials({
+                  formCreds: [record.publicKey, record.privateKey],
+                  formPassword: record.formPassword,
+                });
               },
             };
           }}
@@ -154,7 +165,8 @@ function Local() {
       {!localForms.length && <EmptyScreen />}
       <FormDetails
         isOpen={showFormDetails}
-        formCredentials={formCredentials}
+        formCredentials={formCredentials.formCreds}
+        formPassword={formCredentials.formPassword}
         onClose={() => {
           setShowFormDetails(false);
         }}

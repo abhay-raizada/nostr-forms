@@ -1,6 +1,4 @@
-import { FormSpec, V0FormSpec } from "../interfaces";
-import aesjs from "aes-js";
-import sha256 from "sha256";
+import { FormPassword, FormSpec, V0FormSpec } from "../interfaces";
 
 export function makeTag(length: number) {
   let result = "";
@@ -17,13 +15,16 @@ export function makeTag(length: number) {
 
 export function constructFormUrl(
   publicKey: string,
+  formPassword: FormPassword,
   host: string,
   embedded = false,
 ) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `${host}/#/${embedded ? "embedded" : "fill"}/${publicKey}`;
+  return `${host}?password=${formPassword ?? ""}/#/${
+    embedded ? "embedded" : "fill"
+  }/${publicKey}`;
 }
 export function constructResponseUrl(
   privateKey: string,
@@ -59,26 +60,4 @@ export function detectFormVersion(form: FormSpec & V0FormSpec) {
     return form.schemaLink;
   }
   return "v0";
-}
-
-function generateKeyFromPassword(password: string) {
-  return sha256(password, { asBytes: true });
-}
-export function encryptFormContentAes(formContent: string, password: string) {
-  const key = generateKeyFromPassword(password);
-  const textBytes = aesjs.utils.utf8.toBytes(formContent);
-  const aesCtr = new aesjs.ModeOfOperation.ctr(key);
-  const encryptedBytes = aesCtr.encrypt(textBytes);
-  return aesjs.utils.hex.fromBytes(encryptedBytes);
-}
-
-export function decryptFormContentAes(
-  encryptedFormContent: string,
-  password: string,
-) {
-  const key = generateKeyFromPassword(password);
-  const textBytes = aesjs.utils.hex.toBytes(encryptedFormContent);
-  const aesCtr = new aesjs.ModeOfOperation.ctr(key);
-  const decryptedBytes = aesCtr.decrypt(textBytes);
-  return aesjs.utils.utf8.fromBytes(decryptedBytes);
 }
