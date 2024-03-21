@@ -1,9 +1,10 @@
 import React from "react";
 import { Input, InputRef, Modal, Typography } from "antd";
+import { FormPassword } from "@formstr/sdk/dist/interfaces";
 
 export const PasswordInput: React.FC<{
   onPasswordEnter: (password: string) => void;
-  previousPassword?: string;
+  previousPassword: FormPassword;
 }> = ({ onPasswordEnter, previousPassword }) => {
   const inputRef = React.useRef<InputRef | null>(null);
   return (
@@ -25,7 +26,7 @@ export const PasswordInput: React.FC<{
       <Typography>
         If you dont have the password, please contact the form owner
       </Typography>
-      <Input defaultValue={previousPassword} ref={inputRef} />
+      <Input defaultValue={previousPassword || ""} ref={inputRef} />
     </Modal>
   );
 };

@@ -3,7 +3,6 @@ import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import {
   Link,
-  Location,
   useNavigate,
   useParams,
   useSearchParams,
@@ -37,8 +36,7 @@ interface FormFillerProps {
 
 const getPasswordFromUrl = (location: Location) => {
   const queryParams = new URLSearchParams(location.search);
-  const password = queryParams.get("password")?.replace(/\/$/, "");
-  return password;
+  return queryParams.get("password")?.replace(/\/$/, "") || null;
 };
 
 export const FormFiller: React.FC<FormFillerProps> = ({
