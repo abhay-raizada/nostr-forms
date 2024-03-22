@@ -64,6 +64,10 @@ export default styled.div<{
   .form-description {
     text-align: left;
     padding: 1em;
+    img {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   .submit-button {
