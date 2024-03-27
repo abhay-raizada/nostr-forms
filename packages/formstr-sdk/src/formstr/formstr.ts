@@ -1,36 +1,41 @@
 import {
   Event,
-  SimplePool,
-  generatePrivateKey,
-  getEventHash,
+  finalizeEvent,
+  generateSecretKey,
   getPublicKey,
-  getSignature,
   nip04,
   nip19,
+  nip44,
+  SimplePool,
+  UnsignedEvent,
 } from "nostr-tools";
 import * as utils from "../utils/utils";
 import {
   getResponseSchema,
   getSchema,
-  isValidSpec,
   isValidResponse,
+  isValidSpec,
 } from "../utils/validators";
 import {
+  AnswerSettings,
   AnswerTypes,
+  Errors,
   Field,
+  FormPassword,
+  FormResponse,
   FormSpec,
   V0AnswerTypes,
   V0Field,
   V0FormSpec,
+  V0Response,
   V1Field,
   V1FormSpec,
   V1Response,
-  V0Response,
-  AnswerSettings,
   V1Submission,
-  FormResponse,
 } from "../interfaces";
 import { ProfilePointer } from "nostr-tools/lib/types/nip19";
+import { ENCRYPTION_TYPES, EncryptionConfig } from "../encryption";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 
 declare global {
   // TODO: make this better
@@ -38,17 +43,27 @@ declare global {
     nostr: {
       getPublicKey: () => Promise<string>;
       signEvent: <Event>(
-        event: Event
+        event: Event,
       ) => Promise<Event & { id: string; sig: string }>;
       nip04: {
         encrypt: (
           pubKey: string,
-          message: string
+          message: string,
         ) => ReturnType<typeof nip04.encrypt>;
         decrypt: (
           pubkey: string,
-          nessage: string
+          nessage: string,
         ) => ReturnType<typeof nip04.decrypt>;
+      };
+      nip44: {
+        encrypt: (
+          pubKey: string,
+          message: string
+        ) => ReturnType<typeof nip44.v2.encrypt>;
+        decrypt: (
+          pubkey: string,
+          nessage: string
+        ) => ReturnType<typeof nip44.v2.decrypt>;
       };
     };
   }
@@ -175,10 +190,11 @@ function checkWindowNostr() {
   }
 }
 
-async function encryptMessage(
+export async function encryptMessage(
   message: string,
   receiverPublicKey: string,
-  senderSecretKey: string | null
+  senderSecretKey: Uint8Array | null,
+  encryptionStandard: "nip04" | "nip44" = "nip04"
 ) {
   let ciphertext;
   if (senderSecretKey) {
@@ -189,14 +205,20 @@ async function encryptMessage(
     );
   } else {
     checkWindowNostr();
-    ciphertext = await window.nostr.nip04.encrypt(receiverPublicKey, message);
+    if (encryptionStandard === "nip04") {
+      ciphertext = await window.nostr.nip04.encrypt(receiverPublicKey, message);
+    } else if (encryptionStandard === "nip44") {
+      ciphertext = window.nostr.nip44.encrypt(receiverPublicKey, message);
+    } else {
+      throw "Unidentified encryption standard";
+    }
   }
   return ciphertext;
 }
 
 async function decryptPastForms(
   ciphertext: string,
-  userSecretKey: string | null
+  userSecretKey: Uint8Array | null
 ) {
   const publicKey = await getUserPublicKey(userSecretKey);
   let decryptedForms;
@@ -209,14 +231,13 @@ async function decryptPastForms(
   return decryptedForms;
 }
 
-async function signEvent(baseEvent: Event, userSecretKey: string | null) {
+async function signEvent(
+  baseEvent: UnsignedEvent,
+  userSecretKey: Uint8Array | null
+) {
   let nostrEvent;
   if (userSecretKey) {
-    nostrEvent = {
-      ...baseEvent,
-      id: getEventHash(baseEvent),
-      sig: getSignature(baseEvent, userSecretKey),
-    };
+    nostrEvent = finalizeEvent(baseEvent, userSecretKey);
   } else {
     checkWindowNostr();
     nostrEvent = await window.nostr.signEvent(baseEvent);
@@ -224,7 +245,7 @@ async function signEvent(baseEvent: Event, userSecretKey: string | null) {
   return nostrEvent;
 }
 
-async function getUserPublicKey(userSecretKey: string | null) {
+async function getUserPublicKey(userSecretKey: Uint8Array | null) {
   let userPublicKey;
   if (userSecretKey) {
     userPublicKey = getPublicKey(userSecretKey);
@@ -237,14 +258,14 @@ async function getUserPublicKey(userSecretKey: string | null) {
 
 export async function getPastUserForms<
   FormStructure = Array<string | Array<string>>,
->(userPublicKey: string, userSecretKey: string | null = null) {
+>(userPublicKey: string, userSecretKey: Uint8Array | null = null) {
   const filters = {
     kinds: [30001],
     "#d": ["forms"],
     authors: [userPublicKey],
   };
   const pool = new SimplePool();
-  const saveEvent = await pool.list(defaultRelays, [filters]);
+  const saveEvent = await pool.querySync(defaultRelays, filters);
   pool.close(defaultRelays);
   if (Array.isArray(saveEvent) && !saveEvent.length)
     return saveEvent as FormStructure[];
@@ -262,31 +283,40 @@ export const getDecoratedPastForms = async () => {
     null
   );
   const formTemplates = await fetchProfiles(
-    pastForms.map((form) => form[1][0])
+    pastForms.map((form) => form[1][0]),
   );
   return pastForms.map((form) => {
     const formId = form[1][0];
     const formName = formTemplates[formId]?.name || "Unknown Form";
     const formSecret = form[1][1];
-    return { formId, formName, formSecret };
+    const formPassword: FormPassword = form[1][2] ?? null;
+    return { formId, formName, formSecret, formPassword };
   });
 };
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
-  userSecretKey: string | null = null
+  userSecretKey: Uint8Array | null,
+  formPassword?: string | null,
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
-  let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
+  let pastForms: (string | (string | null)[])[][] = await getPastUserForms(
+    userPublicKey,
+    userSecretKey,
+  );
   if (!Array.isArray(pastForms)) {
     pastForms = [];
   }
-  pastForms.push(["form", formCredentials]);
+  if (!formPassword) {
+    pastForms.push(["form", [...formCredentials, null]]);
+  } else {
+    pastForms.push(["form", [...formCredentials, formPassword]]);
+  }
   const message = JSON.stringify(pastForms);
   const ciphertext = await encryptMessage(
     message,
     userPublicKey,
-    userSecretKey
+    userSecretKey,
   );
   const baseNip51Event = {
     kind: 30001,
@@ -294,11 +324,8 @@ export const saveFormOnNostr = async (
     tags: [["d", "forms"]], //don't overwrite tags reuse previous tags
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
-    id: "",
-    sig: "",
   };
-  let nip51event: typeof baseNip51Event & { id: string; sig: string };
-  nip51event = await signEvent(baseNip51Event, userSecretKey);
+  let nip51event = await signEvent(baseNip51Event, userSecretKey);
   const pool = new SimplePool();
   pool.publish(defaultRelays, nip51event);
   pool.close(defaultRelays);
@@ -307,13 +334,13 @@ export const saveFormOnNostr = async (
 export const createForm = async (
   form: FormSpec,
   saveOnNostr = false,
-  userSecretKey: string | null = null,
+  userSecretKey: Uint8Array | null = null,
   tags: Array<string[]> = [],
   relayList: Array<string> = defaultRelays,
   encodeProfile = false
 ) => {
   const pool = new SimplePool();
-  const formSecret = generatePrivateKey();
+  const formSecret = generateSecretKey();
   const formId = getPublicKey(formSecret);
   try {
     isValidSpec(await getSchema("v1"), form);
@@ -322,21 +349,14 @@ export const createForm = async (
   }
   const v1form = generateIds(form);
   const content = JSON.stringify(v1form);
-
-  const baseKind0Event: Event = {
+  const baseKind0Event: UnsignedEvent = {
     kind: 0,
     created_at: Math.floor(Date.now() / 1000),
     tags: tags,
     content: content,
     pubkey: formId,
-    id: "",
-    sig: "",
   };
-  const kind0Event: Event = {
-    ...baseKind0Event,
-    id: getEventHash(baseKind0Event),
-    sig: getSignature(baseKind0Event, formSecret),
-  };
+  const kind0Event = finalizeEvent(baseKind0Event, formSecret);
   pool.publish(relayList, kind0Event);
   let useId = formId;
   if (encodeProfile) {
@@ -345,7 +365,7 @@ export const createForm = async (
       relays: relayList,
     });
   }
-  const formCredentials = [useId, formSecret];
+  const formCredentials = [useId, bytesToHex(formSecret)];
   if (saveOnNostr) {
     await saveFormOnNostr(formCredentials, userSecretKey);
   }
@@ -357,7 +377,8 @@ export const sendResponses = async (
   formId: string,
   responses: Array<V1Submission>,
   anonymous: boolean,
-  userSecretKey: string | null = null
+  userSecretKey: Uint8Array | null = null,
+  formPassword: FormPassword,
 ) => {
   let formIdPubkey = formId;
   let relayList = defaultRelays;
@@ -367,22 +388,22 @@ export const sendResponses = async (
     formIdPubkey = pubkey;
     relayList = relays || defaultRelays;
   }
-  const form = await getFormTemplate(formId);
+  const form = await getFormTemplateWithPassword(formId, formPassword);
   const questionIds = form.fields?.map((field) => field.questionId) || [];
   responses.forEach((response) => {
     if (!questionIds.includes(response.questionId)) {
       throw Error(
-        `No such question ID: ${response.questionId} found in the template`
+        `No such question ID: ${response.questionId} found in the template`,
       );
     }
   });
 
   const message = JSON.stringify(responses);
-  let userPk = "";
+  let userPk;
   let userSk = null;
   let ciphertext;
   if (anonymous) {
-    userSk = generatePrivateKey();
+    userSk = generateSecretKey();
     userPk = getPublicKey(userSk);
   }
   if (!anonymous && userSecretKey) {
@@ -394,21 +415,19 @@ export const sendResponses = async (
     userPk = await getUserPublicKey(userSecretKey);
   }
 
-  ciphertext = await encryptMessage(message, formIdPubkey, userSk);
-  const baseKind4Event = {
+  ciphertext = await encryptMessage(message, formIdPubkey, userSk, "nip44");
+  const baseKind4Event: UnsignedEvent = {
     kind: 4,
-    pubkey: userPk,
+    pubkey: userPk!,
     tags: [["p", formIdPubkey]],
     content: ciphertext,
     created_at: Math.floor(Date.now() / 1000),
-    id: "",
-    sig: "",
   };
   const kind4Event = await signEvent(baseKind4Event, userSk);
   const pool = new SimplePool();
   pool.publish(relayList, kind4Event);
   pool.close(relayList);
-  return userPk;
+  return userPk!;
 };
 
 async function getEncryptedResponses(formId: string) {
@@ -425,7 +444,7 @@ async function getEncryptedResponses(formId: string) {
     kinds: [4],
     "#p": [formIdPubkey],
   };
-  const responses = await pool.list(relayList, [filter]);
+  const responses = await pool.querySync(relayList, filter);
   pool.close(relayList);
   return responses;
 }
@@ -456,7 +475,7 @@ export async function fetchPublicForms() {
     content: V1FormSpec;
     pubkey: string;
   };
-  const kind0s = await pool.list(defaultRelays, [filter]);
+  const kind0s = await pool.querySync(defaultRelays, filter);
   pool.close(defaultRelays);
   const templates: IPublicForm[] = kind0s
     .map((kind0) => {
@@ -487,7 +506,7 @@ export async function fetchProfiles(pubkeys: Array<string>) {
     kinds: [0],
     authors: newPubkeys,
   };
-  const kind0s = await pool.list(defaultRelays, [filter]);
+  const kind0s = await pool.querySync(defaultRelays, filter);
   pool.close(defaultRelays);
   const kind0sMap = kind0s.reduce(
     (map: { [key: string]: { name: string } }, kind0) => {
@@ -601,7 +620,7 @@ export const sendNotification = async (
       "\n";
   });
   message += "Visit https://formstr.app to view the responses.";
-  const newSk = generatePrivateKey();
+  const newSk = generateSecretKey();
   const newPk = getPublicKey(newSk);
   const pool = new SimplePool();
   form.settings?.notifyNpubs?.forEach(async (npub) => {
@@ -616,11 +635,7 @@ export const sendNotification = async (
       id: "",
       sig: "",
     };
-    const kind4Event = {
-      ...baseKind4Event,
-      id: getEventHash(baseKind4Event),
-      sig: getSignature(baseKind4Event, newSk),
-    };
+    const kind4Event = finalizeEvent(baseKind4Event, newSk);
     pool.publish(defaultRelays, kind4Event);
   });
   pool.close(defaultRelays);
@@ -628,15 +643,16 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
-  nprofile?: string | null
+  nprofile: string | null,
+  password: FormPassword,
 ) => {
-  const formId = nprofile ? nprofile : getPublicKey(formSecret);
+  const formId = nprofile ? nprofile : getPublicKey(hexToBytes(formSecret));
   const responses = await getEncryptedResponses(formId);
   type ResponseType = {
     responses: Array<FormResponse>;
     authorName: string;
   };
-  const formTemplate = await getFormTemplate(formId);
+  const formTemplate = await getFormTemplateWithPassword(formId, password);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   const responsesBy = responses.map((r) => r.pubkey);
@@ -647,7 +663,7 @@ export const getFormResponses = async (
       decryptedResponse = await nip04.decrypt(
         formSecret,
         response.pubkey,
-        response.content
+        response.content,
       );
     } catch (e) {
       continue;
@@ -655,7 +671,7 @@ export const getFormResponses = async (
     const parsedResponse = await getParsedResponse(
       decryptedResponse,
       questionMap,
-      response.created_at
+      response.created_at,
     );
     if (!parsedResponse) continue;
     let entry = finalResponses[response.pubkey];
@@ -686,10 +702,11 @@ export const getFormResponsesCount = async (formId: string) => {
 };
 
 export const syncFormsOnNostr = async (
-  formCredentialsList: Array<Array<string>>
+  formCredentialsList: Array<Array<string | null>>,
 ) => {
   const publicKey = await getUserPublicKey(null);
-  const pastForms = await getPastUserForms(publicKey);
+  const pastForms: (string | (string | null)[])[][] =
+    await getPastUserForms(publicKey);
   const nostrList = formCredentialsList.map((formCredentials) => {
     return ["form", formCredentials];
   });
@@ -711,4 +728,128 @@ export const syncFormsOnNostr = async (
   const pool = new SimplePool();
   pool.publish(defaultRelays, nip51event);
   pool.close(defaultRelays);
+};
+
+export const getFormTemplateWithPassword = async (
+  formId: string,
+  formPassword: FormPassword
+): Promise<V1FormSpec> => {
+  const pool = new SimplePool();
+  let formIdPubkey = formId;
+  let relayList = defaultRelays;
+  if (formId.startsWith("nprofile")) {
+    const { pubkey, relays } = nip19.decode(formId)
+      .data as nip19.ProfilePointer;
+    formIdPubkey = pubkey;
+    relayList = relays || defaultRelays;
+  }
+  const filter = {
+    kinds: [0],
+    authors: [formIdPubkey], //formId is the npub of the form
+  };
+  const kind0 = await pool.get(relayList, filter);
+  pool.close(relayList);
+  let formTemplate;
+  if (kind0) {
+    formTemplate = JSON.parse(kind0.content);
+    const formVersion = utils.detectFormVersion(formTemplate);
+    if (formVersion === "v0") {
+      formTemplate = convertV1Form(formTemplate);
+    }
+    if (
+      formTemplate?.metadata?.encryption &&
+      formTemplate.metadata.encryption in EncryptionConfig
+    ) {
+      if (!formPassword) {
+        throw new Error(Errors.FORM_PASSWORD_REQUIRED);
+      }
+      try {
+        const formFields = JSON.parse(
+          EncryptionConfig[
+            formTemplate.metadata.encryption as ENCRYPTION_TYPES
+          ].decryptFormContent(formTemplate.fields, formPassword),
+        );
+        formTemplate = {
+          ...formTemplate,
+          fields: formFields,
+        };
+      } catch {
+        throw new Error(Errors.WRONG_PASSWORD);
+      }
+    }
+  } else {
+    throw Error("Form template not found");
+  }
+  return formTemplate;
+};
+
+export const createFormWithPassword = async (
+  form: FormSpec,
+  formPassword: FormPassword,
+  saveOnNostr = false,
+  userSecretKey: Uint8Array | null = null,
+  tags: Array<string[]> = [],
+  relayList: Array<string> = defaultRelays,
+  encodeProfile = false,
+  encryptionType: ENCRYPTION_TYPES = ENCRYPTION_TYPES.AES
+) => {
+  if (!formPassword) {
+    return createForm(
+      form,
+      saveOnNostr,
+      userSecretKey,
+      tags,
+      relayList,
+      encodeProfile
+    );
+  }
+  const pool = new SimplePool();
+  const formSecret = generateSecretKey();
+  const formId = getPublicKey(formSecret);
+  try {
+    isValidSpec(await getSchema("v1"), form);
+  } catch (e) {
+    throw Error("Invalid form spec" + e);
+  }
+  const v1form = generateIds(form);
+  const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
+    fields: string;
+  } = {
+    ...v1form,
+    metadata: {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      ...v1form.metadata,
+      encryption: encryptionType,
+    },
+    fields: EncryptionConfig[encryptionType].encryptFormContent(
+      JSON.stringify(v1form.fields),
+      formPassword
+    ),
+  };
+  const content = JSON.stringify(formWithEncryptedContent);
+  const baseKind0Event: Event = {
+    kind: 0,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: tags,
+    content: content,
+    pubkey: formId,
+    id: "",
+    sig: "",
+  };
+  const kind0Event: Event = finalizeEvent(baseKind0Event, formSecret);
+  pool.publish(relayList, kind0Event);
+  let useId = formId;
+  if (encodeProfile) {
+    useId = nip19.nprofileEncode({
+      pubkey: formId,
+      relays: relayList,
+    });
+  }
+  const formCredentials = [useId, bytesToHex(formSecret)];
+  if (saveOnNostr) {
+    await saveFormOnNostr(formCredentials, userSecretKey, formPassword);
+  }
+  pool.close(relayList);
+  return formCredentials;
 };
