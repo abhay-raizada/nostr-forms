@@ -34,9 +34,8 @@ interface FormFillerProps {
   embedded?: boolean;
 }
 
-const getPasswordFromUrl = (location: Location) => {
-  const queryParams = new URLSearchParams(location.search);
-  return queryParams.get("password")?.replace(/\/$/, "") || null;
+const getPasswordFromUrl = (searchParams: URLSearchParams) => {
+  return searchParams.get("pwd")?.replace(/\/$/, "") || null;
 };
 
 export const FormFiller: React.FC<FormFillerProps> = ({
@@ -44,13 +43,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   embedded,
 }) => {
   const { formId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const passwordFromUrl = getPasswordFromUrl(searchParams);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [password, setPassword] = useState(getPasswordFromUrl(window.location));
+  const [password, setPassword] = useState(passwordFromUrl);
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [thankYouScreen, setThankYouScreen] = useState(false);
-  const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
@@ -79,6 +79,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       let form = null;
       try {
         if (formId) form = await getFormTemplateWithPassword(formId, password);
+        if (password && password !== passwordFromUrl) {
+          setSearchParams({ ...searchParams, pwd: password });
+        }
       } catch (e: any) {
         if (
           [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
