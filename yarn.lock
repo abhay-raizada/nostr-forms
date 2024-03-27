@@ -8421,7 +8421,7 @@ nostr-tools@^1.14.0:
     "@scure/bip32" "1.3.1"
     "@scure/bip39" "1.2.1"
 
-nostr-tools@^2.31:
+nostr-tools@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/nostr-tools/-/nostr-tools-2.3.2.tgz#74e92898b000413661b091c5829f762cb4420e66"
   integrity sha512-8ceZ2ItkAGjR5b9+QOkkV9KWBOK0WPlpFrPPXmbWnNMcnlj9zB7rjdYPK2sV/OK4Ty9J3xL6+bvYKY77gup5EQ==
