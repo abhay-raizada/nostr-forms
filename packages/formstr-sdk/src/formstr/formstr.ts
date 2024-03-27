@@ -640,7 +640,8 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
-  nprofile?: string | null,
+  nprofile: string | null,
+  password: FormPassword,
 ) => {
   const formId = nprofile ? nprofile : getPublicKey(formSecret);
   const responses = await getEncryptedResponses(formId);
@@ -648,7 +649,7 @@ export const getFormResponses = async (
     responses: Array<FormResponse>;
     authorName: string;
   };
-  const formTemplate = await getFormTemplate(formId);
+  const formTemplate = await getFormTemplateWithPassword(formId, password);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   const responsesBy = responses.map((r) => r.pubkey);

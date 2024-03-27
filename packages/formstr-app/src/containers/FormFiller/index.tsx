@@ -25,7 +25,7 @@ import { ISubmission } from "../MyForms/components/Submissions/submissions.types
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
 import Markdown from "react-markdown";
-import { PasswordInput } from "./PasswordInput";
+import { useFormPassword, PasswordInput } from "../../components/FormPassword";
 
 const { Text } = Typography;
 
@@ -34,19 +34,12 @@ interface FormFillerProps {
   embedded?: boolean;
 }
 
-const getPasswordFromUrl = (searchParams: URLSearchParams) => {
-  return searchParams.get("pwd")?.replace(/\/$/, "") || null;
-};
-
 export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
   const { formId } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const passwordFromUrl = getPasswordFromUrl(searchParams);
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [password, setPassword] = useState(passwordFromUrl);
+  const [searchParams] = useSearchParams();
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -54,6 +47,13 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
+  const {
+    password,
+    showPasswordPrompt,
+    onPasswordEnter,
+    syncPasswordWithUrl,
+    setPasswordRequired,
+  } = useFormPassword();
 
   const isPreview = !!formSpec;
 
@@ -79,16 +79,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       let form = null;
       try {
         if (formId) form = await getFormTemplateWithPassword(formId, password);
-        if (password && password !== passwordFromUrl) {
-          setSearchParams({ ...searchParams, pwd: password });
-        }
+        syncPasswordWithUrl();
       } catch (e: any) {
         if (
           [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
             e.message,
           )
         ) {
-          setShowPasswordPrompt(true);
+          setPasswordRequired();
         }
       }
       if (formSpec) form = convertFromSpecToTemplate(formSpec);
@@ -157,11 +155,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     setThankYouScreen(true);
   };
 
-  const onPasswordInput = (enteredPassword: string) => {
-    setPassword(enteredPassword);
-    setShowPasswordPrompt(false);
-  };
-
   let name, settings, fields;
   if (formTemplate) {
     name = formTemplate.name;
@@ -172,7 +165,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return (
       <PasswordInput
         previousPassword={password}
-        onPasswordEnter={onPasswordInput}
+        onPasswordEnter={onPasswordEnter}
       />
     );
   }
