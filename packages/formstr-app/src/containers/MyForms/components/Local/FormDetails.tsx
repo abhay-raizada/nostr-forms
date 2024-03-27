@@ -48,6 +48,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     formCredentials[1],
     window.location.origin,
     formCredentials[0],
+    formCredentials[2],
   );
 
   function constructEmbeddedUrl(

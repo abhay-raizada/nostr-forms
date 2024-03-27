@@ -1,3 +1,4 @@
+import { constructFormUrl as constructFormUrlSDK } from "@formstr/sdk";
 import { DEVICE_TYPE, DEVICE_WIDTH } from "../constants/index";
 
 export function makeTag(length: number) {
@@ -18,12 +19,12 @@ export function constructFormUrl(publicKey: string) {
   if (hostname.includes("abhay-raizada")) {
     hostname += "/nostr-forms";
   }
-
+  // return constructFormUrlSDK();
   return `http://${hostname}/#/forms/${publicKey}`;
 }
 
 export function constructDraftUrl(
-  draft: { formSpec: unknown; tempId: string } | null
+  draft: { formSpec: unknown; tempId: string } | null,
 ) {
   if (!draft) {
     return;

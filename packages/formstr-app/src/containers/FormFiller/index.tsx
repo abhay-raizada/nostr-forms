@@ -149,7 +149,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     });
     let userId = null;
     if (formId) {
-      userId = await sendResponses(formId, response, anonymous);
+      userId = await sendResponses(formId, response, anonymous, null, password);
       saveSubmissionLocally(formId, userId, new Date().toString());
     }
     if (formTemplate && !isPreview) sendNotification(formTemplate, response);
