@@ -22,9 +22,9 @@ export function constructFormUrl(
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `${host}?password=${formPassword ?? ""}/#/${
-    embedded ? "embedded" : "fill"
-  }/${publicKey}`;
+  return `${host}/#/${embedded ? "embedded" : "fill"}/${publicKey}?pwd=${
+    formPassword ?? ""
+  }`;
 }
 export function constructResponseUrl(
   privateKey: string,
