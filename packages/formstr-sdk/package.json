@@ -13,7 +13,7 @@
     "aes-js": "^3.1.2",
     "jest": "^29.7.0",
     "jsonschema": "^1.4.1",
-    "nostr-tools": "^1.17.0",
+    "nostr-tools": "^2.3.2",
     "sha256": "^0.2.0",
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.2"
