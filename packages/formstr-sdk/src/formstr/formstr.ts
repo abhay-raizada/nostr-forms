@@ -271,20 +271,29 @@ export const getDecoratedPastForms = async () => {
     const formId = form[1][0];
     const formName = formTemplates[formId]?.name || "Unknown Form";
     const formSecret = form[1][1];
-    return { formId, formName, formSecret };
+    const formPassword: FormPassword = form[1][2] ?? null;
+    return { formId, formName, formSecret, formPassword };
   });
 };
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
   userSecretKey: string | null = null,
+  formPassword?: string | null,
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
-  let pastForms = await getPastUserForms(userPublicKey, userSecretKey);
+  let pastForms: (string | (string | null)[])[][] = await getPastUserForms(
+    userPublicKey,
+    userSecretKey,
+  );
   if (!Array.isArray(pastForms)) {
     pastForms = [];
   }
-  pastForms.push(["form", formCredentials]);
+  if (!formPassword) {
+    pastForms.push(["form", [...formCredentials, null]]);
+  } else {
+    pastForms.push(["form", [...formCredentials, formPassword]]);
+  }
   const message = JSON.stringify(pastForms);
   const ciphertext = await encryptMessage(
     message,
@@ -360,6 +369,7 @@ export const sendResponses = async (
   responses: Array<V1Submission>,
   anonymous: boolean,
   userSecretKey: string | null = null,
+  formPassword: FormPassword,
 ) => {
   let formIdPubkey = formId;
   let relayList = defaultRelays;
@@ -369,7 +379,7 @@ export const sendResponses = async (
     formIdPubkey = pubkey;
     relayList = relays || defaultRelays;
   }
-  const form = await getFormTemplate(formId);
+  const form = await getFormTemplateWithPassword(formId, formPassword);
   const questionIds = form.fields?.map((field) => field.questionId) || [];
   responses.forEach((response) => {
     if (!questionIds.includes(response.questionId)) {
@@ -688,10 +698,11 @@ export const getFormResponsesCount = async (formId: string) => {
 };
 
 export const syncFormsOnNostr = async (
-  formCredentialsList: Array<Array<string>>,
+  formCredentialsList: Array<Array<string | null>>,
 ) => {
   const publicKey = await getUserPublicKey(null);
-  const pastForms = await getPastUserForms(publicKey);
+  const pastForms: (string | (string | null)[])[][] =
+    await getPastUserForms(publicKey);
   const nostrList = formCredentialsList.map((formCredentials) => {
     return ["form", formCredentials];
   });
@@ -837,7 +848,7 @@ export const createFormWithPassword = async (
   }
   const formCredentials = [useId, formSecret];
   if (saveOnNostr) {
-    await saveFormOnNostr(formCredentials, userSecretKey);
+    await saveFormOnNostr(formCredentials, userSecretKey, formPassword);
   }
   pool.close(relayList);
   return formCredentials;

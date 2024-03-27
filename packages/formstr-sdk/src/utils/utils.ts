@@ -16,7 +16,7 @@ export function makeTag(length: number) {
 export function constructFormUrl(
   publicKey: string,
   formPassword: FormPassword,
-  host: string,
+  host = window.location.origin,
   embedded = false,
 ) {
   if (!publicKey) {
@@ -28,16 +28,19 @@ export function constructFormUrl(
 }
 export function constructResponseUrl(
   privateKey: string,
-  host: string,
+  host = window.location.origin,
   formId: string,
+  formPassword: FormPassword,
 ) {
   if (!privateKey) {
     throw Error("public key is required");
   }
   if (formId?.startsWith("nprofile")) {
-    return `${host}/#/response/${privateKey}?formId=${formId}`;
+    return `${host}/#/response/${privateKey}?formId=${formId}&pwd=${
+      formPassword || ""
+    }`;
   }
-  return `${host}/#/response/${privateKey}`;
+  return `${host}/#/response/${privateKey}?pwd=${formPassword || ""}`;
 }
 
 export function constructDraftUrl(

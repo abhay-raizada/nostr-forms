@@ -57,11 +57,12 @@ const COLUMNS = [
     dataIndex: "formCredentials",
     width: isMobile() ? 20 : 30,
     ellipsis: true,
-    render: (formCredentials: string) => {
+    render: (formCredentials: string, record: ILocalForm) => {
       const link = constructResponseUrl(
         formCredentials[1],
         window.location.origin,
         formCredentials[0],
+        record.formPassword,
       );
       return <ResponsiveLink link={link} />;
     },
@@ -124,7 +125,11 @@ function Local() {
       getItem<ILocalForm[]>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) ?? [];
     setShowsyncModal(true);
     await syncFormsOnNostr(
-      localForms.map((form) => [form.publicKey, form.privateKey]),
+      localForms.map((form) => [
+        form.publicKey,
+        form.privateKey,
+        form.formPassword,
+      ]),
     );
     setShowsyncModal(false);
   };
