@@ -580,7 +580,7 @@ const getDisplayAnswer = (
         return answers.includes(choice.choiceId);
       })
       .map((choice) => choice.label)
-      .join(", ") || answer.toString()
+      .join(", ") || (answer || "").toString()
   );
 };
 
