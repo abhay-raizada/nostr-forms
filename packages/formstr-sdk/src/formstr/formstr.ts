@@ -296,17 +296,12 @@ export const getDecoratedPastForms = async () => {
 
 export const saveFormOnNostr = async (
   formCredentials: Array<string>,
-<<<<<<< HEAD
-  userSecretKey: string | null = null,
-  formPassword?: string | null,
-=======
   userSecretKey: Uint8Array | null
->>>>>>> 7880fd0 (Update nostr-tools, implement nip-44)
 ) => {
   const userPublicKey = await getUserPublicKey(userSecretKey);
   let pastForms: (string | (string | null)[])[][] = await getPastUserForms(
     userPublicKey,
-    userSecretKey,
+    userSecretKey
   );
   if (!Array.isArray(pastForms)) {
     pastForms = [];
@@ -381,8 +376,7 @@ export const sendResponses = async (
   formId: string,
   responses: Array<V1Submission>,
   anonymous: boolean,
-  userSecretKey: Uint8Array | null = null,
-  formPassword: FormPassword,
+  userSecretKey: Uint8Array | null = null
 ) => {
   let formIdPubkey = formId;
   let relayList = defaultRelays;
@@ -647,12 +641,7 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
-<<<<<<< HEAD
-  nprofile: string | null,
-  password: FormPassword,
-=======
   nprofile?: string | null
->>>>>>> 7880fd0 (Update nostr-tools, implement nip-44)
 ) => {
   const formId = nprofile ? nprofile : getPublicKey(hexToBytes(formSecret));
   const responses = await getEncryptedResponses(formId);
@@ -710,11 +699,7 @@ export const getFormResponsesCount = async (formId: string) => {
 };
 
 export const syncFormsOnNostr = async (
-<<<<<<< HEAD
-  formCredentialsList: Array<Array<string | null>>,
-=======
   formCredentialsList: Array<Array<string>>
->>>>>>> 7880fd0 (Update nostr-tools, implement nip-44)
 ) => {
   const publicKey = await getUserPublicKey(null);
   const pastForms: (string | (string | null)[])[][] =

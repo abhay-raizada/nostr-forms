@@ -23,7 +23,7 @@ const defaultRelays = [
   "wss://relay.mutinywallet.com",
 ];
 
-export const sendNip101Response = async (
+export const sendResponse = async (
   formId: string,
   responses: Array<V1Submission>,
   anonymous: boolean,
@@ -78,4 +78,3 @@ export const sendNip101Response = async (
   pool.close(relayList);
   return userPk;
 };
-

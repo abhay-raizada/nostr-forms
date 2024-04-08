@@ -9,7 +9,8 @@ import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { areArraysSame, generateQuestion } from "../../utils";
-import { createFormWithPassword, getDefaultRelays } from "@formstr/sdk";
+import { getDefaultRelays } from "@formstr/sdk";
+import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
 import {
   LOCAL_STORAGE_KEYS,
   getItem,
@@ -82,18 +83,18 @@ export default function FormBuilderProvider({
   const [isRightSettingsOpen, setIsRightSettingsOpen] = useState(false);
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(false);
   const [formName, setFormName] = useState<string>(
-    "This is the title of your form! Tap to edit.",
+    "This is the title of your form! Tap to edit."
   );
   const bottomElement = useRef<HTMLDivElement>(null);
   const [relayList, setRelayList] = useState(
     getDefaultRelays().map((relay) => {
       return { url: relay, tempId: makeTag(6) };
-    }),
+    })
   );
 
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
-    HEADER_MENU_KEYS.BUILDER,
+    HEADER_MENU_KEYS.BUILDER
   );
 
   const toggleSettingsWindow = () => {
@@ -134,7 +135,7 @@ export default function FormBuilderProvider({
 
   function storeLocally(
     formCredentials: Array<string>,
-    formPassword: string | null,
+    formPassword: string | null
   ) {
     const saveObject: ILocalForm = {
       key: formCredentials[0],
@@ -165,18 +166,18 @@ export default function FormBuilderProvider({
     }
     const relayUrls = relayList.map((relay) => relay.url);
 
-    const formCreds = await createFormWithPassword(
+    const formCreds = await createForm(
       formToSave,
-      formPassword,
       false,
       null,
-      tags,
       relayUrls,
       !areArraysSame(relayUrls, getDefaultRelays()),
+      formPassword,
+      "Test"
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
-    storeLocally(formCreds, formPassword);
+    if (formCreds) storeLocally(formCreds, formPassword);
     navigate("/myForms/local", { state: { formCreds, formPassword } });
   };
 
@@ -213,7 +214,7 @@ export default function FormBuilderProvider({
   const addQuestion = (
     answerType?: AnswerTypes,
     label?: string,
-    answerSettings?: AnswerSettings,
+    answerSettings?: AnswerSettings
   ) => {
     setIsLeftMenuOpen(false);
     setQuestionsList([
@@ -261,7 +262,7 @@ export default function FormBuilderProvider({
           ...field,
           tempId: makeTag(6),
         };
-      }) || [],
+      }) || []
     );
     setFormTempId(draft.tempId);
   };
