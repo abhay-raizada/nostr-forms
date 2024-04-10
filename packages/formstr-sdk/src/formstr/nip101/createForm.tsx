@@ -75,5 +75,5 @@ export const createForm = async (
   }
   pool.close(relayList);
   if (!formPassword) return [`${useId}:${formIdentifier}`];
-  else return [useId, `${useId}:${formIdentifier}`];
+  else return [`${useId}:{formIdentifier}`, `${useId}:${formIdentifier}`];
 };

@@ -159,6 +159,10 @@ export default function FormBuilderProvider({
   const saveForm = async () => {
     const formToSave = getFormSpec();
     let formPassword: string | null = generateRandomPassword();
+    if (!formSettings.formId) {
+      alert("Form ID is required");
+      return;
+    }
     let tags: Array<Array<string>> = [];
     if (formSettings.publicForm === true) {
       tags = [["l", "formstr"]];
@@ -173,7 +177,7 @@ export default function FormBuilderProvider({
       relayUrls,
       !areArraysSame(relayUrls, getDefaultRelays()),
       formPassword,
-      "Test"
+      formSettings.formId
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
