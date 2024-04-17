@@ -14,17 +14,20 @@ export function makeTag(length: number) {
   return result;
 }
 
-export function constructFormUrl(publicKey: string) {
+export function constructFormUrl(
+  publicKey: string,
+  formIdentifier: string | null = null
+) {
   let hostname = window.location.host;
   if (hostname.includes("abhay-raizada")) {
     hostname += "/nostr-forms";
   }
-  // return constructFormUrlSDK();
-  return `http://${hostname}/#/forms/${publicKey}`;
+  if (!formIdentifier) `http://${hostname}/#/fill/${publicKey}/`;
+  return `http://${hostname}/#/f/${publicKey}/${formIdentifier}`;
 }
 
 export function constructDraftUrl(
-  draft: { formSpec: unknown; tempId: string } | null,
+  draft: { formSpec: unknown; tempId: string } | null
 ) {
   if (!draft) {
     return;
@@ -36,12 +39,9 @@ export function constructDraftUrl(
   return `http://${hostname}/#/drafts/${draftHash}`;
 }
 
-export function constructResponseUrl(privateKey: string) {
+export function constructResponseUrl(privateKey: string | null) {
   let hostname = window.location.host;
-  if (hostname.includes("abhay-raizada")) {
-    hostname += "/nostr-forms";
-  }
-  return `http://${hostname}/#/forms/${privateKey}/responses`;
+  return `http://${hostname}/#/r/${privateKey}/responses`;
 }
 
 export function copyToClipBoard(str: string) {

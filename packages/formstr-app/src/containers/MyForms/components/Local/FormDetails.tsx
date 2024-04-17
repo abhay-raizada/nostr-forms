@@ -13,6 +13,7 @@ interface FormDetailsProps {
   formCredentials: string[];
   onClose: () => void;
   formPassword: FormPassword;
+  formIdentifier?: string;
 }
 
 export const FormDetails: React.FC<FormDetailsProps> = ({
@@ -20,6 +21,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   formCredentials,
   onClose,
   formPassword,
+  formIdentifier,
 }) => {
   type TabKeyType = "share" | "embed";
   type OptionType = "hideTitleImage" | "hideDescription";
@@ -43,23 +45,26 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     formCredentials[0],
     formPassword,
     window.location.origin,
+    false,
+    formIdentifier
   );
   const responsesUrl = constructResponseUrl(
     formCredentials[1],
     window.location.origin,
     formCredentials[0],
-    formCredentials[2],
+    formCredentials[2]
   );
 
   function constructEmbeddedUrl(
     formId: string,
-    options: { [key: string]: boolean } = {},
+    options: { [key: string]: boolean } = {}
   ) {
     let embeddedUrl = constructFormUrl(
       formId,
       formPassword,
       window.location.origin,
       true,
+      formIdentifier
     );
 
     if (options.hideTitleImage) {
@@ -78,7 +83,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   function getIframeContent() {
     return `<iframe src="${constructEmbeddedUrl(
       formCredentials[0],
-      embedOptions,
+      embedOptions
     )}" height="700px" width="480px" frameborder="0" style="border-style:none;box-shadow:0px 0px 2px 2px rgba(0,0,0,0.2);" cellspacing="0" ></iframe>`;
   }
   const tabList = [

@@ -23,8 +23,6 @@ export const createForm = async (
   formIdentifier: string
 ) => {
   const pool = new SimplePool();
-  //   const formSecret = generateSecretKey();
-  //   const formId = getPublicKey(formSecret);
   try {
     isValidSpec(await getSchema("v1"), form);
   } catch (e) {
@@ -37,19 +35,19 @@ export const createForm = async (
     | (Omit<V1FormSpec, "fields"> & {
         fields: string;
       }) = v1form;
-  if (formPassword) {
-    const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
-      fields: string;
-    } = {
-      ...v1form,
-      fields: EncryptionConfig["AES"].encryptFormContent(
-        JSON.stringify(v1form.fields),
-        formPassword
-      ),
-    };
-    formContent = formWithEncryptedContent;
-  }
-  const content = JSON.stringify(formContent);
+  // if (formPassword) {
+  //   const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
+  //     fields: string;
+  //   } = {
+  //     ...v1form,
+  //     fields: EncryptionConfig["AES"].encryptFormContent(
+  //       JSON.stringify(v1form.fields),
+  //       formPassword
+  //     ),
+  //   };
+  //   formContent = formWithEncryptedContent;
+  // }
+  const content = JSON.stringify(form);
   const baseTemplateEvent: UnsignedEvent = {
     kind: 30168,
     created_at: Math.floor(Date.now() / 1000),
@@ -58,7 +56,8 @@ export const createForm = async (
     pubkey: userPubkey,
   };
   const templateEvent = await signEvent(baseTemplateEvent, userSecretKey);
-  await (Promise as any).any(pool.publish(relayList, templateEvent));
+  console.log("final event is ", templateEvent);
+  await Promise.allSettled(pool.publish(relayList, templateEvent));
   let useId = userPubkey;
   if (encodeProfile) {
     useId = nip19.nprofileEncode({
@@ -74,6 +73,6 @@ export const createForm = async (
     await saveFormOnNostr(formCredentials, userSecretKey, formPassword);
   }
   pool.close(relayList);
-  if (!formPassword) return [`${useId}:${formIdentifier}`];
-  else return [`${useId}:{formIdentifier}`, `${useId}:${formIdentifier}`];
+  if (!formPassword) return [useId, useId];
+  else return [useId, useId];
 };

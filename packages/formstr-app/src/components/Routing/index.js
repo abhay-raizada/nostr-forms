@@ -63,6 +63,7 @@ function Routing() {
         path={`${ROUTES.DRAFT}/*`}
         element={withNostrHeaderWrapper(V1DraftsController)}
       />
+      <Route path={`${ROUTES.FORM_FILLER_NEW}/*`} element={<FormFiller />} />
     </Routes>
   );
 }

@@ -26,6 +26,7 @@ import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
 import Markdown from "react-markdown";
 import { useFormPassword, PasswordInput } from "../../components/FormPassword";
+import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 
 const { Text } = Typography;
 
@@ -38,7 +39,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
-  const { formId } = useParams();
+  const { pubKey, formId } = useParams();
   const [searchParams] = useSearchParams();
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
@@ -71,19 +72,21 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       fields,
     };
   };
+
   async function getForm() {
     if (!formTemplate) {
-      if (!formId && !formSpec) {
+      if (!(formId && pubKey) && !formSpec) {
         throw Error("Form Id not provided");
       }
       let form = null;
       try {
-        if (formId) form = await getFormTemplateWithPassword(formId, password);
+        if (formId && pubKey)
+          form = await fetchFormTemplate(pubKey, formId, password);
         syncPasswordWithUrl();
       } catch (e: any) {
         if (
           [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
-            e.message,
+            e.message
           )
         ) {
           setPasswordRequired();
@@ -100,14 +103,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     getForm();
   }, [formTemplate, formId, formSpec, password]);
 
-  if (!formId && !formSpec) {
+  if (!(formId && pubKey) && !formSpec) {
     return null;
   }
 
   const handleInput = (
     questionId: string,
     answer: string,
-    message?: string,
+    message?: string
   ) => {
     if (!answer || answer === "") {
       form.setFieldValue(questionId, null);
@@ -119,7 +122,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const saveSubmissionLocally = (
     formId: string,
     userId: string,
-    createdAt: string,
+    createdAt: string
   ) => {
     let submissions = getItem<ISubmission[]>(LOCAL_STORAGE_KEYS.SUBMISSIONS);
     if (!submissions) {
@@ -207,7 +210,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                     },
                     ...getValidationRules(
                       field.answerType,
-                      field.answerSettings,
+                      field.answerSettings
                     ),
                   ];
                   return (

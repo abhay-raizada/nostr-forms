@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
+import FormIdentifier from "../../components/FormSettings/FormIdentifier";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
@@ -135,13 +136,15 @@ export default function FormBuilderProvider({
 
   function storeLocally(
     formCredentials: Array<string>,
-    formPassword: string | null
+    formPassword: string | null,
+    formIdentifier?: string
   ) {
     const saveObject: ILocalForm = {
       key: formCredentials[0],
       publicKey: formCredentials[0],
       privateKey: formCredentials[1],
       formPassword,
+      formIdentifier,
       name: formName,
       createdAt: new Date().toString(),
     };
@@ -181,8 +184,10 @@ export default function FormBuilderProvider({
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
-    if (formCreds) storeLocally(formCreds, formPassword);
-    navigate("/myForms/local", { state: { formCreds, formPassword } });
+    if (formCreds) storeLocally(formCreds, formPassword, formSettings.formId);
+    navigate("/myForms/local", {
+      state: { formCreds, formPassword, formIdentifier: formSettings.formId },
+    });
   };
 
   const saveDraft = () => {

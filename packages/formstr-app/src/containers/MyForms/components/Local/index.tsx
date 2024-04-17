@@ -47,6 +47,8 @@ const COLUMNS = [
         publicKey,
         record.formPassword,
         window.location.origin,
+        false,
+        record.formIdentifier
       );
       return <ResponsiveLink link={link} />;
     },
@@ -62,7 +64,7 @@ const COLUMNS = [
         formCredentials[1],
         window.location.origin,
         formCredentials[0],
-        record.formPassword,
+        record.formPassword
       );
       return <ResponsiveLink link={link} />;
     },
@@ -111,7 +113,8 @@ function Local() {
   const [formCredentials, setFormCredentials] = useState<{
     formCreds: string[];
     formPassword: FormPassword;
-  }>({ formPassword: "", formCreds: [] });
+    formIdentifier?: string;
+  }>({ formPassword: "", formCreds: [], formIdentifier: "" });
 
   useEffect(() => {
     if (state) {
@@ -129,7 +132,7 @@ function Local() {
         form.publicKey,
         form.privateKey,
         form.formPassword,
-      ]),
+      ])
     );
     setShowsyncModal(false);
   };
@@ -161,6 +164,7 @@ function Local() {
                 setFormCredentials({
                   formCreds: [record.publicKey, record.privateKey],
                   formPassword: record.formPassword,
+                  formIdentifier: record.formIdentifier,
                 });
               },
             };
@@ -175,6 +179,7 @@ function Local() {
         onClose={() => {
           setShowFormDetails(false);
         }}
+        formIdentifier={formCredentials.formIdentifier}
       />
       <Modal open={showSyncModal} footer={null}>
         <Spin size="small" />

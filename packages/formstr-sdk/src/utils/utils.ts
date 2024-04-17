@@ -18,19 +18,28 @@ export function constructFormUrl(
   formPassword: FormPassword,
   host = window.location.origin,
   embedded = false,
+  formIdentifier?: string
 ) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  return `${host}/#/${embedded ? "embedded" : "fill"}/${publicKey}?pwd=${
-    formPassword ?? ""
+  console.log("Received, form identifier: ", formIdentifier);
+
+  if (!formIdentifier)
+    return `${host}/#/${embedded ? "embedded" : "f"}/${publicKey}${
+      formPassword ? `?pwd=${formPassword}` : ""
+    }`;
+  return `${host}/#/${
+    embedded ? "embedded" : "f"
+  }/${publicKey}/${formIdentifier}${
+    formPassword ? `?pwd=${formPassword}` : ""
   }`;
 }
 export function constructResponseUrl(
   privateKey: string,
   host = window.location.origin,
   formId: string,
-  formPassword: FormPassword,
+  formPassword: FormPassword
 ) {
   if (!privateKey) {
     throw Error("public key is required");
@@ -45,7 +54,7 @@ export function constructResponseUrl(
 
 export function constructDraftUrl(
   draft: { formSpec: unknown; tempId: string } | null,
-  host: string,
+  host: string
 ) {
   if (!draft) {
     return;

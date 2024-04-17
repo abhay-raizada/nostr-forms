@@ -8,4 +8,5 @@ export interface ILocalForm {
   privateKey: string;
   formCredentials?: Array<string>;
   formPassword: FormPassword;
+  formIdentifier?: string;
 }
