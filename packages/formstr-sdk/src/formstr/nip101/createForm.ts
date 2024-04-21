@@ -47,7 +47,7 @@ export const createForm = async (
   //   };
   //   formContent = formWithEncryptedContent;
   // }
-  const content = JSON.stringify(form);
+  const content = JSON.stringify(v1form);
   const baseTemplateEvent: UnsignedEvent = {
     kind: 30168,
     created_at: Math.floor(Date.now() / 1000),

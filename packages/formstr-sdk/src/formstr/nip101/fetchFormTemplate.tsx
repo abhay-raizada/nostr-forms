@@ -22,6 +22,7 @@ export const fetchFormTemplate = async (
     authors: [formIdPubkey], //formId is the npub of the form
     "#d": [formIdentifier],
   };
+  console.log("Fetching template", filter);
   const nostrEvent = await pool.get(relayList, filter);
   console.log("nostr event fetched is", nostrEvent);
   pool.close(relayList);

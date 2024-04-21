@@ -386,6 +386,7 @@ export const sendResponses = async (
   }
   const form = await getFormTemplateWithPassword(formId, formPassword);
   const questionIds = form.fields?.map((field) => field.questionId) || [];
+  console.log("Responses are", responses);
   responses.forEach((response) => {
     if (!questionIds.includes(response.questionId)) {
       throw Error(

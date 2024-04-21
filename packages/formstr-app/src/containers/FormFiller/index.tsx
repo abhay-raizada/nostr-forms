@@ -8,11 +8,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  getFormTemplateWithPassword,
-  sendNotification,
-  sendResponses,
-} from "@formstr/sdk";
+import { sendNotification } from "@formstr/sdk";
+import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
@@ -150,7 +147,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     });
     let userId = null;
     if (formId) {
-      userId = await sendResponses(formId, response, anonymous, null, password);
+      userId = await sendResponses(
+        pubKey!,
+        formId,
+        response,
+        anonymous,
+        null,
+        password
+      );
       saveSubmissionLocally(formId, userId, new Date().toString());
     }
     if (formTemplate && !isPreview) sendNotification(formTemplate, response);
