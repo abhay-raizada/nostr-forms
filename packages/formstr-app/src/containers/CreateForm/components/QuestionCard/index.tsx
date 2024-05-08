@@ -1,6 +1,5 @@
 import { Card, Input } from "antd";
 import { ChangeEvent } from "react";
-import { IQuestion } from "../../typeDefs";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import CardHeader from "./CardHeader";
 import Inputs from "./Inputs";
@@ -8,10 +7,11 @@ import { AnswerSettings } from "@formstr/sdk/dist/interfaces";
 import StyledWrapper from "./index.style";
 import { SmallDashOutlined } from "@ant-design/icons";
 import QuestionTextStyle from "./question.style";
+import { Field } from "../../providers/FormBuilder";
 
 type QuestionCardProps = {
-  question: IQuestion;
-  onEdit: (question: IQuestion, tempId: string) => void;
+  question: Field;
+  onEdit: (question: Field, tempId: string) => void;
   onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
   firstQuestion: boolean;
   lastQuestion: boolean;
@@ -24,28 +24,32 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   firstQuestion,
   lastQuestion,
 }) => {
-  const answerSettings = question.answerSettings;
+  const answerSettings = JSON.parse(question[5]);
   const { setQuestionIdInFocus } = useFormBuilderContext();
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     event.stopPropagation();
-    onEdit({ ...question, question: event.target.value }, question.tempId);
+    let field = question;
+    field[3] = event.target.value;
+    onEdit(field, question[1]);
   };
 
   const handleRequiredChange = (required: boolean) => {
-    onEdit(
-      { ...question, answerSettings: { ...answerSettings, required } },
-      question.tempId
-    );
+    let newAnswerSettings = { ...answerSettings, required };
+    let field = question;
+    field[5] = JSON.stringify(newAnswerSettings);
+    onEdit(field, question[1]);
   };
 
   const onCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setQuestionIdInFocus(question.tempId);
+    setQuestionIdInFocus(question[1]);
   };
 
-  const handleAnswerSettings = (answerSettings: AnswerSettings) => {
-    onEdit({ ...question, answerSettings }, question.tempId);
+  const handleAnswerSettings = (newAnswerSettings: AnswerSettings) => {
+    let field = question;
+    field[5] = JSON.stringify(newAnswerSettings);
+    onEdit(field, question[1]);
   };
 
   return (
@@ -68,7 +72,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
               <Input.TextArea
                 className="question-input"
                 onChange={handleTextChange}
-                defaultValue={question.question || "Click to edit"}
+                defaultValue={question[2] || "Click to edit"}
                 placeholder="Enter a Question"
                 autoSize
               />
@@ -77,8 +81,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         </div>
 
         <Inputs
-          inputType={question.answerType}
-          answerSettings={question.answerSettings}
+          inputType={answerSettings.renderElement}
+          answerSettings={answerSettings}
           answerSettingsHandler={handleAnswerSettings}
         />
       </Card>

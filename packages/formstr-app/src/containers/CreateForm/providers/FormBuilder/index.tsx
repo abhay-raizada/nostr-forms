@@ -23,12 +23,22 @@ import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import FormIdentifier from "../../components/FormSettings/FormIdentifier";
 
+export type Field = [
+  placeholder: string,
+  fieldId: string,
+  dataType: string,
+  label: string,
+  options: string[][] | null,
+  config: string,
+];
+
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
   initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
-  editQuestion: (question: IQuestion, tempId: string) => null,
-  addQuestion: (answerType?: AnswerTypes, label?: string) => null,
+  editQuestion: (question: Field, tempId: string) => null,
+  addQuestion: (primitive?: string, answerType?: AnswerTypes, label?: string) =>
+    null,
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
@@ -43,7 +53,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   toggleSettingsWindow: () => null,
   formName: "",
   updateFormName: (name: string) => null,
-  updateQuestionsList: (list: IQuestion[]) => null,
+  updateQuestionsList: (list: Field[]) => null,
   getFormSpec: () => {
     return { name: "", schemaVersion: "v1" };
   },
@@ -72,7 +82,7 @@ export default function FormBuilderProvider({
   children: React.ReactNode;
 }) {
   const navigate = useNavigate();
-  const [questionsList, setQuestionsList] = useState<IQuestion[]>([
+  const [questionsList, setQuestionsList] = useState<Array<Field>>([
     generateQuestion(),
   ]);
   const [questionIdInFocus, setQuestionIdInFocus] = useState<
@@ -112,19 +122,12 @@ export default function FormBuilderProvider({
     isLeftMenuOpen && setIsLeftMenuOpen(false);
   };
 
-  const getFormSpec = (): FormSpec => {
-    return {
-      name: formName,
-      schemaVersion: "v1",
-      settings: formSettings,
-      fields: questionsList.map((question) => {
-        return {
-          question: question.question,
-          answerType: question.answerType,
-          answerSettings: question.answerSettings,
-        };
-      }),
-    };
+  const getFormSpec = (): any => {
+    let formSpec = [];
+    formSpec.push(["name", formName]);
+    formSpec.push("settings", JSON.stringify(formSettings));
+    formSpec = [...formSpec, ...questionsList];
+    return formSpec;
   };
 
   const deleteDraft = (formTempId: string) => {
@@ -167,10 +170,6 @@ export default function FormBuilderProvider({
       return;
     }
     let tags: Array<Array<string>> = [];
-    if (formSettings.publicForm === true) {
-      tags = [["l", "formstr"]];
-      formPassword = null;
-    }
     const relayUrls = relayList.map((relay) => relay.url);
 
     const formCreds = await createForm(
@@ -210,9 +209,9 @@ export default function FormBuilderProvider({
     setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
   };
 
-  const editQuestion = (question: IQuestion, tempId: string) => {
-    const editedList = questionsList.map((existingQuestion: IQuestion) => {
-      if (existingQuestion.tempId === tempId) {
+  const editQuestion = (question: Field, tempId: string) => {
+    const editedList = questionsList.map((existingQuestion: Field) => {
+      if (existingQuestion[1] === tempId) {
         return question;
       }
       return existingQuestion;
@@ -221,6 +220,7 @@ export default function FormBuilderProvider({
   };
 
   const addQuestion = (
+    primitive?: string,
     answerType?: AnswerTypes,
     label?: string,
     answerSettings?: AnswerSettings
@@ -228,7 +228,7 @@ export default function FormBuilderProvider({
     setIsLeftMenuOpen(false);
     setQuestionsList([
       ...questionsList,
-      generateQuestion(answerType, label, answerSettings),
+      generateQuestion(primitive, label, [[]], answerSettings),
     ]);
     setTimeout(() => {
       bottomElement?.current?.scrollIntoView({ behavior: "smooth" });
@@ -240,11 +240,11 @@ export default function FormBuilderProvider({
       setQuestionIdInFocus(undefined);
     }
     setQuestionsList((preQuestions) => {
-      return preQuestions.filter((question) => question.tempId !== tempId);
+      return preQuestions.filter((question) => question[1] !== tempId);
     });
   };
 
-  const updateQuestionsList = (newQuestionsList: IQuestion[]) => {
+  const updateQuestionsList = (newQuestionsList: Field[]) => {
     setQuestionsList(newQuestionsList);
   };
 
@@ -262,18 +262,18 @@ export default function FormBuilderProvider({
   };
 
   const initializeForm = (draft: IDraft) => {
-    const formSpec = draft.formSpec;
-    setFormName(formSpec.name);
-    if (formSpec.settings) setFormSettings(formSpec.settings);
-    setQuestionsList(
-      formSpec.fields?.map((field) => {
-        return {
-          ...field,
-          tempId: makeTag(6),
-        };
-      }) || []
-    );
-    setFormTempId(draft.tempId);
+    // const formSpec = draft.formSpec;
+    // setFormName(formSpec.name);
+    // if (formSpec.settings) setFormSettings(formSpec.settings);
+    // setQuestionsList(
+    //   formSpec.fields?.map((field) => {
+    //     return {
+    //       ...field,
+    //       tempId: makeTag(6),
+    //     };
+    //   }) || []
+    // );
+    // setFormTempId(draft.tempId);
   };
 
   return (

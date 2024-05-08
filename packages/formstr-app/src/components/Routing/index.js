@@ -1,14 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import CreateForm from "../../containers/CreateForm";
 import MyForms from "../../containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
 import { ROUTES } from "../../constants/routes";
 import { FormFiller } from "../../containers/FormFiller";
 import { NostrHeader } from "../Header";
-import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
-import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
+import { CreateFormHeader } from "../../containers/CreateFormOld/components/Header/Header";
+import FormBuilderProvider from "../../containers/CreateFormOld/providers/FormBuilder";
 import { Responses } from "../../containers/Responses/Responses";
 import { V1DraftsController } from "../../containers/Drafts";
+import CreateFormOld from "../../containers/CreateFormOld";
+import CreateForm from "../../containers/CreateForm";
 
 const withNostrHeaderWrapper = (Component, props) => {
   return (
@@ -40,6 +41,10 @@ function Routing() {
       <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
       <Route
         path={`${ROUTES.CREATE_FORMS}/*`}
+        element={withCreateFormHeaderWrapper(CreateFormOld)}
+      />
+      <Route
+        path={`${ROUTES.CREATE_FORMS_NEW}/*`}
         element={withCreateFormHeaderWrapper(CreateForm)}
       />
       <Route

@@ -12,6 +12,7 @@ export const BASIC_MENU = [
     label: "Label",
     icon: <InputIcon style={{ color: "#800080", fill: "#800080" }} />,
     type: AnswerTypes.label,
+    primitive: "label",
   },
 ];
 
@@ -21,48 +22,56 @@ export const INPUTS_MENU = [
     label: "Short answer",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.shortText,
+    primitive: "text",
   },
   {
     key: INPUTS_TYPES.PARAGRAPH,
     label: "Paragraph",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.paragraph,
+    primitive: "text",
   },
   {
     key: INPUTS_TYPES.NUMBER,
     label: "Number",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.number,
+    primitive: "number",
   },
   {
     key: INPUTS_TYPES.MULTIPLE_CHOICE,
     label: "Multiple choice",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.checkboxes,
+    primitive: "option",
   },
   {
     key: INPUTS_TYPES.SINGLE_CHOICE,
     label: "Single choice",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.radioButton,
+    primitive: "option",
   },
   {
     key: INPUTS_TYPES.SELECT,
     label: "Select",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.dropdown,
+    primitive: "option",
   },
   {
     key: INPUTS_TYPES.DATE,
     label: "Date",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.date,
+    primitive: "text",
   },
   {
     key: INPUTS_TYPES.TIME,
     label: "Time",
     icon: <InputIcon style={{ color: "#FFD580", fill: "#FFD580" }} />,
     type: AnswerTypes.time,
+    primitive: "text",
   },
 ];
 
@@ -72,6 +81,7 @@ export const PRE_BUILT_MENU = [
     label: "Date of birth",
     icon: <InputIcon style={{ color: "#1e3f66.17", fill: "#1e3f66" }} />,
     type: AnswerTypes.date,
+    primitive: "text",
   },
   {
     key: PRE_BUILT_MENU_KEYS.EMAIL,
@@ -86,5 +96,6 @@ export const PRE_BUILT_MENU = [
         },
       },
     },
+    primitive: "text",
   },
 ];

@@ -8,6 +8,7 @@ function PreBuiltMenu() {
   const onMenuClick = ({ key }: { key: string }) => {
     const selectedItem = PRE_BUILT_MENU.find((item) => item.key === key);
     addQuestion(
+      selectedItem?.primitive,
       selectedItem?.type,
       selectedItem?.label,
       selectedItem?.answerSettings

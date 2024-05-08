@@ -9,7 +9,8 @@ import {
 } from "../formstr";
 import { getSchema, isValidSpec } from "../../utils/validators";
 import { bytesToHex } from "@noble/hashes/utils";
-import { EncryptionConfig } from "../../encryption";
+import { AnswerTypes } from "../../interfaces";
+import { makeTag } from "../../utils/utils";
 
 const defaultRelays = getDefaultRelays();
 
@@ -28,31 +29,40 @@ export const createForm = async (
   } catch (e) {
     throw Error("Invalid form spec" + e);
   }
-  const v1form = generateIds(form);
   let userPubkey = await getUserPublicKey(userSecretKey);
-  let formContent:
-    | V1FormSpec
-    | (Omit<V1FormSpec, "fields"> & {
-        fields: string;
-      }) = v1form;
-  // if (formPassword) {
-  //   const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
-  //     fields: string;
-  //   } = {
-  //     ...v1form,
-  //     fields: EncryptionConfig["AES"].encryptFormContent(
-  //       JSON.stringify(v1form.fields),
-  //       formPassword
-  //     ),
-  //   };
-  //   formContent = formWithEncryptedContent;
-  // }
-  const content = JSON.stringify(v1form);
+  let formContent = [];
+
+  formContent.push(["name", form.name]);
+  formContent.push(["description", form.description]);
+  formContent.push(["formConfig", JSON.stringify(form.settings)]);
+  form.fields?.forEach((field) => {
+    if (
+      ![
+        AnswerTypes.checkboxes,
+        AnswerTypes.radioButton,
+        AnswerTypes.dropdown,
+      ].includes(field.answerType)
+    ) {
+      formContent.push([
+        "textField",
+        makeTag(6),
+        field.question,
+        JSON.stringify(field.answerSettings),
+      ]);
+    } else {
+      formContent.push(
+        "optionsField",
+        makeTag(6),
+        field.question,
+        field.answerSettings.choices
+      );
+    }
+  });
   const baseTemplateEvent: UnsignedEvent = {
     kind: 30168,
     created_at: Math.floor(Date.now() / 1000),
     tags: [["d", formIdentifier]],
-    content: content,
+    content: "",
     pubkey: userPubkey,
   };
   const templateEvent = await signEvent(baseTemplateEvent, userSecretKey);
@@ -68,9 +78,6 @@ export const createForm = async (
   let formCredentials = null;
   if (userSecretKey) {
     formCredentials = [useId, bytesToHex(userSecretKey)];
-  }
-  if (saveOnNostr && formCredentials) {
-    await saveFormOnNostr(formCredentials, userSecretKey, formPassword);
   }
   pool.close(relayList);
   if (!formPassword) return [useId, useId];

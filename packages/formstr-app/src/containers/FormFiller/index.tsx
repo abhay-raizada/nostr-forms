@@ -1,6 +1,6 @@
 import { Errors, FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
-import FormTitle from "../CreateForm/components/FormTitle";
+import FormTitle from "../CreateFormOld/components/FormTitle";
 import {
   Link,
   useNavigate,

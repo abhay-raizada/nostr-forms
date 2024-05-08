@@ -1,5 +1,6 @@
 export const ROUTES = {
   CREATE_FORMS: "/create",
+  CREATE_FORMS_NEW: "/c",
   MY_FORMS: "/myforms",
   PUBLIC_FORMS: "/public",
   FORM_FILLER: "/fill/:formId",
