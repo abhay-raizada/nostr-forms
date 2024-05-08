@@ -14,54 +14,26 @@ import { makeTag } from "../../utils/utils";
 
 const defaultRelays = getDefaultRelays();
 
+export type Field = [
+  placeholder: string,
+  fieldId: string,
+  dataType: string,
+  label: string,
+  options: string,
+  config: string,
+];
+
 export const createForm = async (
-  form: FormSpec,
-  saveOnNostr = false,
+  form: Array<Field>,
   userSecretKey: Uint8Array | null,
-  relayList: Array<string> = defaultRelays,
-  encodeProfile = false,
-  formPassword: string | null,
-  formIdentifier: string
+  relayList: Array<string> = defaultRelays
 ) => {
   const pool = new SimplePool();
-  try {
-    isValidSpec(await getSchema("v1"), form);
-  } catch (e) {
-    throw Error("Invalid form spec" + e);
-  }
   let userPubkey = await getUserPublicKey(userSecretKey);
-  let formContent = [];
-
-  formContent.push(["name", form.name]);
-  formContent.push(["description", form.description]);
-  formContent.push(["formConfig", JSON.stringify(form.settings)]);
-  form.fields?.forEach((field) => {
-    if (
-      ![
-        AnswerTypes.checkboxes,
-        AnswerTypes.radioButton,
-        AnswerTypes.dropdown,
-      ].includes(field.answerType)
-    ) {
-      formContent.push([
-        "textField",
-        makeTag(6),
-        field.question,
-        JSON.stringify(field.answerSettings),
-      ]);
-    } else {
-      formContent.push(
-        "optionsField",
-        makeTag(6),
-        field.question,
-        field.answerSettings.choices
-      );
-    }
-  });
   const baseTemplateEvent: UnsignedEvent = {
     kind: 30168,
     created_at: Math.floor(Date.now() / 1000),
-    tags: [["d", formIdentifier]],
+    tags: form,
     content: "",
     pubkey: userPubkey,
   };

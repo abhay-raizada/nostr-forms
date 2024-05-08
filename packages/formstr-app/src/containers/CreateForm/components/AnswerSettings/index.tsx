@@ -1,12 +1,12 @@
 import { Button, Divider, Dropdown, Switch, Typography, MenuProps } from "antd";
 import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
-import { AnswerSettings as IAnswerSettings } from "@formstr/sdk/dist/interfaces";
 import Validation from "../Validation";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import StyleWrapper from "./style";
 import { RightAnswer } from "./RightAnswer";
 import { Field } from "../../providers/FormBuilder";
+import { IAnswerSettings } from "./types";
 
 const { Text } = Typography;
 
@@ -18,7 +18,7 @@ function AnswerSettings() {
   );
   const question = questionsList[questionIndex];
   const answerSettings = JSON.parse(
-    question[5] || '{ "renderElement": "label"}'
+    question[5] || '{ "renderElement": "shortText"}'
   );
   const answerType = INPUTS_MENU.find(
     (option) =>

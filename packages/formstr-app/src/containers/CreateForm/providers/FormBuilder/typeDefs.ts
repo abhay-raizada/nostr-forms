@@ -1,12 +1,10 @@
 import {
   AnswerSettings,
-  AnswerTypes,
   FormSpec,
   IFormSettings,
 } from "@formstr/sdk/dist/interfaces";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
-
-type Field = [string, string, string, string, string[][] | null, string];
+import { Field } from ".";
 
 export interface IFormBuilderContext {
   initializeForm: (draft: IDraft) => void;

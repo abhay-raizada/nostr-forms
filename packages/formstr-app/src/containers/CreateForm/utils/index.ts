@@ -1,20 +1,20 @@
-import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
-import { IQuestion } from "../typeDefs";
+import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import { makeTag } from "../../../utils/utility";
+import { Field } from "../providers/FormBuilder";
+import { IAnswerSettings } from "../components/AnswerSettings/types";
 
-type Field = [string, string, string, string, string[][] | null, string];
 export const generateQuestion = (
   primitive: string = "text",
   label: string | null = null,
-  choices?: Array<Array<string>>,
-  answerSettings?: AnswerSettings
+  choices: string[][] = [],
+  answerSettings: IAnswerSettings = {}
 ): Field => {
   return [
     "field",
     makeTag(6),
     primitive,
     label || "Click here to edit",
-    choices || null,
+    JSON.stringify(choices) || "",
     JSON.stringify(answerSettings),
   ];
 };

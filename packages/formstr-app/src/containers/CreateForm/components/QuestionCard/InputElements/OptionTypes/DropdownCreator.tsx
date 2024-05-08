@@ -4,12 +4,12 @@ import { useState } from "react";
 import OptionsStyle from "./Options.style";
 import { AddOption } from "./AddOption";
 import { handleDelete, handleLabelChange } from "./utils";
-import { Choice } from "@formstr/sdk/dist/interfaces";
 import { MenuItemType } from "antd/es/menu/hooks/useItems";
+import { Choice, ChoiceSettings } from "./types";
 
 interface RadioButtonCreatorProps {
   initialValues?: Array<Choice>;
-  onValuesChange: (key: string, property: unknown) => void;
+  onValuesChange: (options: Choice[]) => void;
 }
 
 export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
@@ -21,42 +21,45 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
 
   const handleNewChoices = (choices: Array<Choice>) => {
     setChoices(choices);
-    onValuesChange("choices", choices);
+    onValuesChange(choices);
     setIsOpen(true);
   };
 
   const getMenuItems = (): MenuProps["items"] => {
     return choices.map((choice) => {
+      console.log("Choice is", choice);
+      let [choiceId, label, settingsString] = choice;
+      let settings = JSON.parse(settingsString || "{}") as ChoiceSettings;
       return {
         label: (
-          <div className="radioButtonItem" key={choice.choiceId}>
+          <div className="radioButtonItem" key={choiceId}>
             <Input
-              defaultValue={choice.label}
-              key={choice.choiceId}
+              defaultValue={label}
+              key={choiceId}
               onChange={(e) => {
                 handleLabelChange(
                   e.target.value,
-                  choice.choiceId!,
+                  choiceId!,
                   choices,
                   handleNewChoices
                 );
               }}
               placeholder="Enter an option"
               className="choice-input"
-              disabled={choice.isOther}
+              disabled={settings.isOther}
             />
             <div>
               {choices.length >= 2 && (
                 <CloseOutlined
                   onClick={(e) => {
-                    handleDelete(choice.choiceId!, choices, handleNewChoices);
+                    handleDelete(choiceId!, choices, handleNewChoices);
                   }}
                 />
               )}
             </div>
           </div>
         ),
-        key: choice.choiceId,
+        key: choiceId,
       } as MenuItemType;
     });
   };
@@ -77,7 +80,8 @@ export const DropdownCreator: React.FC<RadioButtonCreatorProps> = ({
       </Dropdown>
       <AddOption
         disable={choices.some((choice) => {
-          return choice.label === "";
+          let [choiceId, label, settingsString] = choice;
+          return label === "";
         })}
         choices={choices}
         callback={handleNewChoices}

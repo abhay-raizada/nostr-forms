@@ -9,8 +9,7 @@ import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { areArraysSame, generateQuestion } from "../../utils";
-import { getDefaultRelays } from "@formstr/sdk";
-import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
+import { createForm, getDefaultRelays } from "@formstr/sdk";
 import {
   LOCAL_STORAGE_KEYS,
   getItem,
@@ -177,10 +176,9 @@ export default function FormBuilderProvider({
       formToSave,
       false,
       null,
+      tags,
       relayUrls,
-      !areArraysSame(relayUrls, getDefaultRelays()),
-      formPassword,
-      formSettings.formId
+      !areArraysSame(relayUrls, getDefaultRelays())
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft

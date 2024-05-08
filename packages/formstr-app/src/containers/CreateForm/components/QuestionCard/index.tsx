@@ -8,6 +8,7 @@ import StyledWrapper from "./index.style";
 import { SmallDashOutlined } from "@ant-design/icons";
 import QuestionTextStyle from "./question.style";
 import { Field } from "../../providers/FormBuilder";
+import { Choice } from "./InputElements/OptionTypes/types";
 
 type QuestionCardProps = {
   question: Field;
@@ -25,7 +26,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   lastQuestion,
 }) => {
   console.log("question is", question, question[5]);
-  const answerSettings = JSON.parse(question[5] || "{}");
+  let options = JSON.parse(question[4] || "[]") as Array<Choice>;
+  const answerSettings = JSON.parse(
+    question[5] || '{"renderElement": "shortText"}'
+  );
   const { setQuestionIdInFocus } = useFormBuilderContext();
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -50,6 +54,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   const handleAnswerSettings = (newAnswerSettings: AnswerSettings) => {
     let field = question;
     field[5] = JSON.stringify(newAnswerSettings);
+    onEdit(field, question[1]);
+  };
+
+  const handleOptions = (newOptions: Choice[]) => {
+    let field = question;
+    field[4] = JSON.stringify(newOptions);
     onEdit(field, question[1]);
   };
 
@@ -83,8 +93,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
         <Inputs
           inputType={answerSettings.renderElement}
+          options={options}
           answerSettings={answerSettings}
           answerSettingsHandler={handleAnswerSettings}
+          optionsHandler={handleOptions}
         />
       </Card>
     </StyledWrapper>

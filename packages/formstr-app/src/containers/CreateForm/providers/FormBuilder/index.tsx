@@ -26,7 +26,7 @@ export type Field = [
   fieldId: string,
   dataType: string,
   label: string,
-  options: string[][] | null,
+  options: string,
   config: string,
 ];
 
@@ -121,8 +121,9 @@ export default function FormBuilderProvider({
 
   const getFormSpec = (): any => {
     let formSpec = [];
+    formSpec.push(["d", formSettings.formId]);
     formSpec.push(["name", formName]);
-    formSpec.push("settings", JSON.stringify(formSettings));
+    formSpec.push(["settings", JSON.stringify(formSettings)]);
     formSpec = [...formSpec, ...questionsList];
     return formSpec;
   };
@@ -168,18 +169,8 @@ export default function FormBuilderProvider({
       alert("Form ID is required");
       return;
     }
-    let tags: Array<Array<string>> = [];
     const relayUrls = relayList.map((relay) => relay.url);
-
-    const formCreds = await createForm(
-      formToSave,
-      false,
-      null,
-      relayUrls,
-      !areArraysSame(relayUrls, getDefaultRelays()),
-      formPassword,
-      formSettings.formId
-    );
+    const formCreds = await createForm(formToSave, null, relayUrls);
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
     if (formCreds) storeLocally(formCreds, formPassword, formSettings.formId);
@@ -228,7 +219,7 @@ export default function FormBuilderProvider({
     setIsLeftMenuOpen(false);
     setQuestionsList([
       ...questionsList,
-      generateQuestion(primitive, label, [[]], answerSettings),
+      generateQuestion(primitive, label, [], answerSettings),
     ]);
     setTimeout(() => {
       bottomElement?.current?.scrollIntoView({ behavior: "smooth" });

@@ -4,17 +4,22 @@ import { RadioButtonCreator } from "./InputElements/OptionTypes/RadioButtonCreat
 import { CheckboxCreator } from "./InputElements/OptionTypes/CheckBoxCreator";
 import { DropdownCreator } from "./InputElements/OptionTypes/DropdownCreator";
 import { DatePicker, Input, InputNumber, TimePicker } from "antd";
+import { Choice } from "./InputElements/OptionTypes/types";
 
 interface InputsProps {
   inputType: string;
+  options: Array<Choice>;
   answerSettings: AnswerSettings;
   answerSettingsHandler: (answerSettings: AnswerSettings) => void;
+  optionsHandler: (options: Array<Choice>) => void;
 }
 
 const Inputs: React.FC<InputsProps> = ({
   inputType,
+  options,
   answerSettings,
   answerSettingsHandler,
+  optionsHandler,
 }) => {
   const updateAnswerSettings = (settingKey: string, property: unknown) => {
     let newAnswerSettings = { ...answerSettings, [settingKey]: property };
@@ -35,40 +40,22 @@ const Inputs: React.FC<InputsProps> = ({
       case AnswerTypes.radioButton:
         return (
           <RadioButtonCreator
-            initialValues={answerSettings.choices?.map((c) => {
-              return {
-                label: c.label,
-                isOther: c.isOther,
-                choiceId: c.choiceId,
-              };
-            })}
-            onValuesChange={updateAnswerSettings}
+            initialValues={options}
+            onValuesChange={optionsHandler}
           />
         );
       case AnswerTypes.checkboxes:
         return (
           <CheckboxCreator
-            initialValues={answerSettings.choices?.map((c) => {
-              return {
-                label: c.label,
-                isOther: c.isOther,
-                choiceId: c.choiceId,
-              };
-            })}
-            onValuesChange={updateAnswerSettings}
+            initialValues={options}
+            onValuesChange={optionsHandler}
           />
         );
       case AnswerTypes.dropdown:
         return (
           <DropdownCreator
-            initialValues={answerSettings.choices?.map((c) => {
-              return {
-                label: c.label,
-                isOther: c.isOther,
-                choiceId: c.choiceId,
-              };
-            })}
-            onValuesChange={updateAnswerSettings}
+            initialValues={options}
+            onValuesChange={optionsHandler}
           />
         );
       case AnswerTypes.date:
