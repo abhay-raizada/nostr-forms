@@ -7,7 +7,6 @@ import {
 } from "@formstr/sdk/dist/interfaces";
 import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext } from "./typeDefs";
-import { IQuestion } from "../../typeDefs";
 import { areArraysSame, generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
 import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
@@ -21,7 +20,6 @@ import { useNavigate } from "react-router-dom";
 import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
-import FormIdentifier from "../../components/FormSettings/FormIdentifier";
 
 export type Field = [
   placeholder: string,
@@ -37,8 +35,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   initializeForm: (draft: IDraft) => null,
   saveForm: () => null,
   editQuestion: (question: Field, tempId: string) => null,
-  addQuestion: (primitive?: string, answerType?: AnswerTypes, label?: string) =>
-    null,
+  addQuestion: (primitive?: string, label?: string) => null,
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
@@ -163,7 +160,9 @@ export default function FormBuilderProvider({
   }
 
   const saveForm = async () => {
+    console.log("CALLLED!!!");
     const formToSave = getFormSpec();
+    console.log("CALLLED!!! saving form", formToSave);
     let formPassword: string | null = generateRandomPassword();
     if (!formSettings.formId) {
       alert("Form ID is required");
@@ -221,10 +220,11 @@ export default function FormBuilderProvider({
 
   const addQuestion = (
     primitive?: string,
-    answerType?: AnswerTypes,
     label?: string,
     answerSettings?: AnswerSettings
   ) => {
+    console.log("called with,", primitive, label, answerSettings);
+    console.log("question list was", questionsList);
     setIsLeftMenuOpen(false);
     setQuestionsList([
       ...questionsList,

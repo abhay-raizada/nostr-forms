@@ -65,21 +65,22 @@ export const createForm = async (
     content: "",
     pubkey: userPubkey,
   };
-  const templateEvent = await signEvent(baseTemplateEvent, userSecretKey);
-  console.log("final event is ", templateEvent);
-  await Promise.allSettled(pool.publish(relayList, templateEvent));
-  let useId = userPubkey;
-  if (encodeProfile) {
-    useId = nip19.nprofileEncode({
-      pubkey: useId,
-      relays: relayList,
-    });
-  }
-  let formCredentials = null;
-  if (userSecretKey) {
-    formCredentials = [useId, bytesToHex(userSecretKey)];
-  }
-  pool.close(relayList);
-  if (!formPassword) return [useId, useId];
-  else return [useId, useId];
+  console.log("event is ", baseTemplateEvent);
+  // const templateEvent = await signEvent(baseTemplateEvent, userSecretKey);
+  // console.log("final event is ", templateEvent);
+  // await Promise.allSettled(pool.publish(relayList, templateEvent));
+  // let useId = userPubkey;
+  // if (encodeProfile) {
+  //   useId = nip19.nprofileEncode({
+  //     pubkey: useId,
+  //     relays: relayList,
+  //   });
+  // }
+  // let formCredentials = null;
+  // if (userSecretKey) {
+  //   formCredentials = [useId, bytesToHex(userSecretKey)];
+  // }
+  // pool.close(relayList);
+  // if (!formPassword) return [useId, useId];
+  return ["", ""];
 };

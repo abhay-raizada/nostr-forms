@@ -17,7 +17,6 @@ export interface IFormBuilderContext {
   editQuestion: (question: Field, tempId: string) => void;
   addQuestion: (
     primitive?: string,
-    answerType?: AnswerTypes,
     label?: string,
     answerSettings?: AnswerSettings
   ) => void;

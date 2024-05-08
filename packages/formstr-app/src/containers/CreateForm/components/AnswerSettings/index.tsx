@@ -17,9 +17,12 @@ function AnswerSettings() {
     (field: Field) => field[1] === questionIdInFocus
   );
   const question = questionsList[questionIndex];
-  const answerSettings = JSON.parse(question[5]);
+  const answerSettings = JSON.parse(
+    question[5] || '{ "renderElement": "label"}'
+  );
   const answerType = INPUTS_MENU.find(
-    (option) => option.type === answerSettings.renderElement
+    (option) =>
+      option.answerSettings.renderElement === answerSettings.renderElement
   );
 
   const handleRightAnswer = (rightAnswer: string) => {
@@ -39,7 +42,7 @@ function AnswerSettings() {
     if (!selectedItem) return;
     let field = question;
     field[2] = selectedItem.primitive;
-    let newAnswerSettings = { renderElement: selectedItem!.type };
+    let newAnswerSettings = selectedItem.answerSettings;
     field[5] = JSON.stringify(newAnswerSettings);
     editQuestion(field, field[1]);
   };

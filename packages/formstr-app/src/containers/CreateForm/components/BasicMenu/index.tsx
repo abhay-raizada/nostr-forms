@@ -7,7 +7,10 @@ function BasicMenu() {
 
   const onMenuClick = ({ key }: { key: string }) => {
     const selectedItem = BASIC_MENU.find((item) => item.key === key);
-    addQuestion(selectedItem?.primitive, selectedItem?.type);
+    addQuestion(
+      selectedItem?.primitive,
+      selectedItem?.answerSettings.renderElement
+    );
   };
 
   const items = [

@@ -5,7 +5,9 @@ import { ROUTES } from "../../constants/routes";
 import { FormFiller } from "../../containers/FormFiller";
 import { NostrHeader } from "../Header";
 import { CreateFormHeader } from "../../containers/CreateFormOld/components/Header/Header";
+import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateForm/components/Header/Header";
 import FormBuilderProvider from "../../containers/CreateFormOld/providers/FormBuilder";
+import NewFormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
 import { Responses } from "../../containers/Responses/Responses";
 import { V1DraftsController } from "../../containers/Drafts";
 import CreateFormOld from "../../containers/CreateFormOld";
@@ -30,6 +32,17 @@ const withCreateFormHeaderWrapper = (Component, props) => {
   );
 };
 
+const withNewCreateFormHeaderWrapper = (Component, props) => {
+  return (
+    <>
+      <NewFormBuilderProvider>
+        <CreateFormHeaderNew />
+        <Component {...props} />
+      </NewFormBuilderProvider>
+    </>
+  );
+};
+
 function Routing() {
   return (
     <Routes>
@@ -45,7 +58,7 @@ function Routing() {
       />
       <Route
         path={`${ROUTES.CREATE_FORMS_NEW}/*`}
-        element={withCreateFormHeaderWrapper(CreateForm)}
+        element={withNewCreateFormHeaderWrapper(CreateForm)}
       />
       <Route
         path={`${ROUTES.MY_FORMS}/*`}

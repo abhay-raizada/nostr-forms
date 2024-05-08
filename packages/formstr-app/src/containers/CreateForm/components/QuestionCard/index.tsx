@@ -24,7 +24,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   firstQuestion,
   lastQuestion,
 }) => {
-  const answerSettings = JSON.parse(question[5]);
+  console.log("question is", question, question[5]);
+  const answerSettings = JSON.parse(question[5] || "{}");
   const { setQuestionIdInFocus } = useFormBuilderContext();
 
   const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -72,7 +73,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
               <Input.TextArea
                 className="question-input"
                 onChange={handleTextChange}
-                defaultValue={question[2] || "Click to edit"}
+                defaultValue={question[3] || "Click to edit"}
                 placeholder="Enter a Question"
                 autoSize
               />
