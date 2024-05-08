@@ -170,13 +170,17 @@ export default function FormBuilderProvider({
       return;
     }
     const relayUrls = relayList.map((relay) => relay.url);
-    const formCreds = await createForm(formToSave, null, relayUrls);
-    deleteDraft(formTempId);
-    setFormTempId(""); // to avoid creating a draft
-    if (formCreds) storeLocally(formCreds, formPassword, formSettings.formId);
-    navigate("/myForms/local", {
-      state: { formCreds, formPassword, formIdentifier: formSettings.formId },
-    });
+    const formCreds = createForm(formToSave, null, relayUrls).then(
+      (value) => {
+        deleteDraft(formTempId);
+        setFormTempId(""); // to avoid creating a draft
+        navigate("/myForms/local");
+      },
+      (error) => {
+        console.log("Error creating form", error);
+        alert("error creating the form: " + error);
+      }
+    );
   };
 
   const saveDraft = () => {

@@ -7,7 +7,7 @@ export const generateQuestion = (
   primitive: string = "text",
   label: string | null = null,
   choices: string[][] = [],
-  answerSettings: IAnswerSettings = {}
+  answerSettings: IAnswerSettings = { renderElement: AnswerTypes.shortText }
 ): Field => {
   return [
     "field",
