@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Button, Table } from "antd";
 import { getDecoratedPastForms } from "@formstr/sdk";
 import ResponsiveLink from "../../../../components/ResponsiveLink";
-import { constructFormUrl, constructResponseUrl } from "@formstr/sdk";
+import {
+  constructFormUrl,
+  constructResponseUrl,
+} from "../../../../utils/utility";
 import { IForm } from "./typeDefs";
 import SyncButtonStyle from "./syncButton.style";
 
@@ -41,18 +44,12 @@ function Nostr() {
   const [forms, setForms] = useState<IForm[] | null>(null);
   const loadNostrForms = async () => {
     setIsLoading(true);
-    const forms = await getDecoratedPastForms();
-    const parsedForms = forms.map((form, idx) => ({
+    let forms = await getDecoratedPastForms();
+    let parsedForms = forms.map((form, idx) => ({
       key: idx + 1,
       name: form.formName,
-      formUrl: constructFormUrl(form.formId, form.formPassword),
-      responseUrl: constructResponseUrl(
-        form.formSecret,
-        window.location.origin,
-        form.formId,
-        form.formPassword,
-      ),
-      formPassword: form.formPassword,
+      formUrl: constructFormUrl(form.formId),
+      responseUrl: constructResponseUrl(form.formSecret),
     }));
     setForms(parsedForms);
     setIsLoading(false);

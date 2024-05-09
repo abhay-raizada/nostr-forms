@@ -19,9 +19,7 @@ import {
 import {
   AnswerSettings,
   AnswerTypes,
-  Errors,
   Field,
-  FormPassword,
   FormResponse,
   FormSpec,
   V0AnswerTypes,
@@ -34,7 +32,6 @@ import {
   V1Submission,
 } from "../interfaces";
 import { ProfilePointer } from "nostr-tools/lib/types/nip19";
-import { ENCRYPTION_TYPES, EncryptionConfig } from "../encryption";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 
 declare global {
@@ -287,8 +284,7 @@ export const getDecoratedPastForms = async () => {
     const formId = form[1][0];
     const formName = formTemplates[formId]?.name || "Unknown Form";
     const formSecret = form[1][1];
-    const formPassword: FormPassword = form[1][2] ?? null;
-    return { formId, formName, formSecret, formPassword };
+    return { formId, formName, formSecret };
   });
 };
 
@@ -304,11 +300,7 @@ export const saveFormOnNostr = async (
   if (!Array.isArray(pastForms)) {
     pastForms = [];
   }
-  if (!formPassword) {
-    pastForms.push(["form", [...formCredentials, null]]);
-  } else {
-    pastForms.push(["form", [...formCredentials, formPassword]]);
-  }
+  pastForms.push(["form", ...formCredentials]);
   const message = JSON.stringify(pastForms);
   const ciphertext = await encryptMessage(
     message,
@@ -384,7 +376,7 @@ export const sendResponses = async (
     formIdPubkey = pubkey;
     relayList = relays || defaultRelays;
   }
-  const form = await getFormTemplateWithPassword(formId, formPassword);
+  const form = await getFormTemplate(formId);
   const questionIds = form.fields?.map((field) => field.questionId) || [];
   console.log("Responses are", responses);
   responses.forEach((response) => {
@@ -640,7 +632,11 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
+<<<<<<< HEAD
   nprofile?: string | null
+=======
+  nprofile: string | null
+>>>>>>> fcf068e (Cleanup)
 ) => {
   const formId = nprofile ? nprofile : getPublicKey(hexToBytes(formSecret));
   const responses = await getEncryptedResponses(formId);
@@ -648,7 +644,7 @@ export const getFormResponses = async (
     responses: Array<FormResponse>;
     authorName: string;
   };
-  const formTemplate = await getFormTemplateWithPassword(formId, password);
+  const formTemplate = await getFormTemplate(formId);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   const responsesBy = responses.map((r) => r.pubkey);
@@ -724,128 +720,4 @@ export const syncFormsOnNostr = async (
   const pool = new SimplePool();
   pool.publish(defaultRelays, nip51event);
   pool.close(defaultRelays);
-};
-
-export const getFormTemplateWithPassword = async (
-  formId: string,
-  formPassword: FormPassword
-): Promise<V1FormSpec> => {
-  const pool = new SimplePool();
-  let formIdPubkey = formId;
-  let relayList = defaultRelays;
-  if (formId.startsWith("nprofile")) {
-    const { pubkey, relays } = nip19.decode(formId)
-      .data as nip19.ProfilePointer;
-    formIdPubkey = pubkey;
-    relayList = relays || defaultRelays;
-  }
-  const filter = {
-    kinds: [0],
-    authors: [formIdPubkey], //formId is the npub of the form
-  };
-  const kind0 = await pool.get(relayList, filter);
-  pool.close(relayList);
-  let formTemplate;
-  if (kind0) {
-    formTemplate = JSON.parse(kind0.content);
-    const formVersion = utils.detectFormVersion(formTemplate);
-    if (formVersion === "v0") {
-      formTemplate = convertV1Form(formTemplate);
-    }
-    if (
-      formTemplate?.metadata?.encryption &&
-      formTemplate.metadata.encryption in EncryptionConfig
-    ) {
-      if (!formPassword) {
-        throw new Error(Errors.FORM_PASSWORD_REQUIRED);
-      }
-      try {
-        const formFields = JSON.parse(
-          EncryptionConfig[
-            formTemplate.metadata.encryption as ENCRYPTION_TYPES
-          ].decryptFormContent(formTemplate.fields, formPassword)
-        );
-        formTemplate = {
-          ...formTemplate,
-          fields: formFields,
-        };
-      } catch {
-        throw new Error(Errors.WRONG_PASSWORD);
-      }
-    }
-  } else {
-    throw Error("Form template not found");
-  }
-  return formTemplate;
-};
-
-export const createFormWithPassword = async (
-  form: FormSpec,
-  formPassword: FormPassword,
-  saveOnNostr = false,
-  userSecretKey: Uint8Array | null = null,
-  tags: Array<string[]> = [],
-  relayList: Array<string> = defaultRelays,
-  encodeProfile = false,
-  encryptionType: ENCRYPTION_TYPES = ENCRYPTION_TYPES.AES
-) => {
-  if (!formPassword) {
-    return createForm(
-      form,
-      saveOnNostr,
-      userSecretKey,
-      tags,
-      relayList,
-      encodeProfile
-    );
-  }
-  const pool = new SimplePool();
-  const formSecret = generateSecretKey();
-  const formId = getPublicKey(formSecret);
-  try {
-    isValidSpec(await getSchema("v1"), form);
-  } catch (e) {
-    throw Error("Invalid form spec" + e);
-  }
-  const v1form = generateIds(form);
-  const formWithEncryptedContent: Omit<V1FormSpec, "fields"> & {
-    fields: string;
-  } = {
-    ...v1form,
-    metadata: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...v1form.metadata,
-      encryption: encryptionType,
-    },
-    fields: EncryptionConfig[encryptionType].encryptFormContent(
-      JSON.stringify(v1form.fields),
-      formPassword
-    ),
-  };
-  const content = JSON.stringify(formWithEncryptedContent);
-  const baseKind0Event: Event = {
-    kind: 0,
-    created_at: Math.floor(Date.now() / 1000),
-    tags: tags,
-    content: content,
-    pubkey: formId,
-    id: "",
-    sig: "",
-  };
-  const kind0Event: Event = finalizeEvent(baseKind0Event, formSecret);
-  pool.publish(relayList, kind0Event);
-  let useId = formId;
-  if (encodeProfile) {
-    useId = nip19.nprofileEncode({
-      pubkey: formId,
-      relays: relayList,
-    });
-  }
-  const formCredentials = [useId, bytesToHex(formSecret)];
-  if (saveOnNostr) {
-    await saveFormOnNostr(formCredentials, userSecretKey, formPassword);
-  }
-  pool.close(relayList);
-  return formCredentials;
 };

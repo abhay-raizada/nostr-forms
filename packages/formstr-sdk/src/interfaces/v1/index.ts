@@ -143,5 +143,4 @@ export interface IFormSettings {
   notifyNpubs?: Array<string>;
   publicForm?: boolean;
   disallowAnonymous?: boolean;
-  formId?: string;
 }

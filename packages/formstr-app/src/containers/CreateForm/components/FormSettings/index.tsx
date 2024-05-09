@@ -4,7 +4,6 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import TitleImage from "./TitleImage";
 import { Notifications } from "./Notifications";
 import { RelayList } from "./RelayList";
-import FormIdentifier from "./FormIdentifier";
 
 const { Text } = Typography;
 
@@ -26,10 +25,6 @@ function FormSettings() {
   return (
     <StyleWrapper>
       <div className="form-setting">
-        <Text className="property-name">Form Identifier</Text>
-        <FormIdentifier />
-      </div>
-      <div className="form-setting">
         <TitleImage titleImageUrl={formSettings.titleImageUrl} />
       </div>
       <Divider className="divider" />
@@ -37,7 +32,6 @@ function FormSettings() {
         <Text className="property-name">Notify on response</Text>
         <Notifications />
       </div>
-
       <Divider className="divider" />
       <div className="form-setting">
         <Tooltip title="This will make the form appear on the Public Forms section on formstr">

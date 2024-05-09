@@ -1,4 +1,4 @@
-import { Errors, FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
+import { FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import {
@@ -8,8 +8,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { sendNotification } from "@formstr/sdk";
-import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
+import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
 import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
@@ -17,13 +16,11 @@ import { getValidationRules } from "./validations";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile, makeTag } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
-import { getItem, LOCAL_STORAGE_KEYS, setItem } from "../../utils/localStorage";
+import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../../utils/localStorage";
 import { ISubmission } from "../MyForms/components/Submissions/submissions.types";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
 import Markdown from "react-markdown";
-import { useFormPassword, PasswordInput } from "../../components/FormPassword";
-import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 
 const { Text } = Typography;
 
@@ -36,27 +33,20 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
-  const { pubKey, formId } = useParams();
-  const [searchParams] = useSearchParams();
+  const { formId } = useParams();
   const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [thankYouScreen, setThankYouScreen] = useState(false);
+  const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
-  const {
-    password,
-    showPasswordPrompt,
-    onPasswordEnter,
-    syncPasswordWithUrl,
-    setPasswordRequired,
-  } = useFormPassword();
 
   const isPreview = !!formSpec;
 
   const convertFromSpecToTemplate = (formSpec: FormSpec): V1FormSpec => {
-    const fields = formSpec.fields?.map((field) => {
+    let fields = formSpec.fields?.map((field) => {
       return {
         ...field,
         questionId: makeTag(6),
@@ -70,37 +60,24 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     };
   };
 
-  async function getForm() {
-    if (!formTemplate) {
-      if (!(formId && pubKey) && !formSpec) {
-        throw Error("Form Id not provided");
-      }
-      let form = null;
-      try {
-        if (formId && pubKey)
-          form = await fetchFormTemplate(pubKey, formId, password);
-        syncPasswordWithUrl();
-      } catch (e: any) {
-        if (
-          [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
-            e.message
-          )
-        ) {
-          setPasswordRequired();
-        }
-      }
-      if (formSpec) form = convertFromSpecToTemplate(formSpec);
-
-      if (!form) return;
-      setFormTemplate(form);
-    }
-  }
-
   useEffect(() => {
-    getForm();
-  }, [formTemplate, formId, formSpec, password]);
+    async function getForm() {
+      if (!formTemplate) {
+        if (!formId && !formSpec) {
+          throw Error("Form Id not provided");
+        }
+        let form = null;
+        if (formId) form = await getFormTemplate(formId);
+        if (formSpec) form = convertFromSpecToTemplate(formSpec);
 
-  if (!(formId && pubKey) && !formSpec) {
+        if (!form) return;
+        setFormTemplate(form);
+      }
+    }
+    getForm();
+  }, [formTemplate, formId, formSpec]);
+
+  if (!formId && !formSpec) {
     return null;
   }
 
@@ -133,8 +110,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     setItem(LOCAL_STORAGE_KEYS.SUBMISSIONS, submissions);
   };
 
-  const saveResponse = async (anonymous = true) => {
-    const formResponses = form.getFieldsValue(true);
+  const saveResponse = async (anonymous: boolean = true) => {
+    let formResponses = form.getFieldsValue(true);
     const response = Object.keys(formResponses).map((key: string) => {
       let answer = null;
       let message = null;
@@ -147,14 +124,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     });
     let userId = null;
     if (formId) {
-      userId = await sendResponses(
-        pubKey!,
-        formId,
-        response,
-        anonymous,
-        null,
-        password
-      );
+      userId = await sendResponses(formId, response, anonymous);
       saveSubmissionLocally(formId, userId, new Date().toString());
     }
     if (formTemplate && !isPreview) sendNotification(formTemplate, response);
@@ -168,15 +138,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     settings = formTemplate.settings;
     fields = formTemplate.fields;
   }
-  if (showPasswordPrompt) {
-    return (
-      <PasswordInput
-        previousPassword={password}
-        onPasswordEnter={onPasswordEnter}
-      />
-    );
-  }
-
   return (
     <FillerStyle $isPreview={isPreview}>
       {!formSubmitted && (
@@ -207,7 +168,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             >
               <div>
                 {fields?.map((field) => {
-                  const rules = [
+                  let rules = [
                     {
                       required: field.answerSettings.required,
                       message: "This is a required question",

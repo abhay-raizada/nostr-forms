@@ -1,6 +1,5 @@
 import { getFormResponses } from "@formstr/sdk";
 import {
-  Errors,
   FormResponses,
   V1Field,
   V1FormSpec,
@@ -11,7 +10,6 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import SummaryStyle from "./summary.style";
 import ResponseWrapper from "./Responses.style";
-import { useFormPassword, PasswordInput } from "../../components/FormPassword";
 
 import { Export } from "./Export";
 import { isMobile } from "../../utils/utility";
@@ -24,15 +22,8 @@ export const Responses = () => {
   const formId = searchParams.get("formId");
   const [allResponses, setAllResponses] = useState<FormResponses>({});
   const [questionMap, setQuestionMap] = useState<{ [key: string]: V1Field }>(
-    {},
+    {}
   );
-  const {
-    password,
-    syncPasswordWithUrl,
-    showPasswordPrompt,
-    onPasswordEnter,
-    setPasswordRequired,
-  } = useFormPassword();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [formSummary, setFormSummary] = useState<V1FormSpec>({
     name: "Loading...",
@@ -44,29 +35,14 @@ export const Responses = () => {
       if (!formSecret) {
         throw Error("form secret required to view responses");
       }
-      try {
-        const responses = await getFormResponses(
-          formSecret || "",
-          formId,
-          password,
-        );
-        syncPasswordWithUrl();
-        setIsLoading(false);
-        setAllResponses(responses.allResponses);
-        setQuestionMap(responses.questionMap);
-        setFormSummary(responses.formSummary);
-      } catch (e: any) {
-        if (
-          [Errors.FORM_PASSWORD_REQUIRED, Errors.WRONG_PASSWORD].includes(
-            e.message,
-          )
-        ) {
-          setPasswordRequired();
-        }
-      }
+      const responses = await getFormResponses(formSecret || "", formId);
+      setIsLoading(false);
+      setAllResponses(responses.allResponses);
+      setQuestionMap(responses.questionMap);
+      setFormSummary(responses.formSummary);
     }
     fetchResponses();
-  }, [formSecret, isLoading, formId, password]);
+  }, [formSecret, isLoading, formId]);
 
   const getData = () => {
     return Object.keys(allResponses).map((authorId) => {
@@ -119,15 +95,6 @@ export const Responses = () => {
     }
     return columns;
   };
-
-  if (showPasswordPrompt) {
-    return (
-      <PasswordInput
-        onPasswordEnter={onPasswordEnter}
-        previousPassword={password}
-      />
-    );
-  }
 
   return (
     <div>

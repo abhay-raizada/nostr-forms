@@ -3,25 +3,20 @@ import { constructFormUrl } from "@formstr/sdk";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "@formstr/sdk/dist/utils/utils";
 import FormDetailsStyle from "./FormDetails.style";
-import React, { useState } from "react";
+import { useState } from "react";
 import { CopyButton } from "../../../../components/CopyButton";
-import { FormPassword } from "@formstr/sdk/dist/interfaces";
 
 const { Text } = Typography;
 interface FormDetailsProps {
   isOpen: boolean;
   formCredentials: string[];
   onClose: () => void;
-  formPassword: FormPassword;
-  formIdentifier?: string;
 }
 
 export const FormDetails: React.FC<FormDetailsProps> = ({
   isOpen,
   formCredentials,
   onClose,
-  formPassword,
-  formIdentifier,
 }) => {
   type TabKeyType = "share" | "embed";
   type OptionType = "hideTitleImage" | "hideDescription";
@@ -41,31 +36,18 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   if (formCredentials.length === 0) {
     return <></>;
   }
-  const formUrl = constructFormUrl(
-    formCredentials[0],
-    formPassword,
-    window.location.origin,
-    false,
-    formIdentifier
-  );
+  const formUrl = constructFormUrl(formCredentials[0], window.location.origin);
   const responsesUrl = constructResponseUrl(
     formCredentials[1],
     window.location.origin,
-    formCredentials[0],
-    formCredentials[2]
+    formCredentials[0]
   );
 
   function constructEmbeddedUrl(
     formId: string,
     options: { [key: string]: boolean } = {}
   ) {
-    let embeddedUrl = constructFormUrl(
-      formId,
-      formPassword,
-      window.location.origin,
-      true,
-      formIdentifier
-    );
+    let embeddedUrl = constructFormUrl(formId, window.location.origin, true);
 
     if (options.hideTitleImage) {
       embeddedUrl += "?hideTitleImage=true";

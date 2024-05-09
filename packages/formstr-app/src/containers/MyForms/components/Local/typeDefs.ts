@@ -1,5 +1,3 @@
-import { FormPassword } from "@formstr/sdk/dist/interfaces";
-
 export interface ILocalForm {
   key: string;
   name: string;
@@ -7,6 +5,4 @@ export interface ILocalForm {
   publicKey: string;
   privateKey: string;
   formCredentials?: Array<string>;
-  formPassword: FormPassword;
-  formIdentifier?: string;
 }

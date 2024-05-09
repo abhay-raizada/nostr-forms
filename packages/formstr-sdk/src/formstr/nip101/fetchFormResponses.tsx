@@ -1,6 +1,5 @@
 import { SimplePool, getPublicKey, nip19, nip44 } from "nostr-tools";
 import {
-  FormPassword,
   FormResponse,
   V1Field,
   V1FormSpec,
@@ -96,17 +95,13 @@ async function getNIP101Responses(pubKey: string, formId: string) {
   return responses;
 }
 
-export const getFormResponses = async (
-  pubKey: string,
-  formId: string,
-  password: FormPassword
-) => {
+export const getFormResponses = async (pubKey: string, formId: string) => {
   const responses = await getNIP101Responses(pubKey, formId);
   type ResponseType = {
     responses: Array<FormResponse>;
     authorName: string;
   };
-  const formTemplate = await fetchFormTemplate(pubKey, formId, password);
+  const formTemplate = await fetchFormTemplate(pubKey, formId);
   const questionMap = createQuestionMap(formTemplate);
   const finalResponses: { [key: string]: ResponseType } = {};
   const responsesBy = responses.map((r) => r.pubkey);

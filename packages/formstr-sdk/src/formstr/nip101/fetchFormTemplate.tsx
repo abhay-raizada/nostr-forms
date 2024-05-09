@@ -1,12 +1,10 @@
 import { SimplePool, nip19 } from "nostr-tools";
-import { Errors, FormPassword, V1FormSpec } from "../../interfaces";
 import { getDefaultRelays } from "../formstr";
-import { ENCRYPTION_TYPES, EncryptionConfig } from "../../encryption";
+import { V1FormSpec } from "../../interfaces";
 
 export const fetchFormTemplate = async (
   pubKey: string,
-  formIdentifier: string,
-  formPassword: FormPassword
+  formIdentifier: string
 ): Promise<V1FormSpec> => {
   const pool = new SimplePool();
   let formIdPubkey = pubKey;
@@ -29,24 +27,6 @@ export const fetchFormTemplate = async (
   let formTemplate;
   if (nostrEvent) {
     formTemplate = JSON.parse(nostrEvent.content);
-    if (typeof formTemplate.fields === "string") {
-      if (!formPassword) {
-        throw new Error(Errors.FORM_PASSWORD_REQUIRED);
-      }
-      try {
-        const formFields = JSON.parse(
-          EncryptionConfig[
-            formTemplate.metadata.encryption as ENCRYPTION_TYPES
-          ].decryptFormContent(formTemplate.fields, formPassword)
-        );
-        formTemplate = {
-          ...formTemplate,
-          fields: formFields,
-        };
-      } catch {
-        throw new Error(Errors.WRONG_PASSWORD);
-      }
-    }
   } else {
     throw Error("Form template not found");
   }

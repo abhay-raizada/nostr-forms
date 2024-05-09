@@ -1,10 +1,17 @@
-import {
-  AnswerSettings,
-  FormSpec,
-  IFormSettings,
-} from "@formstr/sdk/dist/interfaces";
+import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { Field } from ".";
+import { IFormSettings } from "../../components/FormSettings/types";
+
+export interface ILocalForm {
+  key: string;
+  name: string;
+  createdAt: string;
+  publicKey: string;
+  privateKey: string;
+  formCredentials?: Array<string>;
+  formId?: string;
+}
 
 export interface IFormBuilderContext {
   initializeForm: (draft: IDraft) => void;

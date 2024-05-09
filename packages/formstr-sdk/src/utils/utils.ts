@@ -1,4 +1,4 @@
-import { FormPassword, FormSpec, V0FormSpec } from "../interfaces";
+import { FormSpec, V0FormSpec } from "../interfaces";
 
 export function makeTag(length: number) {
   let result = "";
@@ -15,41 +15,26 @@ export function makeTag(length: number) {
 
 export function constructFormUrl(
   publicKey: string,
-  formPassword: FormPassword,
-  host = window.location.origin,
-  embedded = false,
-  formIdentifier?: string
+  host: string,
+  embedded = false
 ) {
   if (!publicKey) {
     throw Error("public key is required");
   }
-  console.log("Received, form identifier: ", formIdentifier);
-
-  if (!formIdentifier)
-    return `${host}/#/${embedded ? "embedded" : "f"}/${publicKey}${
-      formPassword ? `?pwd=${formPassword}` : ""
-    }`;
-  return `${host}/#/${
-    embedded ? "embedded" : "f"
-  }/${publicKey}/${formIdentifier}${
-    formPassword ? `?pwd=${formPassword}` : ""
-  }`;
+  return `${host}/#/${embedded ? "embedded" : "fill"}/${publicKey}`;
 }
 export function constructResponseUrl(
   privateKey: string,
-  host = window.location.origin,
-  formId: string,
-  formPassword: FormPassword
+  host: string,
+  formId: string
 ) {
   if (!privateKey) {
     throw Error("public key is required");
   }
   if (formId?.startsWith("nprofile")) {
-    return `${host}/#/response/${privateKey}?formId=${formId}&pwd=${
-      formPassword || ""
-    }`;
+    return `${host}/#/response/${privateKey}?formId=${formId}`;
   }
-  return `${host}/#/response/${privateKey}?pwd=${formPassword || ""}`;
+  return `${host}/#/response/${privateKey}`;
 }
 
 export function constructDraftUrl(

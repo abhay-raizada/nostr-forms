@@ -5,7 +5,6 @@ import {
   FormSpec,
   IFormSettings,
 } from "@formstr/sdk/dist/interfaces";
-import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext } from "./typeDefs";
 import { IQuestion } from "../../typeDefs";
 import { areArraysSame, generateQuestion } from "../../utils";
@@ -20,7 +19,6 @@ import { useNavigate } from "react-router-dom";
 import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
-import FormIdentifier from "../../components/FormSettings/FormIdentifier";
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
@@ -133,21 +131,15 @@ export default function FormBuilderProvider({
     setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
   };
 
-  function storeLocally(
-    formCredentials: Array<string>,
-    formPassword: string | null,
-    formIdentifier?: string
-  ) {
-    const saveObject: ILocalForm = {
+  function storeLocally(formCredentials: Array<string>) {
+    let saveObject: ILocalForm = {
       key: formCredentials[0],
       publicKey: formCredentials[0],
       privateKey: formCredentials[1],
-      formPassword,
-      formIdentifier,
       name: formName,
       createdAt: new Date().toString(),
     };
-    const forms =
+    let forms =
       getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
 
     const existingKeys = forms.map((form) => form.publicKey);
@@ -159,18 +151,12 @@ export default function FormBuilderProvider({
   }
 
   const saveForm = async () => {
-    const formToSave = getFormSpec();
-    let formPassword: string | null = generateRandomPassword();
-    if (!formSettings.formId) {
-      alert("Form ID is required");
-      return;
-    }
+    let formToSave = getFormSpec();
     let tags: Array<Array<string>> = [];
     if (formSettings.publicForm === true) {
       tags = [["l", "formstr"]];
-      formPassword = null;
     }
-    const relayUrls = relayList.map((relay) => relay.url);
+    let relayUrls = relayList.map((relay) => relay.url);
 
     const formCreds = await createForm(
       formToSave,
@@ -182,10 +168,8 @@ export default function FormBuilderProvider({
     );
     deleteDraft(formTempId);
     setFormTempId(""); // to avoid creating a draft
-    if (formCreds) storeLocally(formCreds, formPassword, formSettings.formId);
-    navigate("/myForms/local", {
-      state: { formCreds, formPassword, formIdentifier: formSettings.formId },
-    });
+    storeLocally(formCreds);
+    navigate("/myForms/local", { state: formCreds });
   };
 
   const saveDraft = () => {
@@ -209,7 +193,7 @@ export default function FormBuilderProvider({
   };
 
   const editQuestion = (question: IQuestion, tempId: string) => {
-    const editedList = questionsList.map((existingQuestion: IQuestion) => {
+    let editedList = questionsList.map((existingQuestion: IQuestion) => {
       if (existingQuestion.tempId === tempId) {
         return question;
       }
@@ -251,7 +235,7 @@ export default function FormBuilderProvider({
   };
 
   const updateFormTitleImage = (e: React.FormEvent<HTMLInputElement>) => {
-    const imageUrl = e.currentTarget.value;
+    let imageUrl = e.currentTarget.value;
     if (imageUrl) {
       updateFormSetting({
         titleImageUrl: imageUrl,
@@ -260,7 +244,7 @@ export default function FormBuilderProvider({
   };
 
   const initializeForm = (draft: IDraft) => {
-    const formSpec = draft.formSpec;
+    let formSpec = draft.formSpec;
     setFormName(formSpec.name);
     if (formSpec.settings) setFormSettings(formSpec.settings);
     setQuestionsList(

@@ -1,13 +1,8 @@
 import React, { useRef, useState } from "react";
-import {
-  AnswerSettings,
-  AnswerTypes,
-  FormSpec,
-  IFormSettings,
-} from "@formstr/sdk/dist/interfaces";
+import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
 import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
-import { IFormBuilderContext } from "./typeDefs";
-import { areArraysSame, generateQuestion } from "../../utils";
+import { IFormBuilderContext, ILocalForm } from "./typeDefs";
+import { generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
 import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
 import {
@@ -17,9 +12,9 @@ import {
 } from "../../../../utils/localStorage";
 import { makeTag } from "../../../../utils/utility";
 import { useNavigate } from "react-router-dom";
-import { ILocalForm } from "../../../MyForms/components/Local/typeDefs";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
+import { IFormSettings } from "../../components/FormSettings/types";
 
 export type Field = [
   placeholder: string,
@@ -137,15 +132,13 @@ export default function FormBuilderProvider({
 
   function storeLocally(
     formCredentials: Array<string>,
-    formPassword: string | null,
     formIdentifier?: string
   ) {
     const saveObject: ILocalForm = {
       key: formCredentials[0],
       publicKey: formCredentials[0],
       privateKey: formCredentials[1],
-      formPassword,
-      formIdentifier,
+      formId: formIdentifier,
       name: formName,
       createdAt: new Date().toString(),
     };

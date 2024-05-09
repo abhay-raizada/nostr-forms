@@ -5,7 +5,7 @@ import {
   getPublicKey,
   nip19,
 } from "nostr-tools";
-import { FormPassword, V1Submission } from "../../interfaces";
+import { V1Submission } from "../../interfaces";
 import {
   encryptMessage,
   getDefaultRelays,
@@ -21,8 +21,7 @@ export const sendResponses = async (
   formId: string,
   responses: Array<V1Submission>,
   anonymous: boolean,
-  userSecretKey: Uint8Array | null = null,
-  formPassword: FormPassword
+  userSecretKey: Uint8Array | null = null
 ) => {
   let formAuthor = formAuthorPub;
   let relayList = defaultRelays;
@@ -32,7 +31,7 @@ export const sendResponses = async (
     formAuthor = pubkey;
     relayList = relays || defaultRelays;
   }
-  const form = await fetchFormTemplate(formAuthor, formId, formPassword);
+  const form = await fetchFormTemplate(formAuthor, formId);
   const questionIds = form.fields?.map((field) => field.questionId) || [];
   console.log("Responses are", responses, questionIds);
   responses.forEach((response) => {
