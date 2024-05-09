@@ -7,13 +7,13 @@ import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import useDeviceType from "../../../../hooks/useDeviceType";
-import { IQuestion } from "../../typeDefs";
 import { classNames } from "../../../../utils/utility";
+import { Field } from "../../providers/FormBuilder";
 
 interface CardHeaderProps {
   required?: boolean;
   onRequired: (required: boolean) => void;
-  question: IQuestion;
+  question: Field;
   onReorderKey: (keyType: "UP" | "DOWN", tempId: string) => void;
   firstQuestion: boolean;
   lastQuestion: boolean;
@@ -37,7 +37,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
             <div className="action-icon">
               <ArrowUpOutlined
                 className="icon-svg"
-                onClick={() => onReorderKey("UP", question?.tempId)}
+                onClick={() => onReorderKey("UP", question[1])}
               />
             </div>
           )}
@@ -45,7 +45,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
             <div className="action-icon">
               <ArrowDownOutlined
                 className="icon-svg"
-                onClick={() => onReorderKey("DOWN", question?.tempId)}
+                onClick={() => onReorderKey("DOWN", question[1])}
               />
             </div>
           )}

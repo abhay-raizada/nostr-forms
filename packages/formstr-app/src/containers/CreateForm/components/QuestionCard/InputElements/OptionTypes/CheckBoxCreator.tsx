@@ -4,11 +4,11 @@ import { useState } from "react";
 import OptionsStyle from "./Options.style";
 import { AddOption } from "./AddOption";
 import { handleDelete, handleLabelChange, hasOtherOption } from "./utils";
-import { Choice, ChoiceSettings } from "./types";
+import { Choice } from "@formstr/sdk/dist/interfaces";
 
 interface CheckboxCreatorProps {
   initialValues?: Array<Choice>;
-  onValuesChange: (options: Choice[]) => void;
+  onValuesChange: (key: string, property: unknown) => void;
 }
 
 export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
@@ -19,38 +19,36 @@ export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
 
   const handleNewChoices = (choices: Array<Choice>) => {
     setChoices(choices);
-    onValuesChange(choices);
+    onValuesChange("choices", choices);
   };
 
   return (
     <OptionsStyle>
       {choices?.map((choice) => {
-        let [choiceId, label, settingsString] = choice;
-        let settings = JSON.parse(settingsString || "{}") as ChoiceSettings;
         return (
-          <div className="radioButtonItem" key={choiceId}>
-            <Checkbox disabled key={choiceId + "checkbox"} />
+          <div className="radioButtonItem" key={choice.choiceId}>
+            <Checkbox disabled key={choice.choiceId + "checkbox"} />
             <Input
-              key={choiceId + "input"}
-              defaultValue={label}
+              key={choice.choiceId + "input"}
+              defaultValue={choice.label}
               onChange={(e) => {
                 handleLabelChange(
                   e.target.value,
-                  choiceId!,
+                  choice.choiceId!,
                   choices,
                   handleNewChoices
                 );
               }}
               placeholder="Enter an option"
               className="choice-input"
-              disabled={settings.isOther}
+              disabled={choice.isOther}
             />
             {choices.length >= 2 && (
               <CloseOutlined
                 onClick={(e) => {
-                  handleDelete(choiceId!, choices, handleNewChoices);
+                  handleDelete(choice.choiceId!, choices, handleNewChoices);
                 }}
-                key={choiceId + "close"}
+                key={choice.choiceId + "close"}
               />
             )}
           </div>
@@ -58,8 +56,7 @@ export const CheckboxCreator: React.FC<CheckboxCreatorProps> = ({
       })}
       <AddOption
         disable={choices.some((choice) => {
-          let [choiceId, label, settingsString] = choice;
-          return label === "";
+          return choice.label === "";
         })}
         choices={choices}
         callback={handleNewChoices}

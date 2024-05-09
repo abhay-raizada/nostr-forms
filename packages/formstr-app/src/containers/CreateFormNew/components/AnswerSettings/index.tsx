@@ -1,11 +1,12 @@
 import { Button, Divider, Dropdown, Switch, Typography, MenuProps } from "antd";
 import { DeleteOutlined, DownOutlined } from "@ant-design/icons";
-import { AnswerSettings as IAnswerSettings } from "@formstr/sdk/dist/interfaces";
 import Validation from "../Validation";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { INPUTS_MENU } from "../../configs/menuConfig";
 import StyleWrapper from "./style";
 import { RightAnswer } from "./RightAnswer";
+import { Field } from "../../providers/FormBuilder";
+import { IAnswerSettings } from "./types";
 
 const { Text } = Typography;
 
@@ -13,52 +14,51 @@ function AnswerSettings() {
   const { questionsList, questionIdInFocus, editQuestion, deleteQuestion } =
     useFormBuilderContext();
   const questionIndex = questionsList.findIndex(
-    (question) => question.tempId === questionIdInFocus
+    (field: Field) => field[1] === questionIdInFocus
   );
   const question = questionsList[questionIndex];
-  const answerSettings = question.answerSettings;
+  const answerSettings = JSON.parse(
+    question[5] || '{ "renderElement": "shortText"}'
+  );
   const answerType = INPUTS_MENU.find(
-    (option) => option.type === question.answerType
+    (option) =>
+      option.answerSettings.renderElement === answerSettings.renderElement
   );
 
   const handleRightAnswer = (rightAnswer: string) => {
-    editQuestion(
-      {
-        ...question,
-        answerSettings: {
-          ...answerSettings,
-          validationRules: {
-            ...answerSettings.validationRules,
-            match: { answer: rightAnswer },
-          },
-        },
+    const field = question;
+    let newAnswerSettings = {
+      ...answerSettings,
+      validationRules: {
+        ...answerSettings.validationRules,
+        match: { answer: rightAnswer },
       },
-      question.tempId
-    );
+    };
+    field[5] = JSON.stringify(newAnswerSettings);
+    editQuestion(field, field[1]);
   };
   const updateAnswerType: MenuProps["onClick"] = ({ key }) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === key);
-    editQuestion(
-      { ...question, answerType: selectedItem!.type, answerSettings: {} },
-      question.tempId
-    );
+    if (!selectedItem) return;
+    let field = question;
+    field[2] = selectedItem.primitive;
+    let newAnswerSettings = selectedItem.answerSettings;
+    field[5] = JSON.stringify(newAnswerSettings);
+    editQuestion(field, field[1]);
   };
 
   const updateIsRequired = (checked: boolean) => {
-    editQuestion(
-      { ...question, answerSettings: { ...answerSettings, required: checked } },
-      question.tempId
-    );
+    let field = question;
+    let newAnswerSettings = { ...answerSettings, required: checked };
+    field[5] = JSON.stringify(newAnswerSettings);
+    editQuestion(field, question[1]);
   };
 
-  const handleAnswerSettings = (answerSettings: IAnswerSettings) => {
-    editQuestion(
-      {
-        ...question,
-        answerSettings: { ...question.answerSettings, ...answerSettings },
-      },
-      question.tempId
-    );
+  const handleAnswerSettings = (newAnswerSettings: IAnswerSettings) => {
+    let changedSettings = { ...answerSettings, ...newAnswerSettings };
+    let field = question;
+    field[5] = JSON.stringify(changedSettings);
+    editQuestion(field, field[1]);
   };
 
   return (
@@ -87,15 +87,15 @@ function AnswerSettings() {
       </div>
       <Divider className="divider" />
       <Validation
-        key={question.tempId + "validation"}
-        answerType={question.answerType}
+        key={question[1] + "validation"}
+        answerType={answerSettings.renderElement}
         answerSettings={answerSettings}
         handleAnswerSettings={handleAnswerSettings}
       />
       <Divider className="divider" />
       <RightAnswer
-        key={question.tempId + "rightAnswer"}
-        answerType={question.answerType}
+        key={question[1] + "rightAnswer"}
+        answerType={answerSettings.renderElement}
         answerSettings={answerSettings}
         onChange={handleRightAnswer}
       />
@@ -104,7 +104,7 @@ function AnswerSettings() {
         danger
         type="text"
         className="delete-button"
-        onClick={() => deleteQuestion(question.tempId)}
+        onClick={() => deleteQuestion(question[1])}
       >
         <DeleteOutlined /> Delete
       </Button>

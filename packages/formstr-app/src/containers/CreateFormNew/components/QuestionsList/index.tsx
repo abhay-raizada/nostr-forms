@@ -7,6 +7,7 @@ import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import { ChangeEvent } from "react";
 import { IQuestion } from "../../typeDefs";
 import { Reorder } from "framer-motion";
+import { Field } from "../../providers/FormBuilder";
 
 export const QuestionsList = () => {
   const {
@@ -27,7 +28,7 @@ export const QuestionsList = () => {
   const onReorderKey = (keyType: "UP" | "DOWN", tempId: string) => {
     const questions = [...questionsList];
     const selectedQuestionIndex = questions.findIndex(
-      (question: IQuestion) => question.tempId === tempId
+      (question: Field) => question[1] === tempId
     );
     if (
       (selectedQuestionIndex === 0 && keyType === "UP") ||
@@ -77,7 +78,7 @@ export const QuestionsList = () => {
             return (
               <Reorder.Item
                 value={question}
-                key={question.tempId}
+                key={question[1]}
                 dragListener={false}
               >
                 <QuestionCard

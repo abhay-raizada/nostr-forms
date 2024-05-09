@@ -1,18 +1,22 @@
-import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
-import { IQuestion } from "../typeDefs";
+import { AnswerTypes } from "@formstr/sdk/dist/interfaces";
 import { makeTag } from "../../../utils/utility";
+import { Field } from "../providers/FormBuilder";
+import { IAnswerSettings } from "../components/AnswerSettings/types";
 
 export const generateQuestion = (
-  answerType: AnswerTypes = AnswerTypes.shortText,
+  primitive: string = "text",
   label: string | null = null,
-  answerSettings: AnswerSettings = {}
-): IQuestion => {
-  return {
-    tempId: makeTag(6),
-    question: label || "Click here to edit",
-    answerType,
-    answerSettings: answerSettings,
-  };
+  choices: string[][] = [],
+  answerSettings: IAnswerSettings = { renderElement: AnswerTypes.shortText }
+): Field => {
+  return [
+    "field",
+    makeTag(6),
+    primitive,
+    label || "Click here to edit",
+    JSON.stringify(choices) || "",
+    JSON.stringify(answerSettings),
+  ];
 };
 
 export const websocketUrlPattern =

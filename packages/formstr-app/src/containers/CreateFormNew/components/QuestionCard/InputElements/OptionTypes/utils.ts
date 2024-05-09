@@ -1,4 +1,4 @@
-import { Choice } from "@formstr/sdk/dist/interfaces";
+import { Choice } from "./types";
 
 export const addOption = (
   option: Choice,
@@ -14,7 +14,7 @@ export const handleDelete = (
   choices: Array<Choice>,
   callback: (choices: Array<Choice>) => void
 ) => {
-  let newChoices = choices.filter((choice) => choice.choiceId !== choiceId);
+  let newChoices = choices.filter((choice) => choice[0] !== choiceId);
   callback(newChoices);
 };
 
@@ -25,7 +25,11 @@ export const handleLabelChange = (
   callback: (choices: Array<Choice>) => void
 ) => {
   let newChoices = choices.map((choice) => {
-    if (choice.choiceId === choiceId) return { ...choice, label: label };
+    if (choice[0] === choiceId) {
+      let newChoice = choice;
+      newChoice[1] = label;
+      return newChoice;
+    }
     return choice;
   });
   callback(newChoices);
@@ -33,6 +37,7 @@ export const handleLabelChange = (
 
 export const hasOtherOption = (choices: Array<Choice>) => {
   return choices.some((choice) => {
-    return choice.isOther;
+    let settings = JSON.parse(choice[2] || "{}");
+    return settings.isOther;
   });
 };

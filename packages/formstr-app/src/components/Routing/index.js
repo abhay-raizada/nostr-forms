@@ -4,14 +4,14 @@ import PublicForms from "../../containers/PublicForms";
 import { ROUTES } from "../../constants/routes";
 import { FormFiller } from "../../containers/FormFiller";
 import { NostrHeader } from "../Header";
-import { CreateFormHeader } from "../../containers/CreateFormOld/components/Header/Header";
-import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateForm/components/Header/Header";
-import FormBuilderProvider from "../../containers/CreateFormOld/providers/FormBuilder";
-import NewFormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
+import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
+import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateFormNew/components/Header/Header";
+import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
+import NewFormBuilderProvider from "../../containers/CreateFormNew/providers/FormBuilder";
 import { Responses } from "../../containers/Responses/Responses";
 import { V1DraftsController } from "../../containers/Drafts";
-import CreateFormOld from "../../containers/CreateFormOld";
-import CreateForm from "../../containers/CreateForm";
+import CreateFormOld from "../../containers/CreateForm";
+import CreateForm from "../../containers/CreateFormNew";
 
 const withNostrHeaderWrapper = (Component, props) => {
   return (

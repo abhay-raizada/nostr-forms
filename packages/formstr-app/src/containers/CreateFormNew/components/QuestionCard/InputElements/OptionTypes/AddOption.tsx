@@ -2,8 +2,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import { Button, Typography } from "antd";
 import { makeTag } from "../../../../../../utils/utility";
 import { addOption } from "./utils";
-import { Choice } from "@formstr/sdk/dist/interfaces";
-
+import { Choice } from "./types";
 const { Text } = Typography;
 
 interface AddOptionProps {
@@ -24,11 +23,7 @@ export const AddOption: React.FC<AddOptionProps> = ({
         disabled={disable}
         type="dashed"
         onClick={(e) => {
-          addOption(
-            { label: "Add option", choiceId: makeTag(6) },
-            choices,
-            callback
-          );
+          addOption([makeTag(6), "Add option"], choices, callback);
         }}
         icon={<PlusOutlined />}
       >
@@ -43,11 +38,7 @@ export const AddOption: React.FC<AddOptionProps> = ({
             type="dashed"
             disabled={disable}
             onClick={(e) => {
-              addOption(
-                { label: "Other", isOther: true, choiceId: makeTag(6) },
-                choices,
-                callback
-              );
+              addOption([makeTag(6), "Option"], choices, callback);
             }}
           >
             add other

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { HEADER_MENU_KEYS } from "./components/Header/config";
 import { FormFiller } from "../FormFiller";
 
-function CreateFormOld() {
+function CreateForm() {
   const { state } = useLocation();
   const { initializeForm, saveDraft, selectedTab, getFormSpec } =
     useFormBuilderContext();
@@ -33,4 +33,4 @@ function CreateFormOld() {
   return null;
 }
 
-export default CreateFormOld;
+export default CreateForm;

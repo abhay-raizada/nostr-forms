@@ -1,21 +1,20 @@
 import {
   AnswerSettings,
-  AnswerTypes,
   FormSpec,
   IFormSettings,
 } from "@formstr/sdk/dist/interfaces";
-import { IQuestion } from "../../typeDefs";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
+import { Field } from ".";
 
 export interface IFormBuilderContext {
   initializeForm: (draft: IDraft) => void;
-  questionsList: IQuestion[];
+  questionsList: Field[];
   saveForm: () => void;
   closeSettingsOnOutsideClick: () => void;
   closeMenuOnOutsideClick: () => void;
-  editQuestion: (question: IQuestion, tempId: string) => void;
+  editQuestion: (question: Field, tempId: string) => void;
   addQuestion: (
-    answerType?: AnswerTypes,
+    primitive?: string,
     label?: string,
     answerSettings?: AnswerSettings
   ) => void;
@@ -31,7 +30,7 @@ export interface IFormBuilderContext {
   toggleSettingsWindow: () => void;
   formName: string;
   updateFormName: (formName: string) => void;
-  updateQuestionsList: (list: IQuestion[]) => void;
+  updateQuestionsList: (list: Field[]) => void;
   getFormSpec: () => FormSpec;
   saveDraft: () => void;
   setFormTempId: (formTempId: string) => void;
