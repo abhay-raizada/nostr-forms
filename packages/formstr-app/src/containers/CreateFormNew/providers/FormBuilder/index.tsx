@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
-import { generateRandomPassword } from "@formstr/sdk/dist/encryption/";
 import { IFormBuilderContext, ILocalForm } from "./typeDefs";
 import { generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
@@ -157,13 +156,12 @@ export default function FormBuilderProvider({
     console.log("CALLLED!!!");
     const formToSave = getFormSpec();
     console.log("CALLLED!!! saving form", formToSave);
-    let formPassword: string | null = generateRandomPassword();
     if (!formSettings.formId) {
       alert("Form ID is required");
       return;
     }
     const relayUrls = relayList.map((relay) => relay.url);
-    const formCreds = createForm(formToSave, null, relayUrls).then(
+    await createForm(formToSave, null, relayUrls).then(
       (value) => {
         deleteDraft(formTempId);
         setFormTempId(""); // to avoid creating a draft
