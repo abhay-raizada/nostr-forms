@@ -3,7 +3,7 @@ import FormBuilder from "./FormBuilder";
 import useFormBuilderContext from "./hooks/useFormBuilderContext";
 import { useEffect, useState } from "react";
 import { HEADER_MENU_KEYS } from "./components/Header/config";
-import { FormFiller } from "../FormFiller";
+import { FormFiller } from "../FormFillerNew";
 
 function CreateForm() {
   const { state } = useLocation();

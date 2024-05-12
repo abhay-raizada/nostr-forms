@@ -1,4 +1,5 @@
-import { FormSpec, V1FormSpec } from "@formstr/sdk/dist/interfaces";
+import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101"
+import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateForm/components/FormTitle";
 import {
@@ -8,33 +9,32 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFormTemplate, sendResponses, sendNotification } from "@formstr/sdk";
 import { Form, Typography } from "antd";
 import { QuestionNode } from "./QuestionNode/QuestionNode";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { getValidationRules } from "./validations";
 import { SubmitButton } from "./SubmitButton/submit";
-import { isMobile, makeTag } from "../../utils/utility";
+import { isMobile } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
-import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../../utils/localStorage";
-import { ISubmission } from "../MyForms/components/Submissions/submissions.types";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../MyForms/configs/routes";
 import Markdown from "react-markdown";
+import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate"
+import { generateSecretKey } from "nostr-tools";
 
 const { Text } = Typography;
 
 interface FormFillerProps {
-  formSpec?: FormSpec;
+  formSpec?: Tag[];
   embedded?: boolean;
 }
 
-export const FormFillerOld: React.FC<FormFillerProps> = ({
+export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
-  const { formId } = useParams();
-  const [formTemplate, setFormTemplate] = useState<V1FormSpec | null>(null);
+  const {pubKey, formId } = useParams();
+  const [formTemplate, setFormTemplate] = useState<Tag[] | null>(null);
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [thankYouScreen, setThankYouScreen] = useState(false);
@@ -45,37 +45,28 @@ export const FormFillerOld: React.FC<FormFillerProps> = ({
 
   const isPreview = !!formSpec;
 
-  const convertFromSpecToTemplate = (formSpec: FormSpec): V1FormSpec => {
-    let fields = formSpec.fields?.map((field) => {
-      return {
-        ...field,
-        questionId: makeTag(6),
-      };
-    });
-    return {
-      schemaVersion: "v1",
-      name: formSpec.name,
-      settings: formSpec.settings,
-      fields,
-    };
-  };
-
   useEffect(() => {
     async function getForm() {
+      console.log("form spec is, pubkey id is, ", formSpec, pubKey, formId);
       if (!formTemplate) {
-        if (!formId && !formSpec) {
+        if(formSpec) {
+          setFormTemplate(formSpec)
+          return
+        }
+        else if (pubKey && formId) {
+          console.log("pubkey and form id are", pubKey, formId)
+          const form = await fetchFormTemplate(pubKey, formId);
+          console.log("fetched form template is", form)
+          setFormTemplate(form);
+        }
+        else{
           throw Error("Form Id not provided");
         }
-        let form = null;
-        if (formId) form = await getFormTemplate(formId);
-        if (formSpec) form = convertFromSpecToTemplate(formSpec);
-
-        if (!form) return;
-        setFormTemplate(form);
+        
       }
     }
     getForm();
-  }, [formTemplate, formId, formSpec]);
+  }, [formId, formSpec]);
 
   if (!formId && !formSpec) {
     return null;
@@ -93,50 +84,44 @@ export const FormFillerOld: React.FC<FormFillerProps> = ({
     form.setFieldValue(questionId, [answer, message]);
   };
 
-  const saveSubmissionLocally = (
-    formId: string,
-    userId: string,
-    createdAt: string
-  ) => {
-    let submissions = getItem<ISubmission[]>(LOCAL_STORAGE_KEYS.SUBMISSIONS);
-    if (!submissions) {
-      submissions = [];
+  const saveResponse = async () => {
+    if(!formId || !pubKey) {
+      throw("Cant submit to a form that has not been published")
     }
-    submissions.push({
-      formId,
-      submittedAs: userId,
-      submittedAt: createdAt,
-    });
-    setItem(LOCAL_STORAGE_KEYS.SUBMISSIONS, submissions);
-  };
-
-  const saveResponse = async (anonymous: boolean = true) => {
     let formResponses = form.getFieldsValue(true);
-    const response = Object.keys(formResponses).map((key: string) => {
+    const responses: Response[] = Object.keys(formResponses).map((fieldId: string) => {
       let answer = null;
       let message = null;
-      if (formResponses[key]) [answer, message] = formResponses[key];
-      return {
-        questionId: key,
+      if (formResponses[fieldId]) [answer, message] = formResponses[fieldId];
+      return [
+        "response",
+        fieldId,
         answer,
-        message,
-      };
+        JSON.stringify({message}),
+      ];
     });
     let userId = null;
-    if (formId) {
-      userId = await sendResponses(formId, response, anonymous);
-      saveSubmissionLocally(formId, userId, new Date().toString());
-    }
-    if (formTemplate && !isPreview) sendNotification(formTemplate, response);
-    setFormSubmitted(true);
-    setThankYouScreen(true);
+    let anonUser = generateSecretKey();
+    sendResponses(pubKey, formId, responses, anonUser).then(
+      (val) => {
+        console.log("Submitted!")
+        setFormSubmitted(true);
+        setThankYouScreen(true);
+      },
+      (err) => {
+        console.log("some error", err)
+      }
+    );
   };
-
-  let name, settings, fields;
+  console.log("Form template is....", formTemplate)
+  let name: string, settings: any, fields: Field[];
   if (formTemplate) {
-    name = formTemplate.name;
-    settings = formTemplate.settings;
-    fields = formTemplate.fields;
+    name = formTemplate.find((tag) => tag[0] === "name")?.[1] || "";
+    settings = JSON.parse(formTemplate.find((tag) => tag[0] === "settings")?.[1] || "{}");
+    fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
+  }
+  else {
+    return <Text> Loading Form Template... </Text>
   }
   return (
     <FillerStyle $isPreview={isPreview}>
@@ -168,32 +153,38 @@ export const FormFillerOld: React.FC<FormFillerProps> = ({
             >
               <div>
                 {fields?.map((field) => {
+                  let [tag, fieldId, type, label, optionsString, config] = field
+                  let fieldConfig = JSON.parse(config)
+                  let options = JSON.parse(optionsString || "[]") as Option[]
                   let rules = [
                     {
-                      required: field.answerSettings.required,
+                      required: fieldConfig.required,
                       message: "This is a required question",
                     },
                     ...getValidationRules(
-                      field.answerType,
-                      field.answerSettings
+                      fieldConfig.renderElement,
+                      fieldConfig
                     ),
                   ];
                   return (
                     <Form.Item
-                      key={field.questionId}
+                      key={fieldId}
                       rules={rules}
-                      name={field.questionId}
+                      name={fieldId}
                     >
                       <QuestionNode
-                        required={field.answerSettings.required || false}
-                        field={field}
+                        required={fieldConfig.required || false}
+                        label={label}
+                        fieldConfig={fieldConfig}
+                        fieldId={fieldId}
+                        options={options}
                         inputHandler={handleInput}
                       />
                     </Form.Item>
                   );
                 })}
                 <SubmitButton
-                  selfSign={formTemplate?.settings?.disallowAnonymous}
+                  selfSign={settings.disallowAnonymous}
                   edit={false}
                   onSubmit={saveResponse}
                   form={form}

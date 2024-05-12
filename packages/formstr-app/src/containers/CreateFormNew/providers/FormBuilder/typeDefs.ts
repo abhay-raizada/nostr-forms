@@ -2,6 +2,7 @@ import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { Field } from ".";
 import { IFormSettings } from "../../components/FormSettings/types";
+import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 
 export interface ILocalForm {
   key: string;
@@ -38,7 +39,7 @@ export interface IFormBuilderContext {
   formName: string;
   updateFormName: (formName: string) => void;
   updateQuestionsList: (list: Field[]) => void;
-  getFormSpec: () => FormSpec;
+  getFormSpec: () => Tag[];
   saveDraft: () => void;
   setFormTempId: (formTempId: string) => void;
   formTempId: string;

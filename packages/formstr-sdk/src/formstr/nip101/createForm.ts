@@ -11,20 +11,12 @@ import { getSchema, isValidSpec } from "../../utils/validators";
 import { bytesToHex } from "@noble/hashes/utils";
 import { AnswerTypes } from "../../interfaces";
 import { makeTag } from "../../utils/utils";
+import { Field, Tag } from "./interfaces";
 
 const defaultRelays = getDefaultRelays();
 
-export type Field = [
-  placeholder: string,
-  fieldId: string,
-  dataType: string,
-  label: string,
-  options: string,
-  config: string,
-];
-
 export const createForm = async (
-  form: Array<Field>,
+  form: Array<Tag>,
   userSecretKey: Uint8Array | null,
   relayList: Array<string> = defaultRelays
 ) => {

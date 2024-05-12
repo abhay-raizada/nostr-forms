@@ -2,7 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MyForms from "../../containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
 import { ROUTES } from "../../constants/routes";
-import { FormFiller } from "../../containers/FormFiller";
+import { FormFillerOld } from "../../containers/FormFiller";
+import { FormFiller } from "../../containers/FormFillerNew";
 import { NostrHeader } from "../Header";
 import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
 import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateFormNew/components/Header/Header";
@@ -68,7 +69,7 @@ function Routing() {
         path={`${ROUTES.PUBLIC_FORMS}/*`}
         element={withNostrHeaderWrapper(PublicForms)}
       />
-      <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFiller />} />
+      <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFillerOld />} />
       <Route
         path={`${ROUTES.EMBEDDED}/*`}
         element={<FormFiller embedded={true} />}

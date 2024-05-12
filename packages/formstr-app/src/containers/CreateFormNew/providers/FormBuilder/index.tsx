@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import { IFormSettings } from "../../components/FormSettings/types";
+import { Tag } from "@formstr/sdk/dist/formstr/nip101";
+import { generateSecretKey, getPublicKey, nip19 } from "nostr-tools";
 
 export type Field = [
   placeholder: string,
@@ -45,9 +47,7 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   formName: "",
   updateFormName: (name: string) => null,
   updateQuestionsList: (list: Field[]) => null,
-  getFormSpec: () => {
-    return { name: "", schemaVersion: "v1" };
-  },
+  getFormSpec: () => [],
   saveDraft: () => null,
   setFormTempId: (formTempId: string) => "",
   formTempId: "",
@@ -113,9 +113,9 @@ export default function FormBuilderProvider({
     isLeftMenuOpen && setIsLeftMenuOpen(false);
   };
 
-  const getFormSpec = (): any => {
-    let formSpec = [];
-    formSpec.push(["d", formSettings.formId]);
+  const getFormSpec = (): Tag[] => {
+    let formSpec: Tag[] = [];
+    formSpec.push(["d", formSettings.formId || ""]);
     formSpec.push(["name", formName]);
     formSpec.push(["settings", JSON.stringify(formSettings)]);
     formSpec = [...formSpec, ...questionsList];
@@ -161,9 +161,11 @@ export default function FormBuilderProvider({
       return;
     }
     const relayUrls = relayList.map((relay) => relay.url);
-    await createForm(formToSave, null, relayUrls).then(
+    const secret = generateSecretKey()
+    await createForm(formToSave, secret, relayUrls).then(
       (value) => {
         deleteDraft(formTempId);
+        console.log("USED PUBKEY", getPublicKey(secret), "formID", formSettings.formId);
         setFormTempId(""); // to avoid creating a draft
         navigate("/myForms/local");
       },
@@ -175,23 +177,23 @@ export default function FormBuilderProvider({
   };
 
   const saveDraft = () => {
-    if (formTempId === "") return;
-    type V1Draft = { formSpec: FormSpec; tempId: string };
-    const formSpec = getFormSpec();
-    const draftObject = { formSpec, tempId: formTempId };
-    let draftArr = getItem<V1Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
-    const draftIds = draftArr.map((draft: V1Draft) => draft.tempId);
-    if (!draftIds.includes(draftObject.tempId)) {
-      draftArr.push(draftObject);
-    } else {
-      draftArr = draftArr.map((draft: V1Draft) => {
-        if (draftObject.tempId === draft.tempId) {
-          return draftObject;
-        }
-        return draft;
-      });
-    }
-    setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
+    // if (formTempId === "") return;
+    // type V1Draft = { formSpec: FormSpec; tempId: string };
+    // const formSpec = getFormSpec();
+    // const draftObject = { formSpec, tempId: formTempId };
+    // let draftArr = getItem<V1Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
+    // const draftIds = draftArr.map((draft: V1Draft) => draft.tempId);
+    // if (!draftIds.includes(draftObject.tempId)) {
+    //   draftArr.push(draftObject);
+    // } else {
+    //   draftArr = draftArr.map((draft: V1Draft) => {
+    //     if (draftObject.tempId === draft.tempId) {
+    //       return draftObject;
+    //     }
+    //     return draft;
+    //   });
+    // }
+    // setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
   };
 
   const editQuestion = (question: Field, tempId: string) => {

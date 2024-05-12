@@ -3,7 +3,7 @@ import FormBuilder from "./FormBuilder";
 import useFormBuilderContext from "./hooks/useFormBuilderContext";
 import { useEffect, useState } from "react";
 import { HEADER_MENU_KEYS } from "./components/Header/config";
-import { FormFiller } from "../FormFiller";
+import { FormFillerOld } from "../FormFiller";
 
 function CreateFormOld() {
   const { state } = useLocation();
@@ -27,7 +27,7 @@ function CreateFormOld() {
     return <FormBuilder />;
   }
   if (selectedTab === HEADER_MENU_KEYS.PREVIEW) {
-    return <FormFiller formSpec={getFormSpec()} />;
+    return <FormFillerOld formSpec={getFormSpec()} />;
   }
 
   return null;

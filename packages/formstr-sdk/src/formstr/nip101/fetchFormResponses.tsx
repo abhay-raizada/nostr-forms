@@ -96,50 +96,50 @@ async function getNIP101Responses(pubKey: string, formId: string) {
 }
 
 export const getFormResponses = async (pubKey: string, formId: string) => {
-  const responses = await getNIP101Responses(pubKey, formId);
-  type ResponseType = {
-    responses: Array<FormResponse>;
-    authorName: string;
-  };
-  const formTemplate = await fetchFormTemplate(pubKey, formId);
-  const questionMap = createQuestionMap(formTemplate);
-  const finalResponses: { [key: string]: ResponseType } = {};
-  const responsesBy = responses.map((r) => r.pubkey);
-  const profiles = await fetchProfiles(responsesBy);
-  for (const response of responses) {
-    let decryptedResponse;
-    try {
-      decryptedResponse = await window.nostr.nip44.decrypt(
-        pubKey,
-        response.content
-      );
-    } catch (e) {
-      continue;
-    }
-    const parsedResponse = await getParsedResponse(
-      decryptedResponse,
-      questionMap,
-      response.created_at
-    );
-    if (!parsedResponse) continue;
-    let entry = finalResponses[response.pubkey];
+  // const responses = await getNIP101Responses(pubKey, formId);
+  // type ResponseType = {
+  //   responses: Array<FormResponse>;
+  //   authorName: string;
+  // };
+  // const formTemplate = await fetchFormTemplate(pubKey, formId);
+  // const questionMap = createQuestionMap(formTemplate);
+  // const finalResponses: { [key: string]: ResponseType } = {};
+  // const responsesBy = responses.map((r) => r.pubkey);
+  // const profiles = await fetchProfiles(responsesBy);
+  // for (const response of responses) {
+  //   let decryptedResponse;
+  //   try {
+  //     decryptedResponse = await window.nostr.nip44.decrypt(
+  //       pubKey,
+  //       response.content
+  //     );
+  //   } catch (e) {
+  //     continue;
+  //   }
+  //   const parsedResponse = await getParsedResponse(
+  //     decryptedResponse,
+  //     questionMap,
+  //     response.created_at
+  //   );
+  //   if (!parsedResponse) continue;
+  //   let entry = finalResponses[response.pubkey];
 
-    if (!entry) {
-      entry = {
-        responses: [parsedResponse],
-        authorName: "",
-      };
-    } else {
-      entry.responses.push(parsedResponse);
-    }
-    finalResponses[response.pubkey] = entry;
-  }
-  for (const [pubkey, attrs] of Object.entries(finalResponses)) {
-    attrs.authorName = profiles[pubkey].name;
-  }
-  return {
-    allResponses: finalResponses,
-    questionMap: questionMap,
-    formSummary: formTemplate,
-  };
+  //   if (!entry) {
+  //     entry = {
+  //       responses: [parsedResponse],
+  //       authorName: "",
+  //     };
+  //   } else {
+  //     entry.responses.push(parsedResponse);
+  //   }
+  //   finalResponses[response.pubkey] = entry;
+  // }
+  // for (const [pubkey, attrs] of Object.entries(finalResponses)) {
+  //   attrs.authorName = profiles[pubkey].name;
+  // }
+  // return {
+  //   allResponses: finalResponses,
+  //   questionMap: questionMap,
+  //   formSummary: formTemplate,
+  // };
 };
