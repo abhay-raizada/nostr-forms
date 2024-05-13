@@ -84,7 +84,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     form.setFieldValue(questionId, [answer, message]);
   };
 
-  const saveResponse = async () => {
+  const saveResponse = async (anonymous: boolean = true) => {
     if(!formId || !pubKey) {
       throw("Cant submit to a form that has not been published")
     }
@@ -100,7 +100,10 @@ export const FormFiller: React.FC<FormFillerProps> = ({
         JSON.stringify({message}),
       ];
     });
-    let anonUser = generateSecretKey();
+    let anonUser = null
+    if(anonymous) { 
+      anonUser = generateSecretKey();
+    }
     sendResponses(pubKey, formId, responses, anonUser).then(
       (val) => {
         console.log("Submitted!")
@@ -112,7 +115,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
   };
-  
+
   console.log("Form template is....", formTemplate)
   let name: string, settings: any, fields: Field[];
   if (formTemplate) {
