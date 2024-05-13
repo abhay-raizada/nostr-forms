@@ -100,7 +100,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({
         JSON.stringify({message}),
       ];
     });
-    let userId = null;
     let anonUser = generateSecretKey();
     sendResponses(pubKey, formId, responses, anonUser).then(
       (val) => {
@@ -113,6 +112,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
   };
+  
   console.log("Form template is....", formTemplate)
   let name: string, settings: any, fields: Field[];
   if (formTemplate) {
