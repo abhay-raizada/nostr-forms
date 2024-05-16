@@ -48,4 +48,8 @@ export interface IFormBuilderContext {
   bottomElementRef: React.RefObject<HTMLDivElement> | null;
   relayList: { url: string; tempId: string }[];
   setRelayList: (list: { url: string; tempId: string }[]) => void;
+  editList: Set<string> | null;
+  setEditList: (keys: Set<string>) => void;
+  viewList: Set<string> | null;
+  setViewList: (keys: Set<string>) => void;
 }

@@ -2,7 +2,7 @@ import { Divider, Switch, Tooltip, Typography } from "antd";
 import StyleWrapper from "./style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import TitleImage from "./TitleImage";
-import { Notifications } from "./Notifications";
+import { Sharing } from "./Sharing";
 import { RelayList } from "./RelayList";
 import FormIdentifier from "./FormIdentifier";
 
@@ -34,8 +34,8 @@ function FormSettings() {
       </div>
       <Divider className="divider" />
       <div className="form-setting">
-        <Text className="property-name">Notify on response</Text>
-        <Notifications />
+        <Text className="property-name">Sharing & Visibility</Text>
+        <Sharing />
       </div>
 
       <Divider className="divider" />

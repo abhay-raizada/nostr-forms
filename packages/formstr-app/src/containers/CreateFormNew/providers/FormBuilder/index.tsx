@@ -56,6 +56,10 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   bottomElementRef: null,
   relayList: [],
   setRelayList: (relayList: { url: string; tempId: string }[]) => null,
+  editList: null,
+  setEditList: (keys: Set<string>) => null,
+  viewList: null,
+  setViewList: (keys: Set<string>) => null,
 });
 
 const InitialFormSettings: IFormSettings = {
@@ -94,6 +98,8 @@ export default function FormBuilderProvider({
     })
   );
 
+  const [editList, setEditList] = useState<Set<string>>(new Set());
+  const [viewList, setViewList] = useState<Set<string>>(new Set());
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
     HEADER_MENU_KEYS.BUILDER
@@ -161,11 +167,16 @@ export default function FormBuilderProvider({
       return;
     }
     const relayUrls = relayList.map((relay) => relay.url);
-    const secret = generateSecretKey()
+    const secret = generateSecretKey();
     await createForm(formToSave, secret, relayUrls).then(
       (value) => {
         deleteDraft(formTempId);
-        console.log("USED PUBKEY", getPublicKey(secret), "formID", formSettings.formId);
+        console.log(
+          "USED PUBKEY",
+          getPublicKey(secret),
+          "formID",
+          formSettings.formId
+        );
         setFormTempId(""); // to avoid creating a draft
         navigate("/myForms/local");
       },
@@ -296,6 +307,10 @@ export default function FormBuilderProvider({
         bottomElementRef: bottomElement,
         relayList,
         setRelayList,
+        editList,
+        setEditList,
+        viewList,
+        setViewList,
       }}
     >
       {children}
