@@ -5,6 +5,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import AddNpubStyle from "../addNpub.style";
 import { Editors } from "./Editors";
+import { Participants } from "./Participants";
 
 enum ROLE {
   VIEW,
@@ -31,10 +32,14 @@ export const Sharing = () => {
             }}
           />
           <Text>Configure Participants</Text>
-          <EditOutlined onClick={() => null} />
+          <EditOutlined onClick={() => setIsViewListOpen(true)} />
           <Editors
             open={isEditListOpen}
             onCancel={() => setIsEditListOpen(false)}
+          />
+          <Participants
+            open={isViewListOpen}
+            onCancel={() => setIsViewListOpen(false)}
           />
         </div>
       </Tooltip>

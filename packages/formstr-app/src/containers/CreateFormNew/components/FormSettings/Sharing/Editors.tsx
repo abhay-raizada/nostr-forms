@@ -18,17 +18,19 @@ export const Editors: React.FC<EditorProps> = ({ open, onCancel }) => {
     (editList || new Set()).forEach(
       (value: string, key: string, set: Set<string>) => {
         elements.push(
-          <Typography.Text>{value.substring(0, 10) + "..."}</Typography.Text>
+          <li>
+            <Typography.Text>{value.substring(0, 10) + "..."}</Typography.Text>
+          </li>
         );
       }
     );
-    return elements;
+    return <ul>{elements}</ul>;
   };
 
   return (
     <Modal open={open} onCancel={onCancel} footer={null}>
       <AddNpubStyle className="modal-container">
-        <Typography.Text>Add Editors for the form</Typography.Text>
+        <Typography.Text>Add editors for the form</Typography.Text>
         {renderList()}
         <Input
           placeholder="Enter nostr npub"
@@ -49,6 +51,7 @@ export const Editors: React.FC<EditorProps> = ({ open, onCancel }) => {
           disabled={!isValidNpub(newNpub || "")}
           onClick={() => {
             setEditList(new Set(editList).add(newNpub!));
+            setNewNpub("");
           }}
         >
           {" "}

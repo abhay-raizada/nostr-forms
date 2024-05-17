@@ -168,7 +168,7 @@ export default function FormBuilderProvider({
     }
     const relayUrls = relayList.map((relay) => relay.url);
     const secret = generateSecretKey();
-    await createForm(formToSave, secret, relayUrls).then(
+    await createForm(formToSave, secret, relayUrls, viewList, editList).then(
       (value) => {
         deleteDraft(formTempId);
         console.log(
