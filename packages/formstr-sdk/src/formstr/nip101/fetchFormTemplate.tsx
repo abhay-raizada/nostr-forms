@@ -1,12 +1,12 @@
-import { SimplePool, nip19 } from "nostr-tools";
-import { getDefaultRelays } from "../formstr";
+import { Event, SimplePool, nip19 } from "nostr-tools";
+import { getDefaultRelays, getUserPublicKey } from "../formstr";
 import { Field, Tag } from "./interfaces";
 
 export const fetchFormTemplate = async (
   pubKey: string,
   formIdentifier: string
-): Promise<Tag[]> => {
-  console.log("Starting to fetch!!!!")
+): Promise<Event | null> => {
+  console.log("Starting to fetch!!!!");
   const pool = new SimplePool();
   let formIdPubkey = pubKey;
   let relayList = getDefaultRelays();
@@ -19,5 +19,5 @@ export const fetchFormTemplate = async (
   const nostrEvent = await pool.get(relayList, filter);
   console.log("nostr event fetched is", nostrEvent);
   pool.close(relayList);
-  return nostrEvent?.tags || [];
+  return nostrEvent;
 };

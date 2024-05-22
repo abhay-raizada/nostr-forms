@@ -43,12 +43,15 @@ export const createForm = async (
     viewList.forEach((npub: string) => {
       let npubHex = nip19.decode(npub).data as string;
       let conversationKey = nip44.v2.utils.getConversationKey(
-        bytesToHex(viewKey),
+        bytesToHex(signingKey),
         npubHex
       );
-      let encyptedKey = nip44.v2.encrypt(bytesToHex(viewKey), conversationKey);
+      let encyptedViewKey = nip44.v2.encrypt(
+        bytesToHex(viewKey),
+        conversationKey
+      );
       tags.push(["p", `${npubHex}`]);
-      tags.push(["key", `${npubHex}`, `${encyptedKey}`, ""]);
+      tags.push(["key", `${npubHex}`, `${encyptedViewKey}`, ""]);
     });
     let encryptionKey = nip44.v2.utils.getConversationKey(
       bytesToHex(signingKey),
