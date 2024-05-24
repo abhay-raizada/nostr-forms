@@ -1,7 +1,6 @@
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { useEffect, useState } from "react";
 import { Event, nip44 } from "nostr-tools";
-import { hexToBytes } from "@noble/hashes/utils";
 import { Typography } from "antd";
 import {
   Actions,
@@ -14,13 +13,15 @@ const { Text } = Typography;
 interface PrepareFormProps {
   pubKey: string;
   formId: string;
-  formSpecCallback: (fields: Tag[]) => void;
+  formSpecCallback: (fields: Tag[], event?: Event, userPubkey?: string) => void;
+  forcePubkey?: boolean;
 }
 
 export const PrepareForm: React.FC<PrepareFormProps> = ({
   pubKey,
   formId,
   formSpecCallback,
+  forcePubkey,
 }) => {
   const [formEvent, setFormEvent] = useState<Event | undefined>(undefined);
   const [decryptKey, setDecryptKey] = useState<string | undefined>(undefined);
@@ -39,7 +40,7 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
   const checkPublicAccess = () => {
     if (!formEvent) return;
     else if (formEvent.content === "") {
-      formSpecCallback(formEvent.tags);
+      formSpecCallback(formEvent.tags, formEvent);
     }
   };
 
@@ -92,7 +93,7 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
   if (formEvent === undefined) return <Text>Fetching Form ...</Text>;
   else if (formNotFound)
     return <Text>Could not find the form you are looking for</Text>;
-  else if (hasAccess() === false)
+  else if (hasAccess() === false && !forcePubkey)
     return <Text> The npub you used does not have access to this form.</Text>;
   if (formEvent !== undefined && userPubKey === undefined) {
     return (
@@ -122,7 +123,11 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
             formEvent.content,
             conversationKey
           ) as string;
-          formSpecCallback(JSON.parse(formSpec) as Tag[]);
+          formSpecCallback(
+            JSON.parse(formSpec) as Tag[],
+            formEvent,
+            userPubKey
+          );
         }}
       />
     );

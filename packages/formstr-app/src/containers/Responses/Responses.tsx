@@ -16,7 +16,7 @@ import { isMobile } from "../../utils/utility";
 
 const { Text } = Typography;
 
-export const Responses = () => {
+export const ResponsesOld = () => {
   const { formSecret } = useParams();
   const [searchParams] = useSearchParams();
   const formId = searchParams.get("formId");

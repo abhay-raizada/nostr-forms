@@ -6,19 +6,9 @@ import {
   nip19,
   nip44,
 } from "nostr-tools";
-import { FormSpec, V1FormSpec } from "../../interfaces";
-import {
-  generateIds,
-  getDefaultRelays,
-  getUserPublicKey,
-  saveFormOnNostr,
-  signEvent,
-} from "../formstr";
-import { getSchema, isValidSpec } from "../../utils/validators";
+import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
 import { bytesToHex } from "@noble/hashes/utils";
-import { AnswerTypes } from "../../interfaces";
-import { makeTag } from "../../utils/utils";
-import { Field, Tag } from "./interfaces";
+import { Tag } from "./interfaces";
 
 const defaultRelays = getDefaultRelays();
 

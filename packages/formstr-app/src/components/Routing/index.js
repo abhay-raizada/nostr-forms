@@ -9,7 +9,8 @@ import { CreateFormHeader } from "../../containers/CreateForm/components/Header/
 import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateFormNew/components/Header/Header";
 import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
 import NewFormBuilderProvider from "../../containers/CreateFormNew/providers/FormBuilder";
-import { Responses } from "../../containers/Responses/Responses";
+import { ResponsesOld } from "../../containers/Responses/Responses";
+import { Response } from "../../containers/ResponsesNew";
 import { V1DraftsController } from "../../containers/Drafts";
 import CreateFormOld from "../../containers/CreateForm";
 import CreateForm from "../../containers/CreateFormNew";
@@ -50,7 +51,7 @@ function Routing() {
       <Route path="forms/:formId" element={<FormFiller />} />
       <Route
         path="forms/:formSecret/responses"
-        element={withNostrHeaderWrapper(Responses)}
+        element={withNostrHeaderWrapper(ResponsesOld)}
       />
       <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
       <Route
@@ -76,7 +77,11 @@ function Routing() {
       />
       <Route
         path={`${ROUTES.RESPONSES}/*`}
-        element={withNostrHeaderWrapper(Responses)}
+        element={withNostrHeaderWrapper(ResponsesOld)}
+      />
+      <Route
+        path={`${ROUTES.RESPONSES_NEW}/*`}
+        element={withNostrHeaderWrapper(Response)}
       />
       <Route
         path={`${ROUTES.DRAFT}/*`}
