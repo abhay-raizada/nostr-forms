@@ -1,7 +1,7 @@
 import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
 import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
-import FormTitle from "../CreateForm/components/FormTitle";
+import FormTitle from "../CreateFormNew/components/FormTitle";
 import {
   Link,
   useNavigate,

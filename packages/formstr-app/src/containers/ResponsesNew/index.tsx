@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Event, getPublicKey, nip44 } from "nostr-tools";
 import { useParams } from "react-router-dom";
 import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { fetchFormResponses } from "@formstr/sdk/dist/formstr/nip101/fetchFormResponses";
 import SummaryStyle from "./summary.style";
 import { Card, Divider, Table, Typography } from "antd";
@@ -194,7 +193,6 @@ export const Response = () => {
           setFormSpec(formSpec);
           window.nostr.getPublicKey().then((userPubkey: string) => {
             let signingKey = getEncryptedSigningKey(formEvent, userPubkey);
-            console.log("got encrypted signing key as", signingKey);
             setEncryptedSigningKey(signingKey);
             fetchFormResponses(pubKey, formId).then((value) => {
               setResponses(value);

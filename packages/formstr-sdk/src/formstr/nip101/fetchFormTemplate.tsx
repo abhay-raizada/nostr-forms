@@ -12,7 +12,7 @@ export const fetchFormTemplate = async (
   let relayList = getDefaultRelays();
   const filter = {
     kinds: [30168],
-    authors: [formIdPubkey], //formId is the npub of the form
+    authors: [formIdPubkey],
     "#d": [formIdentifier],
   };
   console.log("Fetching template....", filter);

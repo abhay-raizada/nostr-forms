@@ -5,14 +5,11 @@ import { ROUTES } from "../../constants/routes";
 import { FormFillerOld } from "../../containers/FormFiller";
 import { FormFiller } from "../../containers/FormFillerNew";
 import { NostrHeader } from "../Header";
-import { CreateFormHeader } from "../../containers/CreateForm/components/Header/Header";
 import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateFormNew/components/Header/Header";
-import FormBuilderProvider from "../../containers/CreateForm/providers/FormBuilder";
 import NewFormBuilderProvider from "../../containers/CreateFormNew/providers/FormBuilder";
 import { ResponsesOld } from "../../containers/Responses/Responses";
 import { Response } from "../../containers/ResponsesNew";
 import { V1DraftsController } from "../../containers/Drafts";
-import CreateFormOld from "../../containers/CreateForm";
 import CreateForm from "../../containers/CreateFormNew";
 
 const withNostrHeaderWrapper = (Component, props) => {
@@ -20,16 +17,6 @@ const withNostrHeaderWrapper = (Component, props) => {
     <>
       <NostrHeader selected="Create Form" />
       <Component {...props} />
-    </>
-  );
-};
-const withCreateFormHeaderWrapper = (Component, props) => {
-  return (
-    <>
-      <FormBuilderProvider>
-        <CreateFormHeader />
-        <Component {...props} />
-      </FormBuilderProvider>
     </>
   );
 };
@@ -54,10 +41,6 @@ function Routing() {
         element={withNostrHeaderWrapper(ResponsesOld)}
       />
       <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
-      <Route
-        path={`${ROUTES.CREATE_FORMS}/*`}
-        element={withCreateFormHeaderWrapper(CreateFormOld)}
-      />
       <Route
         path={`${ROUTES.CREATE_FORMS_NEW}/*`}
         element={withNewCreateFormHeaderWrapper(CreateForm)}
