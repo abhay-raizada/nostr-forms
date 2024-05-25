@@ -100,7 +100,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       <PrepareForm
         pubKey={pubKey}
         formId={formId}
-        formSpecCallback={function (fields: Tag[]): void {
+        formSpecCallback={function (fields: Tag[], _: Event): void {
           setFormTemplate(fields);
         }}
       />

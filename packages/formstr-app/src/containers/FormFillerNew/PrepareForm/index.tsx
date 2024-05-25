@@ -13,15 +13,13 @@ const { Text } = Typography;
 interface PrepareFormProps {
   pubKey: string;
   formId: string;
-  formSpecCallback: (fields: Tag[], event?: Event, userPubkey?: string) => void;
-  forcePubkey?: boolean;
+  formSpecCallback: (fields: Tag[], formEvent: Event) => void;
 }
 
 export const PrepareForm: React.FC<PrepareFormProps> = ({
   pubKey,
   formId,
   formSpecCallback,
-  forcePubkey,
 }) => {
   const [formEvent, setFormEvent] = useState<Event | undefined>(undefined);
   const [decryptKey, setDecryptKey] = useState<string | undefined>(undefined);
@@ -29,32 +27,37 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
   const [userPubKey, setUserPubkey] = useState<string | undefined>(undefined);
 
   const fetchFormEvent = async () => {
-    const event = await fetchFormTemplate(pubKey, formId);
-    if (!event) {
+    if (!pubKey || !formId) {
       setFormNotFound(true);
       return;
     }
-    setFormEvent(event);
-  };
-
-  const checkPublicAccess = () => {
-    if (!formEvent) return;
-    else if (formEvent.content === "") {
-      formSpecCallback(formEvent.tags, formEvent);
+    if (!formEvent) {
+      const event = await fetchFormTemplate(pubKey, formId);
+      if (!event) {
+        setFormNotFound(true);
+        return;
+      } else {
+        setFormEvent(event);
+        checkUserAccess(event);
+      }
+    } else {
+      checkUserAccess(formEvent);
     }
   };
 
-  const checkUserAccess = async () => {
-    if (!userPubKey || !formEvent) return;
-    console.log("Tags are", formEvent.tags, "user Pubkey is", userPubKey);
+  const checkUserAccess = (formEvent: Event) => {
+    if (!formEvent) return;
+    if (formEvent.content === "") {
+      formSpecCallback(formEvent.tags, formEvent);
+      return;
+    }
     let key = formEvent.tags.find((tag) => {
       return tag[0] === "key" && tag[1] === userPubKey;
     });
     if (!key) {
       return;
     }
-    console.log("found key as ", key, key[2]);
-    setDecryptKey(key[2]);
+    if (key[2]) setDecryptKey(key[2]);
   };
 
   const hasAccess = () => {
@@ -78,22 +81,13 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
       userPubKey,
       decryptKey
     );
-    if (formEvent === undefined) {
-      fetchFormEvent();
-    }
-    if (formEvent) {
-      checkPublicAccess();
-    }
-    if (decryptKey === undefined) {
-      checkUserAccess();
-    }
-  }, [formEvent]);
-  console.log("Decrypt key is", decryptKey);
+    fetchFormEvent();
+  }, [formEvent, userPubKey, decryptKey]);
 
   if (formEvent === undefined) return <Text>Fetching Form ...</Text>;
   else if (formNotFound)
     return <Text>Could not find the form you are looking for</Text>;
-  else if (hasAccess() === false && !forcePubkey)
+  else if (hasAccess() === false)
     return <Text> The npub you used does not have access to this form.</Text>;
   if (formEvent !== undefined && userPubKey === undefined) {
     return (
@@ -105,8 +99,7 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
         }}
       />
     );
-  } else if (decryptKey !== undefined) {
-    console.log("DECRYPT KeY WEGOT ITTTTT", decryptKey);
+  } else if (decryptKey && formEvent.content !== "") {
     return (
       <NIP07Interactions
         action={Actions.NIP44_DECRYPT}
@@ -114,7 +107,6 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
         cipherText={decryptKey}
         senderPubKey={pubKey}
         callback={(viewKey: string) => {
-          console.log("got decrypt key as ", viewKey);
           let conversationKey = nip44.v2.utils.getConversationKey(
             viewKey,
             pubKey
@@ -123,11 +115,7 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
             formEvent.content,
             conversationKey
           ) as string;
-          formSpecCallback(
-            JSON.parse(formSpec) as Tag[],
-            formEvent,
-            userPubKey
-          );
+          formSpecCallback(JSON.parse(formSpec) as Tag[], formEvent);
         }}
       />
     );

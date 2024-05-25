@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Event, nip44 } from "nostr-tools";
+import { Event, getPublicKey, nip44 } from "nostr-tools";
 import { useParams } from "react-router-dom";
 import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
@@ -8,32 +8,46 @@ import SummaryStyle from "./summary.style";
 import { Card, Divider, Table, Typography } from "antd";
 import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
-import { PrepareResponses } from "./PrepareResponses";
+import { PrepareForm } from "../FormFillerNew/PrepareForm";
+import { Actions, NIP07Interactions } from "../../components/NIP07Interactions";
+import { hexToBytes } from "@noble/hashes/utils";
 
 const { Text } = Typography;
 
 export const Response = () => {
   const [responses, setResponses] = useState<Event[] | undefined>(undefined);
   const [formSpec, setFormSpec] = useState<Tag[] | undefined>(undefined);
-  const [signingKey, setSigningKey] = useState<string | undefined>(undefined);
+  const [encryptedSigningKey, setEncryptedSigningKey] = useState<
+    string | null | undefined
+  >(undefined);
+  const [signingKey, setSigningKey] = useState<string | null | undefined>(
+    undefined
+  );
   const { pubKey, formId } = useParams();
 
-  const getForm = async () => {
-    if (!(pubKey && formId)) return;
-    const formEvent = await fetchFormTemplate(pubKey, formId);
-    setFormSpec(formEvent?.tags);
-    const responses = await fetchFormResponses(pubKey, formId);
-    setResponses(responses);
+  const getEncryptedSigningKey = (formEvent: Event, userPubkey: string) => {
+    let key = formEvent.tags.find(
+      (tag) => tag[0] === "key" && tag[1] === userPubkey
+    );
+    if (!key) return null;
+    else return key[3] || null;
   };
 
   const getInputs = (responseEvent: Event) => {
-    if (responseEvent.content === "") {
+    if (responseEvent.content === "" && !signingKey) {
       return responseEvent.tags.filter((tag) => tag[0] === "response");
     } else if (signingKey) {
+      console.log(
+        "signing key is present and is",
+        signingKey,
+        "corresponding pub key is",
+        getPublicKey(hexToBytes(signingKey))
+      );
       let conversationKey = nip44.v2.utils.getConversationKey(
         signingKey,
         responseEvent.pubkey
       );
+      console.log("ConversationKey is", conversationKey);
       let decryptedContent = nip44.v2.decrypt(
         responseEvent.content,
         conversationKey
@@ -54,7 +68,7 @@ export const Response = () => {
       [key: string]: string;
     }> = [];
     (responses || []).forEach((response) => {
-      let inputs = response.tags.filter((tag) => tag[0] === "response");
+      let inputs = getInputs(response) as Tag[];
       if (inputs.length === 0) return;
       let answerObject: {
         [key: string]: string;
@@ -70,10 +84,6 @@ export const Response = () => {
     });
     return answers;
   };
-
-  useEffect(() => {
-    getForm();
-  }, []);
 
   const getFormName = () => {
     if (!formSpec) return "";
@@ -121,6 +131,21 @@ export const Response = () => {
 
   if (!pubKey || !formId) return <Text>Invalid url</Text>;
 
+  if (encryptedSigningKey && !signingKey) {
+    return (
+      <NIP07Interactions
+        action={Actions.NIP44_DECRYPT}
+        ModalMessage={
+          "Please approve decryption of the signing key for this form"
+        }
+        cipherText={encryptedSigningKey}
+        senderPubKey={pubKey}
+        callback={(signingKey: string) => {
+          setSigningKey(signingKey);
+        }}
+      />
+    );
+  }
   if (!!formSpec)
     return (
       <div>
@@ -162,12 +187,19 @@ export const Response = () => {
     );
   else
     return (
-      <PrepareResponses
+      <PrepareForm
         pubKey={pubKey}
         formId={formId}
-        responseCallback={(formSpec: Tag[], signingKey?: string) => {
+        formSpecCallback={(formSpec: Tag[], formEvent: Event) => {
           setFormSpec(formSpec);
-          if (signingKey) setSigningKey(signingKey);
+          window.nostr.getPublicKey().then((userPubkey: string) => {
+            let signingKey = getEncryptedSigningKey(formEvent, userPubkey);
+            console.log("got encrypted signing key as", signingKey);
+            setEncryptedSigningKey(signingKey);
+            fetchFormResponses(pubKey, formId).then((value) => {
+              setResponses(value);
+            });
+          });
         }}
       />
     );

@@ -56,7 +56,10 @@ export const createForm = async (
         bytesToHex(signingKey),
         npubHex
       );
-      let encyptedKey = nip44.v2.encrypt(bytesToHex(viewKey), conversationKey);
+      let encyptedKey = nip44.v2.encrypt(
+        bytesToHex(signingKey),
+        conversationKey
+      );
       tags.push(["p", `${npubHex}`]);
       tags.push(["key", `${npubHex}`, "", `${encyptedKey}`]);
     });
