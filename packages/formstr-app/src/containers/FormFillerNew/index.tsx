@@ -15,7 +15,7 @@ import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
-import { ROUTES } from "../MyForms/configs/routes";
+import { ROUTES } from "../../old/containers/MyForms/configs/routes";
 import Markdown from "react-markdown";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { Event, generateSecretKey } from "nostr-tools";

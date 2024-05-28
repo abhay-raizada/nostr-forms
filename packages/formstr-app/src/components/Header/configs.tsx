@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "antd";
 import { SearchOutlined, UserOutlined, PlusOutlined } from "@ant-design/icons";
-import { MY_FORM_MENU } from "../../containers/MyForms/configs/menuConfig";
+import { MY_FORM_MENU } from "../../old/containers/MyForms/configs/menuConfig";
 import { isMobile } from "../../utils/utility";
 import { ROUTES } from "../../constants/routes";
 

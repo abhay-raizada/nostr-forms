@@ -1,5 +1,5 @@
 import { AnswerSettings, AnswerTypes } from "@formstr/sdk/dist/interfaces";
-import { InputFiller } from "../../../FormFiller/QuestionNode/InputFiller";
+import { InputFiller } from "../../../../old/containers/FormFiller/QuestionNode/InputFiller";
 import { Tooltip, Typography } from "antd";
 
 const { Text } = Typography;

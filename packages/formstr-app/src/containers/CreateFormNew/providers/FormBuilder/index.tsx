@@ -4,18 +4,13 @@ import { IFormBuilderContext, ILocalForm } from "./typeDefs";
 import { generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
 import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
-import {
-  LOCAL_STORAGE_KEYS,
-  getItem,
-  setItem,
-} from "../../../../utils/localStorage";
 import { makeTag } from "../../../../utils/utility";
-import { useNavigate } from "react-router-dom";
-import { IDraft } from "../../../MyForms/components/Drafts/typeDefs";
+import { IDraft } from "../../../../old/containers/MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import { IFormSettings } from "../../components/FormSettings/types";
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { generateSecretKey, getPublicKey, nip19 } from "nostr-tools";
+import { useNavigate } from "react-router-dom";
 
 export type Field = [
   placeholder: string,
@@ -76,7 +71,6 @@ export default function FormBuilderProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const navigate = useNavigate();
   const [questionsList, setQuestionsList] = useState<Array<Field>>([
     generateQuestion(),
   ]);
@@ -105,6 +99,8 @@ export default function FormBuilderProvider({
     HEADER_MENU_KEYS.BUILDER
   );
 
+  const navigate = useNavigate();
+
   const toggleSettingsWindow = () => {
     setIsRightSettingsOpen((open) => {
       return !open;
@@ -128,36 +124,6 @@ export default function FormBuilderProvider({
     return formSpec;
   };
 
-  const deleteDraft = (formTempId: string) => {
-    type Draft = { formSpec: unknown; tempId: string };
-    let draftArr = getItem<Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
-    draftArr = draftArr.filter((draft: Draft) => draft.tempId !== formTempId);
-    setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
-  };
-
-  function storeLocally(
-    formCredentials: Array<string>,
-    formIdentifier?: string
-  ) {
-    const saveObject: ILocalForm = {
-      key: formCredentials[0],
-      publicKey: formCredentials[0],
-      privateKey: formCredentials[1],
-      formId: formIdentifier,
-      name: formName,
-      createdAt: new Date().toString(),
-    };
-    const forms =
-      getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
-
-    const existingKeys = forms.map((form) => form.publicKey);
-    if (existingKeys.includes(saveObject.publicKey)) {
-      return;
-    }
-    forms.push(saveObject);
-    setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
-  }
-
   const saveForm = async () => {
     console.log("CALLLED!!!");
     const formToSave = getFormSpec();
@@ -170,15 +136,18 @@ export default function FormBuilderProvider({
     const secret = generateSecretKey();
     await createForm(formToSave, secret, relayUrls, viewList, editList).then(
       (value) => {
-        deleteDraft(formTempId);
         console.log(
           "USED PUBKEY",
           getPublicKey(secret),
           "formID",
           formSettings.formId
         );
-        setFormTempId(""); // to avoid creating a draft
-        navigate("/myForms/local");
+        navigate("/dashboard", {
+          state: {
+            pubKey: getPublicKey(secret),
+            secretKey: secret,
+          },
+        });
       },
       (error) => {
         console.log("Error creating form", error);
@@ -187,25 +156,7 @@ export default function FormBuilderProvider({
     );
   };
 
-  const saveDraft = () => {
-    // if (formTempId === "") return;
-    // type V1Draft = { formSpec: FormSpec; tempId: string };
-    // const formSpec = getFormSpec();
-    // const draftObject = { formSpec, tempId: formTempId };
-    // let draftArr = getItem<V1Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
-    // const draftIds = draftArr.map((draft: V1Draft) => draft.tempId);
-    // if (!draftIds.includes(draftObject.tempId)) {
-    //   draftArr.push(draftObject);
-    // } else {
-    //   draftArr = draftArr.map((draft: V1Draft) => {
-    //     if (draftObject.tempId === draft.tempId) {
-    //       return draftObject;
-    //     }
-    //     return draft;
-    //   });
-    // }
-    // setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
-  };
+  const saveDraft = () => {};
 
   const editQuestion = (question: Field, tempId: string) => {
     const editedList = questionsList.map((existingQuestion: Field) => {
@@ -260,20 +211,7 @@ export default function FormBuilderProvider({
     }
   };
 
-  const initializeForm = (draft: IDraft) => {
-    // const formSpec = draft.formSpec;
-    // setFormName(formSpec.name);
-    // if (formSpec.settings) setFormSettings(formSpec.settings);
-    // setQuestionsList(
-    //   formSpec.fields?.map((field) => {
-    //     return {
-    //       ...field,
-    //       tempId: makeTag(6),
-    //     };
-    //   }) || []
-    // );
-    // setFormTempId(draft.tempId);
-  };
+  const initializeForm = (draft: IDraft) => {};
 
   return (
     <FormBuilderContext.Provider

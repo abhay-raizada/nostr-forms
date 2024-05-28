@@ -1,16 +1,17 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import MyForms from "../../containers/MyForms";
+import MyForms from "../../old/containers/MyForms";
 import PublicForms from "../../containers/PublicForms";
 import { ROUTES } from "../../constants/routes";
-import { FormFillerOld } from "../../containers/FormFiller";
+import { FormFillerOld } from "../../old/containers/FormFiller";
 import { FormFiller } from "../../containers/FormFillerNew";
 import { NostrHeader } from "../Header";
 import { CreateFormHeader as CreateFormHeaderNew } from "../../containers/CreateFormNew/components/Header/Header";
 import NewFormBuilderProvider from "../../containers/CreateFormNew/providers/FormBuilder";
-import { ResponsesOld } from "../../containers/Responses/Responses";
+import { ResponsesOld } from "../../old/containers/Responses/Responses";
 import { Response } from "../../containers/ResponsesNew";
 import { V1DraftsController } from "../../containers/Drafts";
 import CreateForm from "../../containers/CreateFormNew";
+import { Dashboard } from "../../containers/Dashboard";
 
 const withNostrHeaderWrapper = (Component, props) => {
   return (
@@ -71,6 +72,7 @@ function Routing() {
         element={withNostrHeaderWrapper(V1DraftsController)}
       />
       <Route path={`${ROUTES.FORM_FILLER_NEW}/*`} element={<FormFiller />} />
+      <Route path={`${ROUTES.Dashboard}/*`} element={<Dashboard />} />
     </Routes>
   );
 }
