@@ -33,7 +33,6 @@ export const NIP07Interactions: React.FC<NIP07InteractionProps> = ({
   senderPubKey,
 }) => {
   const executeAction = async () => {
-    console.log("Got Action as...", action);
     setShowModal(true);
     let returnValue = "";
     if (action === Actions.GET_PUBKEY) {

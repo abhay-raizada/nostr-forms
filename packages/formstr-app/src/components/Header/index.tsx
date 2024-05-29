@@ -1,12 +1,26 @@
-import { Layout, Menu, Row, Col } from "antd";
+import { Layout, Menu, Row, Col, Button } from "antd";
 import { Link } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
 import { MenuOutlined } from "@ant-design/icons";
-import { HEADER_MENU } from "./configs";
+import { HEADER_MENU, HEADER_MENU_KEYS } from "./configs";
+import { useProfileContext } from "../../hooks/useProfileContext";
+import { NostrAvatar } from "./NostrAvatar";
 
 export const NostrHeader = () => {
   const { Header } = Layout;
+  const { pubkey, requestPubkey } = useProfileContext();
+  const myForms = {
+    key: HEADER_MENU_KEYS.MY_FORMS,
+    icon: pubkey ? (
+      <NostrAvatar pubkey={pubkey} />
+    ) : (
+      <Button type="dashed" size="small" onClick={() => requestPubkey()}>
+        Login
+      </Button>
+    ),
+  };
+  const newHeaderMenu = [...HEADER_MENU, myForms];
   return (
     <>
       <Header
@@ -28,7 +42,7 @@ export const NostrHeader = () => {
               theme="light"
               defaultSelectedKeys={[]}
               overflowedIndicator={<MenuOutlined />}
-              items={HEADER_MENU}
+              items={newHeaderMenu}
             />
           </Col>
         </Row>

@@ -72,7 +72,10 @@ function Routing() {
         element={withNostrHeaderWrapper(V1DraftsController)}
       />
       <Route path={`${ROUTES.FORM_FILLER_NEW}/*`} element={<FormFiller />} />
-      <Route path={`${ROUTES.Dashboard}/*`} element={<Dashboard />} />
+      <Route
+        path={`${ROUTES.Dashboard}/*`}
+        element={withNostrHeaderWrapper(Dashboard)}
+      />
     </Routes>
   );
 }

@@ -22,16 +22,6 @@ export const HEADER_MENU = [
     ),
   },
   {
-    key: HEADER_MENU_KEYS.MY_FORMS,
-    label: "My Forms",
-    icon: (
-      <Link to={ROUTES.MY_FORMS}>
-        <UserOutlined />
-      </Link>
-    ),
-    ...(isMobile() && { children: MY_FORM_MENU }),
-  },
-  {
     key: HEADER_MENU_KEYS.CREATE_FORMS,
     label: (
       <Button
