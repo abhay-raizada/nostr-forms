@@ -1,4 +1,5 @@
 import { CheckCircleTwoTone, DownOutlined } from "@ant-design/icons";
+import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { Dropdown, Modal, Spin, MenuProps, FormInstance } from "antd";
 import React, { useState } from "react";
 
@@ -8,6 +9,7 @@ interface SubmitButtonProps {
   form: FormInstance;
   onSubmit: (anonymous: boolean) => Promise<void>;
   disabled?: boolean;
+  disabledMessage?: string;
 }
 
 export const SubmitButton: React.FC<SubmitButtonProps> = ({
@@ -16,6 +18,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   form,
   onSubmit,
   disabled = false,
+  disabledMessage = "disabled",
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
@@ -88,7 +91,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
         disabled={disabled}
         className="submit-button"
       >
-        {selfSign ? (edit ? "Update Response" : items[1].label) : "Submit"}
+        {disabled ? disabledMessage : selfSign ? items[1].label : "Submit"}
       </Dropdown.Button>
       <Modal
         open={isModalOpen}

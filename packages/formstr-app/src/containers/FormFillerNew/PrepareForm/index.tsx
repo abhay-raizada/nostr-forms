@@ -94,8 +94,8 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
       <NIP07Interactions
         action={Actions.GET_PUBKEY}
         ModalMessage="Please approve the request to fetch your pubkey from the nip-07 browser extension"
-        callback={(pubKey: string) => {
-          setUserPubkey(pubKey);
+        callback={(pubKey: string | Event) => {
+          setUserPubkey(pubKey as string);
         }}
       />
     );
@@ -106,9 +106,9 @@ export const PrepareForm: React.FC<PrepareFormProps> = ({
         ModalMessage="Please approve the request to decrypt the form content"
         cipherText={decryptKey}
         senderPubKey={pubKey}
-        callback={(viewKey: string) => {
+        callback={(viewKey: string | Event) => {
           let conversationKey = nip44.v2.utils.getConversationKey(
-            viewKey,
+            viewKey as string,
             pubKey
           );
           const formSpec = nip44.v2.decrypt(

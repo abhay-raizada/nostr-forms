@@ -8,6 +8,7 @@ import useNostrProfile, {
 import { getDefaultRelays } from "@formstr/sdk";
 import { LoggedOutScreen } from "./LoggedOutScreen";
 import { FormEventCard } from "./FormEventCard";
+import DashboardStyleWrapper from "./index.style";
 
 const defaultRelays = getDefaultRelays();
 
@@ -24,6 +25,8 @@ export const Dashboard = () => {
     if (!pubkey) {
       setLoggedOut(true);
       return;
+    } else {
+      setLoggedOut(false);
     }
     const filter = {
       kinds: [30168],
@@ -31,6 +34,7 @@ export const Dashboard = () => {
     };
     const pool = new SimplePool();
     const events = await pool.querySync(defaultRelays, filter);
+    console.log("Got form events", events);
     setNostrForms(events);
   };
 
@@ -38,6 +42,8 @@ export const Dashboard = () => {
     if (!pubkey) {
       setLoggedOut(true);
       return;
+    } else {
+      setLoggedOut(false);
     }
     const filter = {
       kinds: [30169],
@@ -45,6 +51,7 @@ export const Dashboard = () => {
     };
     const pool = new SimplePool();
     const submissionEvents = await pool.querySync(getDefaultRelays(), filter);
+    console.log("ssubmission events", submissionEvents);
     let events: Event[] = [];
     submissionEvents.map((event) => {
       const referenceTag = event.tags.find((tag) => tag[0] == "a") || [];
@@ -61,7 +68,7 @@ export const Dashboard = () => {
           }
         });
     });
-
+    console.log("Submission events", events);
     setSubmission(events);
   };
 
@@ -71,26 +78,31 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchAllUserForms();
+    if (!nostrForms || !submissions) fetchAllUserForms();
   }, [loggedOut]);
 
   const allForms = [...(nostrForms || []), ...(submissions || [])];
   console.log("loggedOut", loggedOut);
 
   return (
-    <>
-      {loggedOut && <LoggedOutScreen />}
-      {!loggedOut &&
-        allForms.map((formEvent: Event) => {
-          return <FormEventCard event={formEvent} />;
-        })}
-      {showFormDetails && (
-        <FormDetails
-          isOpen={showFormDetails}
-          pubKey={state.pubKey}
-          onClose={() => setShowFormDetails(false)}
-        />
-      )}
-    </>
+    <DashboardStyleWrapper>
+      <div className="dashboard-container">
+        {loggedOut && <LoggedOutScreen />}
+        {!loggedOut && (
+          <div className="form-cards-container">
+            {allForms.map((formEvent: Event) => {
+              return <FormEventCard event={formEvent} />;
+            })}
+          </div>
+        )}
+        {showFormDetails && (
+          <FormDetails
+            isOpen={showFormDetails}
+            pubKey={state.pubKey}
+            onClose={() => setShowFormDetails(false)}
+          />
+        )}
+      </div>
+    </DashboardStyleWrapper>
   );
 };

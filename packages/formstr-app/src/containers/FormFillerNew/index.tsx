@@ -8,7 +8,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Form, Typography } from "antd";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
@@ -17,11 +17,12 @@ import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-usin
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../../old/containers/MyForms/configs/routes";
 import Markdown from "react-markdown";
-import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { Event, generateSecretKey } from "nostr-tools";
-import { Actions, NIP07Interactions } from "../../components/NIP07Interactions";
 import { FormFields } from "./FormFields";
 import { PrepareForm } from "./PrepareForm";
+import { hexToBytes } from "@noble/hashes/utils";
+import { RequestAccess } from "./RequestAccess";
+import { CheckRequests } from "./CheckRequests";
 
 const { Text } = Typography;
 
@@ -35,10 +36,18 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   embedded,
 }) => {
   const { pubKey, formId } = useParams();
-  const [formTemplate, setFormTemplate] = useState<Tag[] | null>(null);
+  const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
+    formSpec || null
+  );
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [thankYouScreen, setThankYouScreen] = useState(false);
+  const [votingKey, setVotingKey] = useState<string | null>(null);
+  const [checkingEligibility, setCheckingEligibility] =
+    useState<boolean>(false);
+  const [submitAccess, setSubmitAccess] = useState(true);
+  const [signingKey, setSigningKey] = useState<string | undefined>();
+  const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const hideDescription = searchParams.get("hideDescription") === "true";
@@ -62,6 +71,74 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     form.setFieldValue(questionId, [answer, message]);
   };
 
+  const isPoll = (tags?: Tag[]) => {
+    if (!formTemplate && !tags) return;
+    else {
+      const settingsTag = (formTemplate || tags)!.find(
+        (tag) => tag[0] === "settings"
+      );
+      if (!settingsTag) return;
+      const settings = JSON.parse(settingsTag[1] || "{}");
+      return settings.isPoll;
+    }
+  };
+
+  const checkVoterEligible = async (formEvent: Event) => {
+    console.log("isPoll? ", isPoll(formEvent.tags));
+    if (!isPoll(formEvent.tags)) return;
+    setCheckingEligibility(true);
+    let voterTags = formEvent.tags.filter((tag) => tag[0] === "v");
+    let pubKey = await window.nostr.getPublicKey();
+    let encryptedVoterSecret = formEvent.tags.find(
+      (tag) => tag[0] === "key" && tag[1] === pubKey
+    );
+    console.log("found encrypted voter secret as", encryptedVoterSecret);
+    let encryptedVoterId: string;
+    if (!encryptedVoterSecret || !encryptedVoterSecret[4]) {
+      setVotingKey(null);
+      setSubmitAccess(false);
+      return;
+    } else {
+      encryptedVoterId = encryptedVoterSecret[4];
+    }
+    const promises: Promise<void>[] = [];
+    console.log("Searching voter ids in", voterTags);
+    voterTags.forEach((tags: string[]) => {
+      let candidateVoterId = tags[1];
+      const promise = window.nostr.nip44
+        .decrypt(candidateVoterId, encryptedVoterId)
+        .then((voterKey: string) => {
+          console.log("Found the voting key", voterKey);
+          setVotingKey(voterKey);
+          setCheckingEligibility(false);
+        })
+        .catch((e) => {
+          console.log(`not candidate ${candidateVoterId}`);
+        });
+      promises.push(promise);
+    });
+    Promise.all(promises).then(() => {
+      console.log("After all promises boting key is", votingKey);
+      if (!votingKey) {
+        setSubmitAccess(false);
+      }
+    });
+  };
+
+  const checkSigningKey = async (formEvent: Event) => {
+    let pubKey = await window.nostr.getPublicKey();
+    let encryptedFormSecret = formEvent.tags.find(
+      (tag) => tag[0] === "key" && tag[1] === pubKey
+    )?.[3];
+    if (encryptedFormSecret) {
+      window.nostr.nip44
+        .decrypt(formEvent.pubkey, encryptedFormSecret)
+        .then((privateKey: string) => {
+          setSigningKey(privateKey);
+        });
+    }
+  };
+
   const saveResponse = async (anonymous: boolean = true) => {
     if (!formId || !pubKey) {
       throw "Cant submit to a form that has not been published";
@@ -76,7 +153,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
     let anonUser = null;
-    if (anonymous) {
+    if (votingKey) anonUser = hexToBytes(votingKey);
+    if (!votingKey && anonymous) {
       anonUser = generateSecretKey();
     }
     sendResponses(pubKey, formId, responses, anonUser).then(
@@ -91,17 +169,19 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     );
   };
 
-  console.log("Form template is....", formTemplate);
-  if (!pubKey || !formId) {
+  if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
   }
-  if (!formTemplate) {
+  if (!formTemplate && !isPreview) {
     return (
       <PrepareForm
-        pubKey={pubKey}
-        formId={formId}
-        formSpecCallback={function (fields: Tag[], _: Event): void {
+        pubKey={pubKey!}
+        formId={formId!}
+        formSpecCallback={function (fields: Tag[], formEvent: Event): void {
           setFormTemplate(fields);
+          checkVoterEligible(formEvent);
+          checkSigningKey(formEvent);
+          setFormEvent(formEvent);
         }}
       />
     );
@@ -115,6 +195,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
     return (
       <FillerStyle $isPreview={isPreview}>
+        {signingKey && !isPreview ? (
+          <CheckRequests
+            pubkey={pubKey!}
+            formId={formId!}
+            secretKey={signingKey}
+            formEvent={formEvent!}
+          />
+        ) : null}
         {!formSubmitted && (
           <div className="filler-container">
             <div className="form-filler">
@@ -143,13 +231,26 @@ export const FormFiller: React.FC<FormFillerProps> = ({
               >
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
-                  <SubmitButton
-                    selfSign={settings.disallowAnonymous}
-                    edit={false}
-                    onSubmit={saveResponse}
-                    form={form}
-                    disabled={isPreview}
-                  />
+                  <>
+                    {submitAccess ? (
+                      <SubmitButton
+                        selfSign={settings.disallowAnonymous}
+                        edit={false}
+                        onSubmit={saveResponse}
+                        form={form}
+                        disabled={
+                          isPreview || (checkingEligibility && !votingKey)
+                        }
+                        disabledMessage={
+                          checkingEligibility && !votingKey
+                            ? "Checking Eligibilty"
+                            : "Disabled"
+                        }
+                      />
+                    ) : (
+                      <RequestAccess pubkey={pubKey!} formId={formId!} />
+                    )}
+                  </>
                 </div>
               </Form>
             </div>

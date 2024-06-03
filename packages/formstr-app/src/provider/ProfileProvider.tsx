@@ -6,8 +6,9 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
-import { LOCAL_STORAGE_KEYS, getItem } from "../utils/localStorage";
+import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../utils/localStorage";
 import { Actions, NIP07Interactions } from "../components/NIP07Interactions";
+import { Event } from "nostr-tools";
 
 interface ProfileProviderProps {
   children?: ReactNode;
@@ -16,6 +17,10 @@ interface ProfileProviderProps {
 export interface ProfileContextType {
   pubkey?: string;
   requestPubkey: () => void;
+}
+
+export interface IProfile {
+  pubkey: string;
 }
 
 export const ProfileContext = createContext<ProfileContextType | undefined>(
@@ -27,11 +32,16 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
   const [usingNip07, setUsingNip07] = useState(false);
 
   useEffect(() => {
-    let npub = getItem<ProfileContextType>(LOCAL_STORAGE_KEYS.PROFILE);
-    if (npub) {
-      setPubkey(pubkey);
+    if (!pubkey) {
+      let profile = getItem<IProfile>(LOCAL_STORAGE_KEYS.PROFILE);
+      if (profile) {
+        console.log("Found npub", profile.pubkey);
+        setPubkey(profile.pubkey);
+      } else {
+        console.log("couldnt find npub");
+      }
     }
-  }, []);
+  }, [pubkey]);
 
   const requestPubkey = () => {
     setUsingNip07(true);
@@ -44,9 +54,10 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
         <NIP07Interactions
           action={Actions.GET_PUBKEY}
           ModalMessage={"Get pubkey"}
-          callback={(pubkey: string) => {
-            setPubkey(pubkey);
+          callback={(pubkey: string | Event) => {
+            setPubkey(pubkey as string);
             setUsingNip07(false);
+            setItem(LOCAL_STORAGE_KEYS.PROFILE, { pubkey: pubkey });
           }}
         />
       ) : null}

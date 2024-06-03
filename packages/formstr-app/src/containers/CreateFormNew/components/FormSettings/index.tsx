@@ -17,6 +17,12 @@ function FormSettings() {
     });
   };
 
+  const handlePoll = (checked: boolean) => {
+    updateFormSetting({
+      isPoll: checked,
+    });
+  };
+
   const handlePublicForm = (checked: boolean) => {
     updateFormSetting({
       publicForm: checked,
@@ -31,6 +37,10 @@ function FormSettings() {
       </div>
       <div className="form-setting">
         <TitleImage titleImageUrl={formSettings.titleImageUrl} />
+      </div>
+      <div className="form-setting">
+        <Text className="property-text">Poll?</Text>
+        <Switch onChange={handlePoll} defaultChecked={formSettings.isPoll} />
       </div>
       <Divider className="divider" />
       <div className="form-setting">

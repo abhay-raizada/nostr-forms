@@ -6,4 +6,5 @@ export interface IFormSettings {
   publicForm?: boolean;
   disallowAnonymous?: boolean;
   formId?: string;
+  isPoll?: boolean;
 }

@@ -43,24 +43,12 @@ declare global {
         event: Event
       ) => Promise<Event & { id: string; sig: string }>;
       nip04: {
-        encrypt: (
-          pubKey: string,
-          message: string
-        ) => ReturnType<typeof nip04.encrypt>;
-        decrypt: (
-          pubkey: string,
-          nessage: string
-        ) => ReturnType<typeof nip04.decrypt>;
+        encrypt: (pubKey: string, message: string) => Promise<string>;
+        decrypt: (pubkey: string, message: string) => Promise<string>;
       };
       nip44: {
-        encrypt: (
-          pubKey: string,
-          message: string
-        ) => ReturnType<typeof nip44.v2.encrypt>;
-        decrypt: (
-          pubkey: string,
-          nessage: string
-        ) => ReturnType<typeof nip44.v2.decrypt>;
+        encrypt: (pubKey: string, message: string) => Promise<string>;
+        decrypt: (pubkey: string, mssage: string) => Promise<string>;
       };
     };
   }

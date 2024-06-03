@@ -125,7 +125,6 @@ export default function FormBuilderProvider({
   };
 
   const saveForm = async () => {
-    console.log("CALLLED!!!");
     const formToSave = getFormSpec();
     console.log("CALLLED!!! saving form", formToSave);
     if (!formSettings.formId) {
@@ -133,15 +132,16 @@ export default function FormBuilderProvider({
       return;
     }
     const relayUrls = relayList.map((relay) => relay.url);
-    const secret = generateSecretKey();
-    await createForm(formToSave, secret, relayUrls, viewList, editList).then(
-      (value) => {
-        console.log(
-          "USED PUBKEY",
-          getPublicKey(secret),
-          "formID",
-          formSettings.formId
-        );
+    await createForm(
+      formToSave,
+      relayUrls,
+      viewList,
+      editList,
+      !formSettings.isPoll,
+      formSettings.isPoll
+    ).then(
+      (secret: Uint8Array) => {
+        console.log("formID", formSettings.formId);
         navigate("/dashboard", {
           state: {
             pubKey: getPublicKey(secret),

@@ -1,5 +1,5 @@
 import { Modal } from "antd";
-import { Event } from "nostr-tools";
+import { Event, UnsignedEvent } from "nostr-tools";
 import { useEffect, useState } from "react";
 
 export enum Actions {
@@ -15,10 +15,10 @@ export enum Actions {
 interface NIP07InteractionProps {
   action: Actions;
   ModalMessage: string;
-  callback: (returnValue: string) => void;
+  callback: (returnValue: string | Event) => void;
   senderPubKey?: string;
   plainText?: string;
-  event?: Event;
+  event?: UnsignedEvent;
   cipherText?: string;
   receiverPubkey?: string;
 }
@@ -34,11 +34,11 @@ export const NIP07Interactions: React.FC<NIP07InteractionProps> = ({
 }) => {
   const executeAction = async () => {
     setShowModal(true);
-    let returnValue = "";
+    let returnValue: string | Event = "";
     if (action === Actions.GET_PUBKEY) {
       returnValue = await window.nostr.getPublicKey();
     } else if (action === Actions.SIGN_EVENT) {
-      return await window.nostr.signEvent(event);
+      returnValue = await window.nostr.signEvent(event);
     } else if (action === Actions.NIP44_ENCRYPT) {
       let pubKey = await window.nostr.getPublicKey();
       if (!plainText) {
@@ -81,7 +81,7 @@ export const NIP07Interactions: React.FC<NIP07InteractionProps> = ({
   const [showModal, setShowModal] = useState<boolean>(false);
 
   return (
-    <Modal open={showModal} footer={null}>
+    <Modal open={showModal} footer={null} closable={false}>
       {ModalMessage}
     </Modal>
   );

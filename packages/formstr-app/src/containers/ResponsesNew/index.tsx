@@ -139,8 +139,8 @@ export const Response = () => {
         }
         cipherText={encryptedSigningKey}
         senderPubKey={pubKey}
-        callback={(signingKey: string) => {
-          setSigningKey(signingKey);
+        callback={(signingKey: string | Event) => {
+          setSigningKey(signingKey as string);
         }}
       />
     );
