@@ -4,7 +4,6 @@ import {
   generateSecretKey,
   getPublicKey,
   nip19,
-  nip44,
 } from "nostr-tools";
 import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
 import { bytesToHex } from "@noble/hashes/utils";

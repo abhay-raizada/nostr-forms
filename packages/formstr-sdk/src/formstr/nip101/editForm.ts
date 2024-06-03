@@ -40,6 +40,7 @@ const createTag = (
   return {
     tag: [
       "key",
+      pubKey,
       encryptedViewKey || "",
       encryptedEditKey || "",
       encryptedVoteKey || "",
@@ -116,12 +117,14 @@ export const acceptAccessRequests = async (
       signingKey
     );
   });
+  newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));
-  finalEvent.created_at = Math.floor(Date.now() / 1000);
   console.log("FINAL EDITED EVENT IS", finalEvent);
   const pool = new SimplePool();
-  await Promise.allSettled(pool.publish(getDefaultRelays(), finalEvent));
-  console.log("Published!!!");
+  let a = await Promise.allSettled(
+    pool.publish(getDefaultRelays(), finalEvent)
+  );
+  console.log("Published!!!", a);
 };
 
 export const editForm = () => {};

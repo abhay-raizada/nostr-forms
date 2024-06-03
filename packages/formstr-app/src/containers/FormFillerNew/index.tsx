@@ -107,21 +107,31 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       let candidateVoterId = tags[1];
       const promise = window.nostr.nip44
         .decrypt(candidateVoterId, encryptedVoterId)
-        .then((voterKey: string) => {
-          console.log("Found the voting key", voterKey);
-          setVotingKey(voterKey);
-          setCheckingEligibility(false);
-        })
+        .then(
+          (voterKey: string) => {
+            console.log("Found the voting key", voterKey);
+            if (voterKey) {
+              setVotingKey(voterKey);
+              setSubmitAccess(true);
+              setCheckingEligibility(false);
+            } else {
+              console.log("no veoter key for candidate", candidateVoterId);
+            }
+          },
+          (reason) => console.log("rejected because ", reason)
+        )
         .catch((e) => {
-          console.log(`not candidate ${candidateVoterId}`);
+          console.log(`not candidate ${candidateVoterId}, e`);
         });
       promises.push(promise);
     });
     Promise.all(promises).then(() => {
-      console.log("After all promises boting key is", votingKey);
-      if (!votingKey) {
-        setSubmitAccess(false);
-      }
+      setTimeout(() => {
+        console.log("After all promises boting key is", votingKey);
+        if (!votingKey) {
+          setSubmitAccess(false);
+        }
+      }, 100);
     });
   };
 
@@ -157,7 +167,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     if (!votingKey && anonymous) {
       anonUser = generateSecretKey();
     }
-    sendResponses(pubKey, formId, responses, anonUser).then(
+    sendResponses(pubKey, formId, responses, anonUser, !isPoll()).then(
       (val) => {
         console.log("Submitted!");
         setFormSubmitted(true);
@@ -193,6 +203,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       formTemplate.find((tag) => tag[0] === "settings")?.[1] || "{}"
     );
     fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
+
+    console.log("submitAccess", submitAccess, "votingKey", votingKey);
     return (
       <FillerStyle $isPreview={isPreview}>
         {signingKey && !isPreview ? (
@@ -232,7 +244,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
                   <>
-                    {submitAccess ? (
+                    {submitAccess || votingKey ? (
                       <SubmitButton
                         selfSign={settings.disallowAnonymous}
                         edit={false}
@@ -283,7 +295,11 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                navigate(`${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`);
+                let navigationUrl = isPoll()
+                  ? `/r/${pubKey}/${formId}`
+                  : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
+                console.log("navigation url", navigationUrl);
+                navigate(navigationUrl);
               } else {
                 setThankYouScreen(false);
               }

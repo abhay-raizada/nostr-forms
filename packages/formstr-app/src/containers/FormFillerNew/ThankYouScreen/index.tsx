@@ -9,7 +9,7 @@ export const ThankYouScreen = ({
   onClose: () => void;
 }) => {
   return (
-    <Modal open={isOpen} onCancel={onClose} closable={false} footer={null}>
+    <Modal open={isOpen} onCancel={onClose} closable={true} footer={null}>
       <ThankYouStyle>
         <div className="thank-you-image-container">
           <img
