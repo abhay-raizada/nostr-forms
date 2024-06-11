@@ -4,12 +4,75 @@ import {
   UnsignedEvent,
   finalizeEvent,
   generateSecretKey,
+  getEventHash,
   getPublicKey,
 } from "nostr-tools";
 import { AccesType, AccessRequest, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import { getDefaultRelays } from "../formstr";
+import { wrap } from "module";
+
+interface IWrap {
+  wrapEvent: Event;
+  pubkey: string;
+}
+
+const now = () => Math.round(Date.now() / 1000);
+
+type Rumor = UnsignedEvent & { id: string };
+
+const createRumor = (event: Partial<UnsignedEvent>, privateKey: Uint8Array) => {
+  const rumor = {
+    created_at: now(),
+    content: "",
+    tags: [],
+    ...event,
+    pubkey: getPublicKey(privateKey),
+  } as any;
+
+  rumor.id = getEventHash(rumor);
+
+  return rumor as Rumor;
+};
+
+const createSeal = (
+  rumor: Rumor,
+  privateKey: Uint8Array,
+  recipientPublicKey: string
+) => {
+  return finalizeEvent(
+    {
+      kind: 13,
+      content: nip44Encrypt(
+        privateKey,
+        recipientPublicKey,
+        JSON.stringify(rumor)
+      ),
+      created_at: now(),
+      tags: [],
+    },
+    privateKey
+  ) as Event;
+};
+
+const createWrap = (event: Event, recipientPublicKey: string) => {
+  const randomKey = generateSecretKey();
+
+  return finalizeEvent(
+    {
+      kind: 1059,
+      content: nip44Encrypt(
+        randomKey,
+        recipientPublicKey,
+        JSON.stringify(event)
+      ),
+      created_at: now(),
+      tags: [["p", recipientPublicKey]],
+    },
+    randomKey
+  ) as Event;
+};
 
 const hasKeyTagAccess = (keyTag: Tag, accessType: AccesType) => {
   let ACCESS_TYPE_KEY_INDEX_MAP = {
@@ -20,33 +83,30 @@ const hasKeyTagAccess = (keyTag: Tag, accessType: AccesType) => {
   return !!keyTag[ACCESS_TYPE_KEY_INDEX_MAP[accessType]];
 };
 
+const sendWraps = (wraps: IWrap) => {};
+
 const createTag = (
   signingKey: string,
   pubKey: string,
-  accessType: AccesType
+  accessType: AccesType,
+  voterKey: Uint8Array
 ) => {
   let encryptedEditKey;
   let encryptedViewKey;
   let encryptedVoteKey;
-  let voterId;
   if (accessType === "vote") {
-    let voterKey = generateSecretKey();
-    voterId = getPublicKey(voterKey);
     encryptedVoteKey = nip44Encrypt(voterKey, pubKey, bytesToHex(voterKey));
   }
   if (accessType === "edit") {
     encryptedEditKey = nip44Encrypt(hexToBytes(signingKey), pubKey, signingKey);
   }
-  return {
-    tag: [
-      "key",
-      pubKey,
-      encryptedViewKey || "",
-      encryptedEditKey || "",
-      encryptedVoteKey || "",
-    ],
-    voterId,
-  };
+  return [
+    "key",
+    pubKey,
+    encryptedViewKey || "",
+    encryptedEditKey || "",
+    encryptedVoteKey || "",
+  ];
 };
 
 const modifyKeyTag = (tag: Tag, accessType: AccesType, signingKey: string) => {
@@ -70,37 +130,25 @@ const grantAccess = (
   pubkey: string,
   accessType: AccesType,
   signingKey: string
-): UnsignedEvent => {
-  let createNewTag = true;
-  let votingId;
-  let newTags = formEvent.tags.map((tag: Tag) => {
-    if (tag[0] === "key" && tag[1] === pubkey) {
-      createNewTag = false;
-      if (hasKeyTagAccess(tag, accessType)) return tag;
-      else {
-        let { tag: keyTag, voterId } = modifyKeyTag(
-          tag,
-          accessType,
-          signingKey
-        );
-        votingId = voterId;
-        return keyTag;
-      }
-    }
-    return tag;
-  });
-  if (createNewTag) {
-    let { tag: keyTag, voterId } = createTag(signingKey, pubkey, accessType);
-    newTags.push(keyTag);
-    newTags.push(["p", pubkey]);
-    votingId = voterId;
-  }
-  if (votingId) newTags.push(["v", votingId]);
-  let newFormEvent: any = { ...formEvent, tags: newTags };
-  delete newFormEvent.id;
-  delete newFormEvent.sig;
+) => {
+  const voterKey = generateSecretKey();
+  const voterId = getPublicKey(voterKey);
+  const issuerPubkey = getPublicKey(hexToBytes(signingKey));
+  let newTags = formEvent.tags;
+  newTags.push(["v", voterId]);
 
-  return newFormEvent;
+  const rumor = createRumor(
+    {
+      kind: 18,
+      pubkey: issuerPubkey,
+      tags: [createTag(signingKey, pubkey, accessType, voterKey)],
+    },
+    hexToBytes(signingKey)
+  );
+  const seal = createSeal(rumor, hexToBytes(signingKey), pubkey);
+  const wrap = createWrap(seal, pubkey);
+
+  return { formEvent, wrap: { wrapEvent: wrap, pubkey } };
 };
 
 export const acceptAccessRequests = async (
@@ -109,14 +157,18 @@ export const acceptAccessRequests = async (
   formEvent: Event
 ) => {
   let newFormEvent: Event | UnsignedEvent = formEvent;
+  let wraps: any = [];
   requests.forEach((request) => {
-    newFormEvent = grantAccess(
+    let { formEvent: newForm, wrap } = grantAccess(
       newFormEvent,
       request.pubkey,
       request.accessType,
       signingKey
     );
+    newFormEvent = newForm;
+    wraps.push(wrap);
   });
+  sendWraps(wraps);
   newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));
   console.log("FINAL EDITED EVENT IS", finalEvent);
