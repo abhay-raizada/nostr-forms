@@ -4,7 +4,7 @@ import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { Button, Divider, Modal, Typography } from "antd";
 import { SimplePool, Event, nip19 } from "nostr-tools";
 import { FC, useEffect, useState } from "react";
-import { acceptAccessRequests } from "@formstr/sdk/dist/formstr/nip101/editForm";
+import { acceptAccessRequests } from "@formstr/sdk/dist/formstr/nip101/accessControl";
 
 const { Text } = Typography;
 interface CheckRequests {

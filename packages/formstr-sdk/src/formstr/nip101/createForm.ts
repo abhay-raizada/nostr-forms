@@ -7,8 +7,9 @@ import {
 } from "nostr-tools";
 import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
 import { bytesToHex } from "@noble/hashes/utils";
-import { Tag } from "./interfaces";
+import { IWrap, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
+import { grantAccess } from "./accessControl";
 
 const defaultRelays = getDefaultRelays();
 
@@ -91,8 +92,8 @@ export const createForm = async (
   poll?: boolean
 ) => {
   const pool = new SimplePool();
-  let signingKey = await generateSecretKey();
-  let formPubkey = await getUserPublicKey(signingKey);
+  let signingKey = generateSecretKey();
+  let formPubkey = getPublicKey(signingKey);
 
   let tags: Tag[] = [];
   let formId = form.find((tag: Tag) => tag[0] === "d")?.[1];
@@ -104,20 +105,6 @@ export const createForm = async (
   let viewKey = generateSecretKey();
   tags.push(["d", formId]);
   tags.push(["name", name]);
-  mergedNpubs.forEach((profile: MergedNpub) => {
-    let { tag, voterId } = getKeysTag(
-      !!poll,
-      !!profile.isParticipant,
-      !!profile.isEditor,
-      viewKey,
-      signingKey,
-      profile.pubkey
-    );
-    tags.push(tag);
-    if (poll) tags.push(["v", voterId]);
-    tags.push(["p", nip19.decode(profile.pubkey).data as string]);
-  });
-
   let content = "";
   if (encryptContent)
     content = nip44Encrypt(
@@ -139,6 +126,19 @@ export const createForm = async (
     content: content,
     pubkey: formPubkey,
   };
+  let baseFormEvent = baseTemplateEvent;
+  let wraps: IWrap[] = [];
+  mergedNpubs.forEach((profile: MergedNpub) => {
+    let { formEvent, wrap } = grantAccess(
+      baseFormEvent,
+      profile.pubkey,
+      signingKey,
+      viewKey,
+      profile.isEditor
+    );
+    wraps.push(wrap);
+    baseFormEvent = formEvent;
+  });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
   console.log("final event is ", templateEvent);

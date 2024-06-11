@@ -214,7 +214,7 @@ async function decryptPastForms(
   return decryptedForms;
 }
 
-async function signEvent(
+export async function signEvent(
   baseEvent: UnsignedEvent,
   userSecretKey: Uint8Array | null
 ) {
@@ -228,7 +228,7 @@ async function signEvent(
   return nostrEvent;
 }
 
-async function getUserPublicKey(userSecretKey: Uint8Array | null) {
+export async function getUserPublicKey(userSecretKey: Uint8Array | null) {
   let userPublicKey;
   if (userSecretKey) {
     userPublicKey = getPublicKey(userSecretKey);
@@ -620,11 +620,7 @@ export const sendNotification = async (
 
 export const getFormResponses = async (
   formSecret: string,
-<<<<<<< HEAD
-  nprofile?: string | null
-=======
   nprofile: string | null
->>>>>>> fcf068e (Cleanup)
 ) => {
   const formId = nprofile ? nprofile : getPublicKey(hexToBytes(formSecret));
   const responses = await getEncryptedResponses(formId);

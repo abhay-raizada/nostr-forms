@@ -1,3 +1,5 @@
+import { Event } from "nostr-tools";
+
 export type Field = [
   placeholder: string,
   fieldId: string,
@@ -27,4 +29,11 @@ export type AccesType = "vote" | "view" | "edit";
 export interface AccessRequest {
   pubkey: string;
   accessType: AccesType;
+}
+
+export interface IWrap {
+  receiverWrapEvent: Event;
+  senderWrapEvent: Event;
+  receiverPubkey: string;
+  issuerPubkey: string;
 }

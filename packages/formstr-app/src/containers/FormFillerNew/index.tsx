@@ -8,7 +8,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, Typography } from "antd";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
@@ -17,12 +17,18 @@ import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-usin
 import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
 import { ROUTES } from "../../old/containers/MyForms/configs/routes";
 import Markdown from "react-markdown";
-import { Event, generateSecretKey } from "nostr-tools";
+import {
+  Event,
+  SimplePool,
+  UnsignedEvent,
+  generateSecretKey,
+} from "nostr-tools";
 import { FormFields } from "./FormFields";
 import { PrepareForm } from "./PrepareForm";
 import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
+import { getDefaultRelays, getUserPublicKey } from "@formstr/sdk";
 
 const { Text } = Typography;
 
@@ -41,6 +47,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   );
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [keys, setKeys] = useState<Array<string> | undefined>();
   const [thankYouScreen, setThankYouScreen] = useState(false);
   const [votingKey, setVotingKey] = useState<string | null>(null);
   const [checkingEligibility, setCheckingEligibility] =
@@ -58,6 +65,59 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   if (!formId && !formSpec) {
     return null;
   }
+
+  const fetchKeys = async (formAuthor: string, formId: string) => {
+    const userPublicKey = await getUserPublicKey(null);
+    const pool = new SimplePool();
+    let defaultRelays = getDefaultRelays();
+    let giftWrapsFilter = {
+      kinds: [1059],
+      "#t": ["formAccess"],
+      "#p": [userPublicKey],
+    };
+    let userRelaysFilter = {
+      kinds: [10050],
+      "#p": [userPublicKey],
+    };
+    const relayListEvent = await pool.get(defaultRelays, userRelaysFilter);
+    const relayList = relayListEvent?.tags
+      .filter((tag: Tag) => tag[0] === "relay")
+      .map((t) => t[1]);
+
+    const accessKeyEvents = pool.querySync(
+      relayList || defaultRelays,
+      giftWrapsFilter
+    );
+    (await accessKeyEvents).forEach(async (keyEvent: Event) => {
+      const sealString = await window.nostr.nip44.decrypt(
+        keyEvent.pubkey,
+        keyEvent.content
+      );
+      const seal = JSON.parse(sealString) as Event;
+      const rumorString = await window.nostr.nip44.decrypt(
+        seal.pubkey,
+        seal.content
+      );
+      const rumor = JSON.parse(rumorString) as UnsignedEvent;
+      let formRumor = rumor.tags.find(
+        (t) => t[0] === "a" && t[1] === `30168:${formAuthor}:${formId}`
+      );
+      if (formRumor) {
+        let key = rumor.tags.find((t) => t[0] === "key");
+        setKeys(key);
+        return;
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (!(pubKey && formId)) {
+      return;
+    }
+    if (!keys) {
+      fetchKeys(pubKey, formId);
+    }
+  }, []);
 
   const handleInput = (
     questionId: string,
@@ -87,66 +147,16 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     console.log("isPoll? ", isPoll(formEvent.tags));
     if (!isPoll(formEvent.tags)) return;
     setCheckingEligibility(true);
-    let voterTags = formEvent.tags.filter((tag) => tag[0] === "v");
-    let pubKey = await window.nostr.getPublicKey();
-    let encryptedVoterSecret = formEvent.tags.find(
-      (tag) => tag[0] === "key" && tag[1] === pubKey
-    );
-    console.log("found encrypted voter secret as", encryptedVoterSecret);
-    let encryptedVoterId: string;
-    if (!encryptedVoterSecret || !encryptedVoterSecret[4]) {
-      setVotingKey(null);
-      setSubmitAccess(false);
-      return;
-    } else {
-      encryptedVoterId = encryptedVoterSecret[4];
+    if (!keys) {
+      return false;
+    } else if (keys && keys[3]) {
+      setVotingKey(keys[3]);
     }
-    const promises: Promise<void>[] = [];
-    console.log("Searching voter ids in", voterTags);
-    voterTags.forEach((tags: string[]) => {
-      let candidateVoterId = tags[1];
-      const promise = window.nostr.nip44
-        .decrypt(candidateVoterId, encryptedVoterId)
-        .then(
-          (voterKey: string) => {
-            console.log("Found the voting key", voterKey);
-            if (voterKey) {
-              setVotingKey(voterKey);
-              setSubmitAccess(true);
-              setCheckingEligibility(false);
-            } else {
-              console.log("no veoter key for candidate", candidateVoterId);
-            }
-          },
-          (reason) => console.log("rejected because ", reason)
-        )
-        .catch((e) => {
-          console.log(`not candidate ${candidateVoterId}, e`);
-        });
-      promises.push(promise);
-    });
-    Promise.all(promises).then(() => {
-      setTimeout(() => {
-        console.log("After all promises boting key is", votingKey);
-        if (!votingKey) {
-          setSubmitAccess(false);
-        }
-      }, 100);
-    });
   };
 
   const checkSigningKey = async (formEvent: Event) => {
-    let pubKey = await window.nostr.getPublicKey();
-    let encryptedFormSecret = formEvent.tags.find(
-      (tag) => tag[0] === "key" && tag[1] === pubKey
-    )?.[3];
-    if (encryptedFormSecret) {
-      window.nostr.nip44
-        .decrypt(formEvent.pubkey, encryptedFormSecret)
-        .then((privateKey: string) => {
-          setSigningKey(privateKey);
-        });
-    }
+    if (!keys) return;
+    setSigningKey(keys[2]);
   };
 
   const saveResponse = async (anonymous: boolean = true) => {
