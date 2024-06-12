@@ -33,7 +33,7 @@ export interface AccessRequest {
 
 export interface IWrap {
   receiverWrapEvent: Event;
-  senderWrapEvent: Event;
+  senderWrapEvent?: Event;
   receiverPubkey: string;
   issuerPubkey: string;
 }

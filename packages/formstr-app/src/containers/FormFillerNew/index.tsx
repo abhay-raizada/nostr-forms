@@ -29,6 +29,8 @@ import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
 import { getDefaultRelays, getUserPublicKey } from "@formstr/sdk";
+import {bytesToHex } from "@noble/hashes/utils"
+import { sha256 } from "@noble/hashes/sha256"
 
 const { Text } = Typography;
 
@@ -70,16 +72,17 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     const userPublicKey = await getUserPublicKey(null);
     const pool = new SimplePool();
     let defaultRelays = getDefaultRelays();
+    let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPublicKey}`))
     let giftWrapsFilter = {
       kinds: [1059],
-      "#t": ["formAccess"],
-      "#p": [userPublicKey],
+      "#p": [aliasPubKey],
     };
     let userRelaysFilter = {
       kinds: [10050],
       "#p": [userPublicKey],
     };
     const relayListEvent = await pool.get(defaultRelays, userRelaysFilter);
+    console.log("Relay list events for the user", relayListEvent)
     const relayList = relayListEvent?.tags
       .filter((tag: Tag) => tag[0] === "relay")
       .map((t) => t[1]);
@@ -88,6 +91,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       relayList || defaultRelays,
       giftWrapsFilter
     );
+    console.log("Access Key events", accessKeyEvents);
     (await accessKeyEvents).forEach(async (keyEvent: Event) => {
       const sealString = await window.nostr.nip44.decrypt(
         keyEvent.pubkey,
@@ -102,6 +106,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       let formRumor = rumor.tags.find(
         (t) => t[0] === "a" && t[1] === `30168:${formAuthor}:${formId}`
       );
+      console.log("Found Keys", formRumor);
       if (formRumor) {
         let key = rumor.tags.find((t) => t[0] === "key");
         setKeys(key);

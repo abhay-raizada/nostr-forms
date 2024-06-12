@@ -12,6 +12,7 @@ import { AccesType, AccessRequest, IWrap, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import { getDefaultRelays } from "../formstr";
+import { sha256 } from "@noble/hashes/sha256"
 
 const now = () => Math.round(Date.now() / 1000);
 
@@ -51,8 +52,9 @@ const createSeal = (
   ) as Event;
 };
 
-const createWrap = (event: Event, recipientPublicKey: string) => {
+const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: string, d_tag: string) => {
   const randomKey = generateSecretKey();
+  let aliasPubKey = bytesToHex(sha256(`${30168}:${eventAuthor}:${d_tag}:${recipientPublicKey}`))
 
   return finalizeEvent(
     {
@@ -63,7 +65,7 @@ const createWrap = (event: Event, recipientPublicKey: string) => {
         JSON.stringify(event)
       ),
       created_at: now(),
-      tags: [["p", recipientPublicKey]],
+      tags: [["p", aliasPubKey]],
     },
     randomKey
   ) as Event;
@@ -78,40 +80,33 @@ const hasKeyTagAccess = (keyTag: Tag, accessType: AccesType) => {
   return !!keyTag[ACCESS_TYPE_KEY_INDEX_MAP[accessType]];
 };
 
-export const sendWraps = async (wraps: IWrap[]) => {
-  const pool = new SimplePool();
+const sendToUserRelays = async (wrap: Event, pubkey: string) => {
+  let pool = new SimplePool()
   const defaultRelays = getDefaultRelays();
-  wraps.forEach(async (wrap) => {
-    let RelayFilters: Filter = {
-      kinds: [10050],
-    };
-    let receiverRelayFilter = RelayFilters;
-    let issuerRelayFilter = RelayFilters;
-    receiverRelayFilter.authors = [wrap.receiverPubkey];
-    issuerRelayFilter.authors = [wrap.issuerPubkey];
+  let RelayFilter: Filter = {
+    kinds: [10050],
+    authors: [pubkey]
+  };
+  let RelayListEvent = await pool.get(
+    defaultRelays,
+    RelayFilter
+  );
+  let RelayList = RelayListEvent?.tags
+      .filter((t) => t[0] === "relay")
+      .map((tag) => tag[1]);
+  RelayList = RelayList || defaultRelays;
+  await Promise.allSettled(
+    pool.publish(RelayList, wrap)
+  );
+  pool.close(RelayList);
+}
 
-    let receiverRelayListEvent = await pool.get(
-      defaultRelays,
-      receiverRelayFilter
-    );
-    let issuerRelayListEvent = await pool.get(
-      defaultRelays,
-      receiverRelayFilter
-    );
-    let receiverRelayList = receiverRelayListEvent?.tags
-      .filter((t) => t[0] === "relay")
-      .map((tag) => tag[1]);
-    let issuerRelayList = issuerRelayListEvent?.tags
-      .filter((t) => t[0] === "relay")
-      .map((tag) => tag[1]);
-    receiverRelayList = receiverRelayList || defaultRelays;
-    await Promise.allSettled(
-      pool.publish(receiverRelayList, wrap.receiverWrapEvent)
-    );
-    issuerRelayList = issuerRelayList || defaultRelays;
-    await Promise.allSettled(
-      pool.publish(issuerRelayList, wrap.senderWrapEvent)
-    );
+export const sendWraps = async (wraps: IWrap[]) => {
+  wraps.forEach(async (wrap) => {
+    sendToUserRelays(wrap.receiverWrapEvent, wrap.receiverPubkey)
+    if(wrap.senderWrapEvent) {
+      sendToUserRelays(wrap.senderWrapEvent, wrap.issuerPubkey)
+    }
     console.log("Published gift wrap for", wrap.receiverPubkey);
   });
 };
@@ -139,6 +134,8 @@ export const grantAccess = (
   const voterKey = generateSecretKey();
   const voterId = getPublicKey(voterKey);
   const issuerPubkey = getPublicKey(signingKey);
+  const formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
+  if(!formId) throw("Cannot grant access to a form without an Id")
   let newTags = formEvent.tags;
   newTags.push(["v", voterId]);
 
@@ -157,16 +154,15 @@ export const grantAccess = (
     signingKey
   );
   const seal = createSeal(rumor, signingKey, pubkey);
-  const receiverWrap = createWrap(seal, pubkey);
-  const senderWrap = createWrap(seal, issuerPubkey);
+  const receiverWrap = createWrap(seal, pubkey, issuerPubkey, formId);
+  //const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey,);
 
   return {
     formEvent,
     wrap: {
       receiverWrapEvent: receiverWrap,
       receiverPubkey: pubkey,
-      issuerPubkey: issuerPubkey,
-      senderWrapEvent: senderWrap,
+      issuerPubkey: issuerPubkey
     },
   };
 };
