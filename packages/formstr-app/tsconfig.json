@@ -1,5 +1,13 @@
 {
   "extends": "@tsconfig/create-react-app/tsconfig.json",
+  "lib": [
+    "DOM",
+    "DOM.Iterable",
+    "ScriptHost",
+    "ES2016.Array.Include",
+    "ES2020.Promise",
+    "ES2020"
+  ],
   "compilerOptions": {
     "jsx": "react-jsx"
   }
