@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "antd";
 import { SearchOutlined, UserOutlined, PlusOutlined } from "@ant-design/icons";
-import { MY_FORM_MENU } from "../../containers/MyForms/configs/menuConfig";
+import { MY_FORM_MENU } from "../../old/containers/MyForms/configs/menuConfig";
 import { isMobile } from "../../utils/utility";
 import { ROUTES } from "../../constants/routes";
 
@@ -22,23 +22,13 @@ export const HEADER_MENU = [
     ),
   },
   {
-    key: HEADER_MENU_KEYS.MY_FORMS,
-    label: "My Forms",
-    icon: (
-      <Link to={ROUTES.MY_FORMS}>
-        <UserOutlined />
-      </Link>
-    ),
-    ...(isMobile() && { children: MY_FORM_MENU }),
-  },
-  {
     key: HEADER_MENU_KEYS.CREATE_FORMS,
     label: (
       <Button
         type="primary"
         icon={<PlusOutlined style={{ paddingTop: "2px" }} />}
       >
-        <Link to={ROUTES.CREATE_FORMS}>Create Form</Link>
+        <Link to={ROUTES.CREATE_FORMS_NEW}>Create Form</Link>
       </Button>
     ),
   },

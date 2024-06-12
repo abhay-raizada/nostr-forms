@@ -16,7 +16,7 @@ export function makeTag(length: number) {
 export function constructFormUrl(
   publicKey: string,
   host: string,
-  embedded = false,
+  embedded = false
 ) {
   if (!publicKey) {
     throw Error("public key is required");
@@ -26,7 +26,7 @@ export function constructFormUrl(
 export function constructResponseUrl(
   privateKey: string,
   host: string,
-  formId: string,
+  formId: string
 ) {
   if (!privateKey) {
     throw Error("public key is required");
@@ -39,7 +39,7 @@ export function constructResponseUrl(
 
 export function constructDraftUrl(
   draft: { formSpec: unknown; tempId: string } | null,
-  host: string,
+  host: string
 ) {
   if (!draft) {
     return;

@@ -1,9 +1,10 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 export const LOCAL_STORAGE_KEYS = {
   LOCAL_FORMS: "formstr:forms",
   DRAFT_FORMS: "formstr:drafts",
   SUBMISSIONS: "formstr:submissions",
+  PROFILE: "formstr:profile",
 };
 
 export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {
@@ -34,23 +35,26 @@ export const setItem = (
   }
   try {
     localStorage.setItem(key, valueToBeStored);
-    window.dispatchEvent( new Event('storage') )
+    window.dispatchEvent(new Event("storage"));
   } catch (e) {
     console.log("Error in setItem: ", e);
   }
 };
 
-export const useLocalStorageItems = <T>(key: string, { parseAsJson = true } = {}): T | null => {
-  const [item, updateItem] = useState(getItem<T>(key, { parseAsJson}))
+export const useLocalStorageItems = <T>(
+  key: string,
+  { parseAsJson = true } = {}
+): T | null => {
+  const [item, updateItem] = useState(getItem<T>(key, { parseAsJson }));
   useEffect(() => {
     const listener = () => {
-      updateItem(getItem<T>(key, { parseAsJson}))
-    }
-    window.addEventListener('storage', listener)
+      updateItem(getItem<T>(key, { parseAsJson }));
+    };
+    window.addEventListener("storage", listener);
     return () => {
-      window.removeEventListener('storage', listener)
-    }
+      window.removeEventListener("storage", listener);
+    };
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-  return item
-}
+  }, []);
+  return item;
+};
