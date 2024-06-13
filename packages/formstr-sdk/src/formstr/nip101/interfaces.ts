@@ -37,3 +37,5 @@ export interface IWrap {
   receiverPubkey: string;
   issuerPubkey: string;
 }
+
+export type KeyTags = [tagIdentifier: string, viewKey: string, signingKey: string, voterKey: string,]

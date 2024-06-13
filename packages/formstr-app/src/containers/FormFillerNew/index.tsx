@@ -1,4 +1,4 @@
-import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
+import { Field, Tag, Option, Response, KeyTags } from "@formstr/sdk/dist/formstr/nip101";
 import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateFormNew/components/FormTitle";
@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Form, Typography } from "antd";
+import { Button, Form, Typography } from "antd";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
@@ -22,15 +22,17 @@ import {
   SimplePool,
   UnsignedEvent,
   generateSecretKey,
+  nip44,
 } from "nostr-tools";
 import { FormFields } from "./FormFields";
-import { PrepareForm } from "./PrepareForm";
 import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
-import { getDefaultRelays, getUserPublicKey } from "@formstr/sdk";
+import { getDefaultRelays } from "@formstr/sdk";
 import {bytesToHex } from "@noble/hashes/utils"
 import { sha256 } from "@noble/hashes/sha256"
+import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
+import { useProfileContext } from "../../hooks/useProfileContext";
 
 const { Text } = Typography;
 
@@ -44,18 +46,17 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   embedded,
 }) => {
   const { pubKey, formId } = useParams();
+  
+  const { pubkey: userPubKey, requestPubkey } = useProfileContext();
+  console.log("User Pubkey is", userPubKey)
   const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
     formSpec || null
   );
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [keys, setKeys] = useState<Array<string> | undefined>();
+  const [keys, setKeys] = useState<KeyTags | undefined>();
+  const [noAccess, setNoAccess] = useState<boolean>(false)
   const [thankYouScreen, setThankYouScreen] = useState(false);
-  const [votingKey, setVotingKey] = useState<string | null>(null);
-  const [checkingEligibility, setCheckingEligibility] =
-    useState<boolean>(false);
-  const [submitAccess, setSubmitAccess] = useState(true);
-  const [signingKey, setSigningKey] = useState<string | undefined>();
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
@@ -68,61 +69,88 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return null;
   }
 
-  const fetchKeys = async (formAuthor: string, formId: string) => {
-    const userPublicKey = await getUserPublicKey(null);
+  const getFormSpec = async (formEvent: Event) => {
+    let formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
+    if(!formId) {
+      throw Error("Invalid Form: Does not have Id");
+    }
+    if (formEvent.content === "") {
+      setFormTemplate(formEvent.tags);
+      return formEvent.tags;
+    }
+    else{
+     if(!userPubKey) {
+      console.log("Logged Out, Request Login")
+      return;
+     }
+     else {
+      let keys = await fetchKeys(formEvent.pubkey, formId, userPubKey)
+      if(!keys) {
+        setNoAccess(true)
+        return;
+      }
+      console.log("View key is", keys)
+      let conversationKey = nip44.v2.utils.getConversationKey(keys[1], formEvent.pubkey)
+      let formSpecString = nip44.v2.decrypt(formEvent.content, conversationKey)
+      let FormTemplate = JSON.parse(formSpecString);
+      setFormTemplate(FormTemplate);
+      return FormTemplate;
+     }
+    }
+  };
+
+  const initialize = async (formAuthor: string, formId: string) => {
+    if(!formEvent) {
+      const form = await fetchFormTemplate(formAuthor, formId);
+      if(!form) { console.log("Not Found"); return; } // Set state and render
+      setFormEvent(form)
+      const formSpec = await getFormSpec(form)
+      setFormTemplate(formSpec);
+    }
+  }
+
+  const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
     const pool = new SimplePool();
     let defaultRelays = getDefaultRelays();
-    let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPublicKey}`))
+    let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPub}`));
+    console.log("alias key calculated is", aliasPubKey)
     let giftWrapsFilter = {
       kinds: [1059],
       "#p": [aliasPubKey],
     };
-    let userRelaysFilter = {
-      kinds: [10050],
-      "#p": [userPublicKey],
-    };
-    const relayListEvent = await pool.get(defaultRelays, userRelaysFilter);
-    console.log("Relay list events for the user", relayListEvent)
-    const relayList = relayListEvent?.tags
-      .filter((tag: Tag) => tag[0] === "relay")
-      .map((t) => t[1]);
 
-    const accessKeyEvents = pool.querySync(
-      relayList || defaultRelays,
+    const accessKeyEvents = await pool.querySync(
+      defaultRelays,
       giftWrapsFilter
     );
     console.log("Access Key events", accessKeyEvents);
-    (await accessKeyEvents).forEach(async (keyEvent: Event) => {
+    let keys: KeyTags | undefined
+    await Promise.allSettled(accessKeyEvents.map(async (keyEvent: Event) => {
       const sealString = await window.nostr.nip44.decrypt(
         keyEvent.pubkey,
         keyEvent.content
       );
       const seal = JSON.parse(sealString) as Event;
+      console.log("seal event is ", seal)
       const rumorString = await window.nostr.nip44.decrypt(
         seal.pubkey,
         seal.content
       );
       const rumor = JSON.parse(rumorString) as UnsignedEvent;
-      let formRumor = rumor.tags.find(
-        (t) => t[0] === "a" && t[1] === `30168:${formAuthor}:${formId}`
-      );
-      console.log("Found Keys", formRumor);
-      if (formRumor) {
-        let key = rumor.tags.find((t) => t[0] === "key");
-        setKeys(key);
-        return;
-      }
-    });
+      console.log("rumor is ", rumor)
+      let key = rumor.tags.find((t) => t[0] === "key") as KeyTags;
+      setKeys(key);
+      keys = key;
+    }));
+    return keys
   };
 
   useEffect(() => {
     if (!(pubKey && formId)) {
       return;
     }
-    if (!keys) {
-      fetchKeys(pubKey, formId);
-    }
-  }, []);
+    initialize(pubKey, formId);
+  }, [formEvent, formTemplate, keys, userPubKey]);
 
   const handleInput = (
     questionId: string,
@@ -148,23 +176,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     }
   };
 
-  const checkVoterEligible = async (formEvent: Event) => {
-    console.log("isPoll? ", isPoll(formEvent.tags));
-    if (!isPoll(formEvent.tags)) return;
-    setCheckingEligibility(true);
-    if (!keys) {
-      return false;
-    } else if (keys && keys[3]) {
-      setVotingKey(keys[3]);
-    }
-  };
-
-  const checkSigningKey = async (formEvent: Event) => {
-    if (!keys) return;
-    setSigningKey(keys[2]);
-  };
-
   const saveResponse = async (anonymous: boolean = true) => {
+    let [_, viewKey, signKey, voteKey] = keys || []
     if (!formId || !pubKey) {
       throw "Cant submit to a form that has not been published";
     }
@@ -178,8 +191,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
     let anonUser = null;
-    if (votingKey) anonUser = hexToBytes(votingKey);
-    if (!votingKey && anonymous) {
+    if (voteKey) anonUser = hexToBytes(voteKey);
+    if (!voteKey && anonymous) {
       anonUser = generateSecretKey();
     }
     sendResponses(pubKey, formId, responses, anonUser, !isPoll()).then(
@@ -194,22 +207,21 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     );
   };
 
+  let [_, viewKey, signKey, voteKey] = keys || []
+
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
   }
-  if (!formTemplate && !isPreview) {
-    return (
-      <PrepareForm
-        pubKey={pubKey!}
-        formId={formId!}
-        formSpecCallback={function (fields: Tag[], formEvent: Event): void {
-          setFormTemplate(fields);
-          checkVoterEligible(formEvent);
-          checkSigningKey(formEvent);
-          setFormEvent(formEvent);
-        }}
-      />
-    );
+  if(!formEvent) {
+    return <Text>Loading...</Text>
+  }
+  if(formEvent.content !== "" && !userPubKey)  {
+    return <><Text>This form is access controlled and requires login to continue</Text>
+    <Button onClick={() => { requestPubkey() }}>Login</Button></>
+  }
+  if(noAccess)  {
+    return <><Text>Your profile does not have access to view this form</Text>
+    <RequestAccess pubkey={pubKey!} formId={formId!} /></>
   }
   let name: string, settings: any, fields: Field[];
   if (formTemplate) {
@@ -219,14 +231,13 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     );
     fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
 
-    console.log("submitAccess", submitAccess, "votingKey", votingKey);
     return (
       <FillerStyle $isPreview={isPreview}>
-        {signingKey && !isPreview ? (
+        {signKey && !isPreview ? (
           <CheckRequests
             pubkey={pubKey!}
             formId={formId!}
-            secretKey={signingKey}
+            secretKey={signKey}
             formEvent={formEvent!}
           />
         ) : null}
@@ -259,19 +270,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
                   <>
-                    {submitAccess || votingKey ? (
+                    {voteKey ? (
                       <SubmitButton
                         selfSign={settings.disallowAnonymous}
                         edit={false}
                         onSubmit={saveResponse}
                         form={form}
                         disabled={
-                          isPreview || (checkingEligibility && !votingKey)
-                        }
-                        disabledMessage={
-                          checkingEligibility && !votingKey
-                            ? "Checking Eligibilty"
-                            : "Disabled"
+                          isPreview
                         }
                       />
                     ) : (

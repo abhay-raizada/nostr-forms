@@ -7,7 +7,6 @@ import SummaryStyle from "./summary.style";
 import { Card, Divider, Table, Typography } from "antd";
 import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
-import { PrepareForm } from "../FormFillerNew/PrepareForm";
 import { Actions, NIP07Interactions } from "../../components/NIP07Interactions";
 import { hexToBytes } from "@noble/hashes/utils";
 
@@ -186,19 +185,23 @@ export const Response = () => {
     );
   else
     return (
-      <PrepareForm
-        pubKey={pubKey}
-        formId={formId}
-        formSpecCallback={(formSpec: Tag[], formEvent: Event) => {
-          setFormSpec(formSpec);
-          window.nostr.getPublicKey().then((userPubkey: string) => {
-            let signingKey = getEncryptedSigningKey(formEvent, userPubkey);
-            setEncryptedSigningKey(signingKey);
-            fetchFormResponses(pubKey, formId).then((value) => {
-              setResponses(value);
-            });
-          });
-        }}
-      />
+  <>
+      {// <PrepareForm
+      //   pubKey={pubKey}
+      //   formId={formId}
+      //   formSpecCallback={(formSpec: Tag[], formEvent: Event) => {
+      //     setFormSpec(formSpec);
+      //     window.nostr.getPublicKey().then((userPubkey: string) => {
+      //       let signingKey = getEncryptedSigningKey(formEvent, userPubkey);
+      //       setEncryptedSigningKey(signingKey);
+      //       fetchFormResponses(pubKey, formId).then((value) => {
+      //         setResponses(value);
+      //       });
+      //     });
+      //   }}
+      // />
+}
+      </>
     );
+
 };

@@ -8,7 +8,7 @@ import {
   getEventHash,
   getPublicKey,
 } from "nostr-tools";
-import { AccesType, AccessRequest, IWrap, Tag } from "./interfaces";
+import { AccessRequest, IWrap } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import { getDefaultRelays } from "../formstr";
@@ -55,7 +55,7 @@ const createSeal = (
 const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: string, d_tag: string) => {
   const randomKey = generateSecretKey();
   let aliasPubKey = bytesToHex(sha256(`${30168}:${eventAuthor}:${d_tag}:${recipientPublicKey}`))
-
+  console.log("Alias pubkey created is", aliasPubKey)
   return finalizeEvent(
     {
       kind: 1059,
@@ -69,15 +69,6 @@ const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: strin
     },
     randomKey
   ) as Event;
-};
-
-const hasKeyTagAccess = (keyTag: Tag, accessType: AccesType) => {
-  let ACCESS_TYPE_KEY_INDEX_MAP = {
-    vote: 4,
-    edit: 3,
-    view: 2,
-  };
-  return !!keyTag[ACCESS_TYPE_KEY_INDEX_MAP[accessType]];
 };
 
 const sendToUserRelays = async (wrap: Event, pubkey: string) => {
@@ -95,9 +86,11 @@ const sendToUserRelays = async (wrap: Event, pubkey: string) => {
       .filter((t) => t[0] === "relay")
       .map((tag) => tag[1]);
   RelayList = RelayList || defaultRelays;
-  await Promise.allSettled(
+  console.log("Sending event to relays", RelayList, wrap)
+  let messages = await Promise.allSettled(
     pool.publish(RelayList, wrap)
   );
+  console.log("Relay replies", messages)
   pool.close(RelayList);
 }
 
