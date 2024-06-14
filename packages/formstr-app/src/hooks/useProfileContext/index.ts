@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, createContext } from "react";
+import { useContext } from "react";
 import {
   ProfileContext,
   ProfileContextType,

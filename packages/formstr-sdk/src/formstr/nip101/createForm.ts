@@ -9,47 +9,9 @@ import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
 import { bytesToHex } from "@noble/hashes/utils";
 import { IWrap, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
-import { grantAccess } from "./accessControl";
+import { grantAccess, sendWraps } from "./accessControl";
 
 const defaultRelays = getDefaultRelays();
-
-const getKeysTag = (
-  isPoll: boolean,
-  isParticipant: boolean,
-  isEditor: boolean,
-  viewKey: Uint8Array,
-  signingKey: Uint8Array,
-  pubkey: string
-) => {
-  let npubHex = nip19.decode(pubkey).data as string;
-  let encryptedViewKey = "";
-  let encryptedVoteKey = "";
-  let voterId = "";
-  if (isParticipant) {
-    encryptedViewKey = nip44Encrypt(signingKey, npubHex, bytesToHex(viewKey));
-    if (isPoll) {
-      let votingKey = generateSecretKey();
-      encryptedVoteKey = nip44Encrypt(
-        votingKey,
-        npubHex,
-        bytesToHex(votingKey)
-      );
-      voterId = getPublicKey(votingKey);
-    }
-  }
-  let encryptedEditKey = "";
-  if (isEditor) {
-    encryptedEditKey = nip44Encrypt(
-      signingKey,
-      npubHex,
-      bytesToHex(signingKey)
-    );
-  }
-  return {
-    tag: ["key", npubHex, encryptedViewKey, encryptedEditKey, encryptedVoteKey],
-    voterId,
-  };
-};
 
 interface MergedNpub {
   pubkey: string;
@@ -62,15 +24,17 @@ const getMergedNpubs = (
   editList: Set<string>
 ): MergedNpub[] => {
   let ViewNpubs = Array.from(viewList).map((pubKey) => {
+    let hexPub = nip19.decode(pubKey).data as string
     return {
-      pubkey: pubKey,
+      pubkey: hexPub,
       isParticipant: true,
     };
   });
 
   let EditNpubs = Array.from(editList).map((pubKey) => {
+    let hexPub = nip19.decode(pubKey).data as string
     return {
-      pubkey: pubKey,
+      pubkey: hexPub,
       isEditor: true,
     };
   });
@@ -91,7 +55,6 @@ export const createForm = async (
   encryptContent?: boolean,
   poll?: boolean
 ) => {
-  const pool = new SimplePool();
   let signingKey = generateSecretKey();
   let formPubkey = getPublicKey(signingKey);
 
@@ -142,6 +105,8 @@ export const createForm = async (
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
   console.log("final event is ", templateEvent);
+  await sendWraps(wraps);
+  const pool = new SimplePool();
   await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
     () => {},
     (reason: string) => {
