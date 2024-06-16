@@ -6,7 +6,6 @@ import {
   nip19,
 } from "nostr-tools";
 import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
-import { bytesToHex } from "@noble/hashes/utils";
 import { IWrap, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { grantAccess, sendWraps } from "./accessControl";
@@ -23,16 +22,14 @@ const getMergedNpubs = (
   viewList: Set<string>,
   editList: Set<string>
 ): MergedNpub[] => {
-  let ViewNpubs = Array.from(viewList).map((pubKey) => {
-    let hexPub = nip19.decode(pubKey).data as string
+  let ViewNpubs = Array.from(viewList).map((hexPub) => {
     return {
       pubkey: hexPub,
       isParticipant: true,
     };
   });
 
-  let EditNpubs = Array.from(editList).map((pubKey) => {
-    let hexPub = nip19.decode(pubKey).data as string
+  let EditNpubs = Array.from(editList).map((hexPub) => {
     return {
       pubkey: hexPub,
       isEditor: true,

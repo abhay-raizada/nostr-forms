@@ -3,11 +3,14 @@ import AddNpubStyle from "../addNpub.style";
 import { ReactNode, useState } from "react";
 import { isValidNpub } from "./utils";
 import useFormBuilderContext from "../../../hooks/useFormBuilderContext";
+import { useProfileContext } from "../../../../../hooks/useProfileContext";
+import { nip19 } from "nostr-tools";
 
 interface ParticipantProps {
   open: boolean;
   onCancel: () => void;
 }
+const { Text } = Typography;
 
 export const Participants: React.FC<ParticipantProps> = ({
   open,
@@ -22,11 +25,12 @@ export const Participants: React.FC<ParticipantProps> = ({
       (value: string, key: string, set: Set<string>) => {
         elements.push(
           <li>
-            <Typography.Text>{value.substring(0, 10) + "..."}</Typography.Text>
+            <Typography.Text>{nip19.npubEncode(value).substring(0, 10) + "..."}</Typography.Text>
           </li>
         );
       }
     );
+    console.log(viewList)
     return <ul>{elements}</ul>;
   };
 
@@ -64,7 +68,7 @@ export const Participants: React.FC<ParticipantProps> = ({
           className="add-button"
           disabled={!isValidNpub(newNpub || "")}
           onClick={() => {
-            setViewList(new Set(viewList).add(newNpub!));
+            setViewList(new Set(viewList).add(nip19.decode(newNpub!).data as string));
             setNewNpub("");
           }}
         >

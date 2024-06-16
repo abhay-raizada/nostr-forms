@@ -9,8 +9,9 @@ import { IDraft } from "../../../../old/containers/MyForms/components/Drafts/typ
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import { IFormSettings } from "../../components/FormSettings/types";
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { generateSecretKey, getPublicKey, nip19 } from "nostr-tools";
+import { getPublicKey } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
+import { useProfileContext } from "../../../../hooks/useProfileContext";
 
 export type Field = [
   placeholder: string,
@@ -91,9 +92,9 @@ export default function FormBuilderProvider({
       return { url: relay, tempId: makeTag(6) };
     })
   );
-
-  const [editList, setEditList] = useState<Set<string>>(new Set());
-  const [viewList, setViewList] = useState<Set<string>>(new Set());
+  const { pubkey: userPubkey, requestPubkey } = useProfileContext();
+  const [editList, setEditList] = useState<Set<string>>(new Set(userPubkey ? [userPubkey] : []));
+  const [viewList, setViewList] = useState<Set<string>>(new Set(userPubkey ? [userPubkey] : []));
   const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
     HEADER_MENU_KEYS.BUILDER
