@@ -1,51 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Event, getPublicKey, nip44 } from "nostr-tools";
 import { useParams } from "react-router-dom";
-import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
+import { Field, KeyTags, Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { fetchFormResponses } from "@formstr/sdk/dist/formstr/nip101/fetchFormResponses";
 import SummaryStyle from "./summary.style";
-import { Card, Divider, Table, Typography } from "antd";
+import { Button, Card, Divider, Table, Typography } from "antd";
 import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
-import { Actions, NIP07Interactions } from "../../components/NIP07Interactions";
 import { hexToBytes } from "@noble/hashes/utils";
+import { isForInitializer } from "typescript";
+import { useProfileContext } from "../../hooks/useProfileContext";
+import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
+import { getFormSpec } from "../../utils/formUtils";
+import { FormEventCard } from "../Dashboard/FormEventCard";
 
 const { Text } = Typography;
 
 export const Response = () => {
   const [responses, setResponses] = useState<Event[] | undefined>(undefined);
-  const [formSpec, setFormSpec] = useState<Tag[] | undefined>(undefined);
-  const [encryptedSigningKey, setEncryptedSigningKey] = useState<
-    string | null | undefined
-  >(undefined);
-  const [signingKey, setSigningKey] = useState<string | null | undefined>(
+  const [formEvent, setFormEvent] = useState<Event | undefined>(undefined); 
+  const [formSpec, setFormSpec] = useState<Tag[] | null | undefined>(undefined);
+  const [keys, setKeys] = useState<KeyTags | undefined>(
     undefined
   );
   const { pubKey, formId } = useParams();
 
-  const getEncryptedSigningKey = (formEvent: Event, userPubkey: string) => {
-    let key = formEvent.tags.find(
-      (tag) => tag[0] === "key" && tag[1] === userPubkey
-    );
-    if (!key) return null;
-    else return key[3] || null;
-  };
+  const { pubkey: userPubkey, requestPubkey } = useProfileContext();
+
+  const initialize = async () => {
+    if(!(pubKey && formId)) {
+      return;
+    }
+    const formEvent = await fetchFormTemplate(pubKey, formId);
+    if(!formEvent) return;
+    setFormEvent(formEvent);
+    const formSpec = await getFormSpec(formEvent, userPubkey, setKeys);
+    if(!formSpec)
+     setFormSpec(formSpec)
+    let allowedPubkeys;
+    let pubkeys = formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1]);
+    if(pubkeys.length !== 0) allowedPubkeys = pubkeys
+    const responses = fetchFormResponses(pubKey, formId, pubkeys);
+  }
+
+  useEffect(() => {
+    initialize();
+  })
 
   const getInputs = (responseEvent: Event) => {
+    let [viewKey, signingKey, voterKey] = (keys || [])
     if (responseEvent.content === "" && !signingKey) {
       return responseEvent.tags.filter((tag) => tag[0] === "response");
     } else if (signingKey) {
-      console.log(
-        "signing key is present and is",
-        signingKey,
-        "corresponding pub key is",
-        getPublicKey(hexToBytes(signingKey))
-      );
       let conversationKey = nip44.v2.utils.getConversationKey(
         signingKey,
         responseEvent.pubkey
       );
-      console.log("ConversationKey is", conversationKey);
       let decryptedContent = nip44.v2.decrypt(
         responseEvent.content,
         conversationKey
@@ -129,21 +139,9 @@ export const Response = () => {
 
   if (!pubKey || !formId) return <Text>Invalid url</Text>;
 
-  if (encryptedSigningKey && !signingKey) {
-    return (
-      <NIP07Interactions
-        action={Actions.NIP44_DECRYPT}
-        ModalMessage={
-          "Please approve decryption of the signing key for this form"
-        }
-        cipherText={encryptedSigningKey}
-        senderPubKey={pubKey}
-        callback={(signingKey: string | Event) => {
-          setSigningKey(signingKey as string);
-        }}
-      />
-    );
-  }
+  if(formEvent?.content !== "" && !userPubkey)
+    return (<><Text>Friend, You need to login</Text><Button onClick={() => { requestPubkey() }}></Button></>)
+
   if (!!formSpec)
     return (
       <div>
@@ -162,12 +160,6 @@ export const Response = () => {
           </div>
         </SummaryStyle>
         <ResponseWrapper>
-          {/* <Export
-          questionMap={questionMap}
-          answers={getData()}
-          formName={formSummary.name}
-        /> */}
-
           <div style={{ overflow: "scroll", marginBottom: 60 }}>
             <Table
               columns={getColumns()}
@@ -182,26 +174,6 @@ export const Response = () => {
           </div>
         </ResponseWrapper>
       </div>
-    );
-  else
-    return (
-  <>
-      {// <PrepareForm
-      //   pubKey={pubKey}
-      //   formId={formId}
-      //   formSpecCallback={(formSpec: Tag[], formEvent: Event) => {
-      //     setFormSpec(formSpec);
-      //     window.nostr.getPublicKey().then((userPubkey: string) => {
-      //       let signingKey = getEncryptedSigningKey(formEvent, userPubkey);
-      //       setEncryptedSigningKey(signingKey);
-      //       fetchFormResponses(pubKey, formId).then((value) => {
-      //         setResponses(value);
-      //       });
-      //     });
-      //   }}
-      // />
-}
-      </>
     );
 
 };
