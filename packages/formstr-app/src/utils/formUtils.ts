@@ -63,3 +63,7 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 		return FormTemplate;
 	}
 };
+
+export const getAllowedUsers = (formEvent: Event) => {
+	return formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1])
+}

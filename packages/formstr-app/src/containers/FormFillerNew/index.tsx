@@ -27,7 +27,7 @@ import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { useProfileContext } from "../../hooks/useProfileContext";
-import { getFormSpec } from "../../utils/formUtils";
+import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 
 const { Text } = Typography;
 
@@ -51,7 +51,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [noAccess, setNoAccess] = useState<boolean>(false);
   const [editKey, setEditKey] = useState<string | undefined | null>();
-  const [submitKey, setSubmitKey] = useState<string | undefined | null>();
+  const [allowedUsers, setAllowedUsers] = useState<string[]>([]);
   const [thankYouScreen, setThankYouScreen] = useState(false);
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
@@ -67,16 +67,15 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
   const onKeysFetched = (keys: Tag[] | null) => {
     let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
-    let submitKey = keys?.find((k) => k[0] === "SubmitAccess")?.[1] || null
     setEditKey(editKey);
-    setSubmitKey(submitKey)
   }
 
   const initialize = async (formAuthor: string, formId: string) => {
     if(!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
-      if(!form) { console.log("Not Found"); return; } // Set state and render
-      setFormEvent(form)
+      if(!form) { alert("Could not find the form"); return; }
+      setFormEvent(form);
+      setAllowedUsers(getAllowedUsers(form))
       const formSpec = await getFormSpec(form, userPubKey, onKeysFetched);
       if(!formSpec)
         setNoAccess(true)
@@ -117,8 +116,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
     let anonUser = null;
-    if (submitKey) anonUser = hexToBytes(submitKey);
-    if (!submitKey && anonymous) {
+    if (anonymous) {
       anonUser = generateSecretKey();
     }
     sendResponses(pubKey, formId, responses, anonUser).then(
@@ -132,6 +130,32 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
   };
+
+  const renderSubmitButton = () => {
+    if(isPreview) return null;
+    if(allowedUsers.length === 0) {
+      return <SubmitButton
+      selfSign={false}
+      edit={false}
+      onSubmit={saveResponse}
+      form={form}
+    />
+    }
+    else if(!userPubKey) {
+      return <Button onClick={requestPubkey}>Login to fill this form</Button>
+    }
+    else if(userPubKey && !allowedUsers.includes(userPubKey)) {
+      return <RequestAccess pubkey={pubKey!} formId={formId!} />
+    }
+    else {
+      return <SubmitButton
+      selfSign={true}
+      edit={false}
+      onSubmit={saveResponse}
+      form={form}
+    />
+    }
+  }
 
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
@@ -194,19 +218,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
                   <>
-                    {submitKey ? (
-                      <SubmitButton
-                        selfSign={settings.disallowAnonymous}
-                        edit={false}
-                        onSubmit={saveResponse}
-                        form={form}
-                        disabled={
-                          isPreview
-                        }
-                      />
-                    ) : (
-                      <RequestAccess pubkey={pubKey!} formId={formId!} />
-                    )}
+                    {renderSubmitButton()}
                   </>
                 </div>
               </Form>
