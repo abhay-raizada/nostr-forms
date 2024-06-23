@@ -1,4 +1,4 @@
-import { Field, Tag, Option, Response, KeyTags } from "@formstr/sdk/dist/formstr/nip101";
+import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
 import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateFormNew/components/FormTitle";
@@ -49,8 +49,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   );
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [keys, setKeys] = useState<KeyTags | undefined>();
-  const [noAccess, setNoAccess] = useState<boolean>(false)
+  const [noAccess, setNoAccess] = useState<boolean>(false);
+  const [editKey, setEditKey] = useState<string | undefined | null>();
+  const [submitKey, setSubmitKey] = useState<string | undefined | null>();
   const [thankYouScreen, setThankYouScreen] = useState(false);
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
@@ -64,12 +65,19 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return null;
   }
 
+  const onKeysFetched = (keys: Tag[] | null) => {
+    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
+    let submitKey = keys?.find((k) => k[0] === "SubmitAccess")?.[1] || null
+    setEditKey(editKey);
+    setSubmitKey(submitKey)
+  }
+
   const initialize = async (formAuthor: string, formId: string) => {
     if(!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
       if(!form) { console.log("Not Found"); return; } // Set state and render
       setFormEvent(form)
-      const formSpec = await getFormSpec(form, userPubKey, setKeys);
+      const formSpec = await getFormSpec(form, userPubKey, onKeysFetched);
       if(!formSpec)
         setNoAccess(true)
       setFormTemplate(formSpec);
@@ -81,7 +89,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       return;
     }
     initialize(pubKey, formId);
-  }, [formEvent, formTemplate, keys, userPubKey]);
+  }, [formEvent, formTemplate, userPubKey]);
 
   const handleInput = (
     questionId: string,
@@ -95,20 +103,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     form.setFieldValue(questionId, [answer, message]);
   };
 
-  const isPoll = (tags?: Tag[]) => {
-    if (!formTemplate && !tags) return;
-    else {
-      const settingsTag = (formTemplate || tags)!.find(
-        (tag) => tag[0] === "settings"
-      );
-      if (!settingsTag) return;
-      const settings = JSON.parse(settingsTag[1] || "{}");
-      return settings.isPoll;
-    }
-  };
-
   const saveResponse = async (anonymous: boolean = true) => {
-    let [_, viewKey, signKey, voteKey] = keys || []
     if (!formId || !pubKey) {
       throw "Cant submit to a form that has not been published";
     }
@@ -122,11 +117,11 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
     let anonUser = null;
-    if (voteKey) anonUser = hexToBytes(voteKey);
-    if (!voteKey && anonymous) {
+    if (submitKey) anonUser = hexToBytes(submitKey);
+    if (!submitKey && anonymous) {
       anonUser = generateSecretKey();
     }
-    sendResponses(pubKey, formId, responses, anonUser, !isPoll()).then(
+    sendResponses(pubKey, formId, responses, anonUser).then(
       (val) => {
         console.log("Submitted!");
         setFormSubmitted(true);
@@ -137,8 +132,6 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
   };
-
-  let [_, viewKey, signKey, voteKey] = keys || []
 
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
@@ -164,11 +157,11 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
     return (
       <FillerStyle $isPreview={isPreview}>
-        {signKey && !isPreview ? (
+        {editKey && !isPreview ? (
           <CheckRequests
             pubkey={pubKey!}
             formId={formId!}
-            secretKey={signKey}
+            secretKey={editKey}
             formEvent={formEvent!}
           />
         ) : null}
@@ -201,7 +194,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
                   <>
-                    {voteKey ? (
+                    {submitKey ? (
                       <SubmitButton
                         selfSign={settings.disallowAnonymous}
                         edit={false}
@@ -247,7 +240,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                let navigationUrl = isPoll()
+                let navigationUrl = true 
                   ? `/r/${pubKey}/${formId}`
                   : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
                 console.log("navigation url", navigationUrl);

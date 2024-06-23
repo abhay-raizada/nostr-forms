@@ -1,5 +1,5 @@
 import { getDefaultRelays } from "@formstr/sdk";
-import { KeyTags, Tag } from "@formstr/sdk/dist/formstr/nip101";
+import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { nip44, Event, UnsignedEvent, SimplePool } from "nostr-tools";
 import { bytesToHex } from "@noble/hashes/utils"
 import { sha256 } from "@noble/hashes/sha256"
@@ -20,7 +20,7 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub?: string) =
 		giftWrapsFilter
 	);
 	console.log("Access Key events", accessKeyEvents);
-	let keys: KeyTags | undefined
+	let keys: Tag[] | undefined;
 	await Promise.allSettled(accessKeyEvents.map(async (keyEvent: Event) => {
 		const sealString = await window.nostr.nip44.decrypt(
 			keyEvent.pubkey,
@@ -34,20 +34,20 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub?: string) =
 		);
 		const rumor = JSON.parse(rumorString) as UnsignedEvent;
 		console.log("rumor is ", rumor)
-		let key = rumor.tags.find((t) => t[0] === "key") as KeyTags;
+		let key = rumor.tags
 		keys = key;
 	}));
 	return keys
 };
 
 
-export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysFetched?: (keys: KeyTags | undefined) => void): Promise<Tag[] | null> => {
+export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysFetched?: (keys: Tag[] | null) => void): Promise<Tag[] | null> => {
 	let formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
 	if (!formId) {
 		throw Error("Invalid Form: Does not have Id");
 	}
 	let keys = await fetchKeys(formEvent.pubkey, formId, userPubKey)
-	if (onKeysFetched) onKeysFetched(keys)
+	if (onKeysFetched) onKeysFetched(keys || null)
 	if (formEvent.content === "") {
 		return formEvent.tags;
 	}
@@ -55,8 +55,9 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 		if (!keys) {
 			return null;
 		}
-		console.log("View key is", keys)
-		let conversationKey = nip44.v2.utils.getConversationKey(keys[1], formEvent.pubkey)
+		let viewKey = keys.find((k) => k[0] === "ViewAccess")?.[1]
+		if(!viewKey) return null;
+		let conversationKey = nip44.v2.utils.getConversationKey(viewKey, formEvent.pubkey)
 		let formSpecString = nip44.v2.decrypt(formEvent.content, conversationKey)
 		let FormTemplate = JSON.parse(formSpecString);
 		return FormTemplate;

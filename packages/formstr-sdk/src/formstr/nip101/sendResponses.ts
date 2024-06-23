@@ -53,6 +53,8 @@ export const sendResponses = async (
 
   const fullEvent = await signEvent(baseEvent, responderSecretKey);
   const pool = new SimplePool();
-  await Promise.allSettled(pool.publish(defaultRelays, fullEvent));
+  console.log("Final Response event sent is", fullEvent);
+  const messages = await Promise.allSettled(pool.publish(defaultRelays, fullEvent));
+  console.log("Message from relays", messages);
   pool.close(defaultRelays);
 };

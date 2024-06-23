@@ -1,18 +1,15 @@
 import { useEffect, useState } from "react";
 import { Event, getPublicKey, nip44 } from "nostr-tools";
 import { useParams } from "react-router-dom";
-import { Field, KeyTags, Tag } from "@formstr/sdk/dist/formstr/nip101";
+import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { fetchFormResponses } from "@formstr/sdk/dist/formstr/nip101/fetchFormResponses";
 import SummaryStyle from "./summary.style";
 import { Button, Card, Divider, Table, Typography } from "antd";
 import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
-import { hexToBytes } from "@noble/hashes/utils";
-import { isForInitializer } from "typescript";
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { getFormSpec } from "../../utils/formUtils";
-import { FormEventCard } from "../Dashboard/FormEventCard";
 
 const { Text } = Typography;
 
@@ -20,12 +17,21 @@ export const Response = () => {
   const [responses, setResponses] = useState<Event[] | undefined>(undefined);
   const [formEvent, setFormEvent] = useState<Event | undefined>(undefined); 
   const [formSpec, setFormSpec] = useState<Tag[] | null | undefined>(undefined);
-  const [keys, setKeys] = useState<KeyTags | undefined>(
-    undefined
-  );
+  const [viewKey, setViewKey] = useState<string | undefined | null>();
+  const [editKey, setEditKey] = useState<string | undefined | null>();
+  const [submitKey, setSubmitKey] = useState<string | undefined | null>();
   const { pubKey, formId } = useParams();
 
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
+
+  const onKeysFetched = (keys: Tag[] | null) => {
+    let viewKey = keys?.find((k) => k[0] === "ViewAccess")?.[1] || null
+    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
+    let submitKey = keys?.find((k) => k[0] === "SubmitAccess")?.[1] || null
+    setViewKey(viewKey);
+    setEditKey(editKey);
+    setSubmitKey(submitKey)
+  }
 
   const initialize = async () => {
     if(!(pubKey && formId)) {
@@ -34,13 +40,14 @@ export const Response = () => {
     const formEvent = await fetchFormTemplate(pubKey, formId);
     if(!formEvent) return;
     setFormEvent(formEvent);
-    const formSpec = await getFormSpec(formEvent, userPubkey, setKeys);
+    const formSpec = await getFormSpec(formEvent, userPubkey, onKeysFetched);
     if(!formSpec)
      setFormSpec(formSpec)
     let allowedPubkeys;
     let pubkeys = formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1]);
     if(pubkeys.length !== 0) allowedPubkeys = pubkeys
-    const responses = fetchFormResponses(pubKey, formId, pubkeys);
+    const responses = await fetchFormResponses(pubKey, formId, pubkeys);
+    setResponses(responses)
   }
 
   useEffect(() => {
@@ -48,12 +55,11 @@ export const Response = () => {
   })
 
   const getInputs = (responseEvent: Event) => {
-    let [viewKey, signingKey, voterKey] = (keys || [])
-    if (responseEvent.content === "" && !signingKey) {
+    if (responseEvent.content === "") {
       return responseEvent.tags.filter((tag) => tag[0] === "response");
-    } else if (signingKey) {
+    } else if (editKey) {
       let conversationKey = nip44.v2.utils.getConversationKey(
-        signingKey,
+        editKey,
         responseEvent.pubkey
       );
       let decryptedContent = nip44.v2.decrypt(
@@ -67,6 +73,9 @@ export const Response = () => {
       } catch (e) {
         return [];
       }
+    }
+    else {
+      alert("You do not have access to view responses for this form.")
     }
     return [];
   };

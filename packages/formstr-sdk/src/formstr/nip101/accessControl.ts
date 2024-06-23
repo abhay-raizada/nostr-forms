@@ -109,12 +109,17 @@ const createTag = (
   voterKey?: Uint8Array,
   viewKey?: Uint8Array
 ) => {
-  return [
-    "key",
-    viewKey ? bytesToHex(viewKey) : "",
-    signingKey ? bytesToHex(signingKey) : "",
-    voterKey ? bytesToHex(voterKey) : "",
-  ];
+  let tags: string[][] = []
+  if(signingKey) {
+    tags.push(["EditAccess", bytesToHex(signingKey)])
+  }
+  if(viewKey) {
+    tags.push(["ViewAccess", bytesToHex(viewKey)])
+  }
+  if(voterKey) {
+    tags.push(["SubmitAccess", bytesToHex(voterKey)])
+  }
+  return tags;
 };
 
 export const grantAccess = (
@@ -137,7 +142,7 @@ export const grantAccess = (
       kind: 18,
       pubkey: issuerPubkey,
       tags: [
-        createTag(
+        ...createTag(
           isEditor ? signingKey : undefined,
           voterKey,
           viewKey ? viewKey : undefined
