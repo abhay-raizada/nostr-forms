@@ -15,6 +15,7 @@ export const fetchFormResponses = async (
   };
   if (allowedPubkeys) filter.authors = allowedPubkeys;
   const nostrEvents = await pool.querySync(relayList, filter);
+  console.log("response events", nostrEvents)
   pool.close(relayList);
   return nostrEvents;
 };

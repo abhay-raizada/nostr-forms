@@ -18,6 +18,8 @@ const now = () => Math.round(Date.now() / 1000);
 
 type Rumor = UnsignedEvent & { id: string };
 
+const defaultRelays = getDefaultRelays();
+
 const createRumor = (event: Partial<UnsignedEvent>, privateKey: Uint8Array) => {
   const rumor = {
     created_at: now(),
@@ -181,13 +183,14 @@ export const acceptAccessRequests = async (
     newFormEvent = newForm;
     wraps.push(wrap);
   });
-  await sendWraps(wraps);
   newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));
   console.log("FINAL EDITED EVENT IS", finalEvent);
   const pool = new SimplePool();
   let a = await Promise.allSettled(
-    pool.publish(getDefaultRelays(), finalEvent)
+    pool.publish(defaultRelays, finalEvent)
   );
   console.log("Published!!!", a);
+  pool.close(defaultRelays);
+  await sendWraps(wraps);
 };

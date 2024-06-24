@@ -6,7 +6,6 @@ export const fetchFormTemplate = async (
   pubKey: string,
   formIdentifier: string
 ): Promise<Event | null> => {
-  console.log("Starting to fetch!!!!");
   const pool = new SimplePool();
   let formIdPubkey = pubKey;
   let relayList = getDefaultRelays();

@@ -71,6 +71,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   }
 
   const initialize = async (formAuthor: string, formId: string) => {
+    console.log("Author and id are", formAuthor, formId)
     if(!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
       if(!form) { alert("Could not find the form"); return; }
@@ -252,10 +253,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                let navigationUrl = true 
+                let navigationUrl = editKey 
                   ? `/r/${pubKey}/${formId}`
                   : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
-                console.log("navigation url", navigationUrl);
                 navigate(navigationUrl);
               } else {
                 setThankYouScreen(false);

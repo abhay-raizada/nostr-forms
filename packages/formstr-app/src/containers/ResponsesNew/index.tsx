@@ -9,7 +9,8 @@ import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
-import { getFormSpec } from "../../utils/formUtils";
+import { hexToBytes } from "@noble/hashes/utils"
+import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 
 const { Text } = Typography;
 
@@ -17,41 +18,45 @@ export const Response = () => {
   const [responses, setResponses] = useState<Event[] | undefined>(undefined);
   const [formEvent, setFormEvent] = useState<Event | undefined>(undefined); 
   const [formSpec, setFormSpec] = useState<Tag[] | null | undefined>(undefined);
-  const [viewKey, setViewKey] = useState<string | undefined | null>();
   const [editKey, setEditKey] = useState<string | undefined | null>();
-  const [submitKey, setSubmitKey] = useState<string | undefined | null>();
-  const { pubKey, formId } = useParams();
+  let { pubKey, formId, secretKey  } = useParams();
 
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
 
+  console.log("params received are:", pubKey, formId, secretKey)
+
   const onKeysFetched = (keys: Tag[] | null) => {
-    let viewKey = keys?.find((k) => k[0] === "ViewAccess")?.[1] || null
     let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
-    let submitKey = keys?.find((k) => k[0] === "SubmitAccess")?.[1] || null
-    setViewKey(viewKey);
     setEditKey(editKey);
-    setSubmitKey(submitKey)
   }
 
   const initialize = async () => {
-    if(!(pubKey && formId)) {
+    if(!formId)
       return;
+
+    if(!(pubKey || secretKey)) return;
+
+    if(secretKey) {
+      setEditKey(secretKey);
+      pubKey = getPublicKey(hexToBytes(secretKey))
     }
-    const formEvent = await fetchFormTemplate(pubKey, formId);
+    const formEvent = await fetchFormTemplate(pubKey!, formId);
     if(!formEvent) return;
     setFormEvent(formEvent);
-    const formSpec = await getFormSpec(formEvent, userPubkey, onKeysFetched);
-    if(!formSpec)
-     setFormSpec(formSpec)
+    let keyFetcher;
+    if(!secretKey) keyFetcher=onKeysFetched
+    const formSpec = await getFormSpec(formEvent, userPubkey, keyFetcher);
+    console.log("FormSpec is", formSpec)
+    setFormSpec(formSpec)
     let allowedPubkeys;
-    let pubkeys = formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1]);
+    let pubkeys = getAllowedUsers(formEvent);
     if(pubkeys.length !== 0) allowedPubkeys = pubkeys
-    const responses = await fetchFormResponses(pubKey, formId, pubkeys);
+    const responses = await fetchFormResponses(pubKey!, formId, allowedPubkeys);
     setResponses(responses)
   }
 
   useEffect(() => {
-    initialize();
+    if(!formEvent) initialize();
   })
 
   const getInputs = (responseEvent: Event) => {
@@ -146,7 +151,8 @@ export const Response = () => {
     return columns;
   };
 
-  if (!pubKey || !formId) return <Text>Invalid url</Text>;
+  console.log("should render formSpec", !!formSpec)
+  if (!(pubKey || secretKey) || !formId) return <Text>Invalid url</Text>;
 
   if(formEvent?.content !== "" && !userPubkey)
     return (<><Text>Friend, You need to login</Text><Button onClick={() => { requestPubkey() }}></Button></>)

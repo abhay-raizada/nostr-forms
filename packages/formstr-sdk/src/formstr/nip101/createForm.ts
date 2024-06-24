@@ -49,8 +49,7 @@ export const createForm = async (
   relayList: Array<string> = defaultRelays,
   viewList: Set<string>,
   EditList: Set<string>,
-  encryptContent?: boolean,
-  poll?: boolean
+  encryptContent?: boolean
 ) => {
   let signingKey = generateSecretKey();
   let formPubkey = getPublicKey(signingKey);
