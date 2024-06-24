@@ -18,6 +18,8 @@ const now = () => Math.round(Date.now() / 1000);
 
 type Rumor = UnsignedEvent & { id: string };
 
+const defaultRelays = getDefaultRelays();
+
 const createRumor = (event: Partial<UnsignedEvent>, privateKey: Uint8Array) => {
   const rumor = {
     created_at: now(),
@@ -109,12 +111,17 @@ const createTag = (
   voterKey?: Uint8Array,
   viewKey?: Uint8Array
 ) => {
-  return [
-    "key",
-    viewKey ? bytesToHex(viewKey) : "",
-    signingKey ? bytesToHex(signingKey) : "",
-    voterKey ? bytesToHex(voterKey) : "",
-  ];
+  let tags: string[][] = []
+  if(signingKey) {
+    tags.push(["EditAccess", bytesToHex(signingKey)])
+  }
+  if(viewKey) {
+    tags.push(["ViewAccess", bytesToHex(viewKey)])
+  }
+  if(voterKey) {
+    tags.push(["SubmitAccess", bytesToHex(voterKey)])
+  }
+  return tags;
 };
 
 export const grantAccess = (
@@ -123,23 +130,19 @@ export const grantAccess = (
   signingKey: Uint8Array,
   viewKey?: Uint8Array,
   isEditor?: boolean
-): { formEvent: Event | UnsignedEvent; wrap: IWrap } => {
-  const voterKey = generateSecretKey();
-  const voterId = getPublicKey(voterKey);
+): IWrap  => {
   const issuerPubkey = getPublicKey(signingKey);
   const formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
   if(!formId) throw("Cannot grant access to a form without an Id")
-  let newTags = formEvent.tags;
-  newTags.push(["v", voterId]);
 
   const rumor = createRumor(
     {
       kind: 18,
       pubkey: issuerPubkey,
       tags: [
-        createTag(
+        ...createTag(
           isEditor ? signingKey : undefined,
-          voterKey,
+          undefined,
           viewKey ? viewKey : undefined
         ),
       ],
@@ -148,15 +151,12 @@ export const grantAccess = (
   );
   const seal = createSeal(rumor, signingKey, pubkey);
   const receiverWrap = createWrap(seal, pubkey, issuerPubkey, formId);
-  //const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey,);
+  const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey, formId);
 
   return {
-    formEvent,
-    wrap: {
       receiverWrapEvent: receiverWrap,
       receiverPubkey: pubkey,
       issuerPubkey: issuerPubkey
-    },
   };
 };
 
@@ -168,21 +168,22 @@ export const acceptAccessRequests = async (
   let newFormEvent: Event | UnsignedEvent = formEvent;
   let wraps: IWrap[] = [];
   requests.forEach((request) => {
-    let { formEvent: newForm, wrap } = grantAccess(
+    let wrap = grantAccess(
       newFormEvent,
       request.pubkey,
       hexToBytes(signingKey)
     );
-    newFormEvent = newForm;
     wraps.push(wrap);
+    newFormEvent.tags.push(["p", request.pubkey])
   });
-  await sendWraps(wraps);
   newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));
   console.log("FINAL EDITED EVENT IS", finalEvent);
   const pool = new SimplePool();
   let a = await Promise.allSettled(
-    pool.publish(getDefaultRelays(), finalEvent)
+    pool.publish(defaultRelays, finalEvent)
   );
   console.log("Published!!!", a);
+  pool.close(defaultRelays);
+  await sendWraps(wraps);
 };

@@ -31,7 +31,6 @@ export const sendResponses = async (
   let responderPub;
   responderPub = await getUserPublicKey(responderSecretKey);
   let tags = [
-    ["d", `${formAuthorPub}:${formId}`],
     ["a", `30168:${formAuthorPub}:${formId}`],
   ];
   let content = "";
@@ -45,7 +44,7 @@ export const sendResponses = async (
     );
   }
   const baseEvent: UnsignedEvent = {
-    kind: 30169,
+    kind: 1069,
     pubkey: responderPub,
     tags: tags,
     content: content,
@@ -54,6 +53,8 @@ export const sendResponses = async (
 
   const fullEvent = await signEvent(baseEvent, responderSecretKey);
   const pool = new SimplePool();
-  await Promise.allSettled(pool.publish(defaultRelays, fullEvent));
+  console.log("Final Response event sent is", fullEvent);
+  const messages = await Promise.allSettled(pool.publish(defaultRelays, fullEvent));
+  console.log("Message from relays", messages);
   pool.close(defaultRelays);
 };

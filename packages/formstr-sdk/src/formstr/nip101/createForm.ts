@@ -6,7 +6,6 @@ import {
   nip19,
 } from "nostr-tools";
 import { getDefaultRelays, getUserPublicKey, signEvent } from "../formstr";
-import { bytesToHex } from "@noble/hashes/utils";
 import { IWrap, Tag } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { grantAccess, sendWraps } from "./accessControl";
@@ -23,16 +22,14 @@ const getMergedNpubs = (
   viewList: Set<string>,
   editList: Set<string>
 ): MergedNpub[] => {
-  let ViewNpubs = Array.from(viewList).map((pubKey) => {
-    let hexPub = nip19.decode(pubKey).data as string
+  let ViewNpubs = Array.from(viewList).map((hexPub) => {
     return {
       pubkey: hexPub,
       isParticipant: true,
     };
   });
 
-  let EditNpubs = Array.from(editList).map((pubKey) => {
-    let hexPub = nip19.decode(pubKey).data as string
+  let EditNpubs = Array.from(editList).map((hexPub) => {
     return {
       pubkey: hexPub,
       isEditor: true,
@@ -52,8 +49,7 @@ export const createForm = async (
   relayList: Array<string> = defaultRelays,
   viewList: Set<string>,
   EditList: Set<string>,
-  encryptContent?: boolean,
-  poll?: boolean
+  encryptContent?: boolean
 ) => {
   let signingKey = generateSecretKey();
   let formPubkey = getPublicKey(signingKey);
@@ -92,7 +88,7 @@ export const createForm = async (
   let baseFormEvent = baseTemplateEvent;
   let wraps: IWrap[] = [];
   mergedNpubs.forEach((profile: MergedNpub) => {
-    let { formEvent, wrap } = grantAccess(
+    let wrap = grantAccess(
       baseFormEvent,
       profile.pubkey,
       signingKey,
@@ -100,19 +96,20 @@ export const createForm = async (
       profile.isEditor
     );
     wraps.push(wrap);
-    baseFormEvent = formEvent;
+    baseFormEvent.tags.push(["p", profile.pubkey])
   });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
   console.log("final event is ", templateEvent);
   await sendWraps(wraps);
   const pool = new SimplePool();
-  await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
+  const messages = await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
     () => {},
     (reason: string) => {
       console.log("Errors are here", reason);
     }
   );
+  console.log("Relay messages", messages)
   pool.close(relayList);
   return signingKey;
 };

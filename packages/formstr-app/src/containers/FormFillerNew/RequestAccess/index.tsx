@@ -39,7 +39,9 @@ export const RequestAccess: FC<RequestAccessProps> = ({ pubkey, formId }) => {
   }
   const publishEvent = async (event: Event) => {
     const pool = new SimplePool();
-    await Promise.allSettled(pool.publish(getDefaultRelays(), event));
+    let relays = getDefaultRelays()
+    await Promise.allSettled(pool.publish(relays, event));
+    pool.close(relays)
   };
 
   return (
