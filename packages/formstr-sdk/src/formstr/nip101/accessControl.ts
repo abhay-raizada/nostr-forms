@@ -130,14 +130,10 @@ export const grantAccess = (
   signingKey: Uint8Array,
   viewKey?: Uint8Array,
   isEditor?: boolean
-): { formEvent: Event | UnsignedEvent; wrap: IWrap } => {
-  const voterKey = generateSecretKey();
-  const voterId = getPublicKey(voterKey);
+): IWrap  => {
   const issuerPubkey = getPublicKey(signingKey);
   const formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
   if(!formId) throw("Cannot grant access to a form without an Id")
-  let newTags = formEvent.tags;
-  newTags.push(["v", voterId]);
 
   const rumor = createRumor(
     {
@@ -146,7 +142,7 @@ export const grantAccess = (
       tags: [
         ...createTag(
           isEditor ? signingKey : undefined,
-          voterKey,
+          undefined,
           viewKey ? viewKey : undefined
         ),
       ],
@@ -155,15 +151,12 @@ export const grantAccess = (
   );
   const seal = createSeal(rumor, signingKey, pubkey);
   const receiverWrap = createWrap(seal, pubkey, issuerPubkey, formId);
-  //const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey,);
+  const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey, formId);
 
   return {
-    formEvent,
-    wrap: {
       receiverWrapEvent: receiverWrap,
       receiverPubkey: pubkey,
       issuerPubkey: issuerPubkey
-    },
   };
 };
 
@@ -175,13 +168,13 @@ export const acceptAccessRequests = async (
   let newFormEvent: Event | UnsignedEvent = formEvent;
   let wraps: IWrap[] = [];
   requests.forEach((request) => {
-    let { formEvent: newForm, wrap } = grantAccess(
+    let wrap = grantAccess(
       newFormEvent,
       request.pubkey,
       hexToBytes(signingKey)
     );
-    newFormEvent = newForm;
     wraps.push(wrap);
+    newFormEvent.tags.push(["p", request.pubkey])
   });
   newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));

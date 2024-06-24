@@ -88,7 +88,7 @@ export const createForm = async (
   let baseFormEvent = baseTemplateEvent;
   let wraps: IWrap[] = [];
   mergedNpubs.forEach((profile: MergedNpub) => {
-    let { formEvent, wrap } = grantAccess(
+    let wrap = grantAccess(
       baseFormEvent,
       profile.pubkey,
       signingKey,
@@ -96,7 +96,7 @@ export const createForm = async (
       profile.isEditor
     );
     wraps.push(wrap);
-    baseFormEvent = formEvent;
+    baseFormEvent.tags.push(["p", profile.pubkey])
   });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
