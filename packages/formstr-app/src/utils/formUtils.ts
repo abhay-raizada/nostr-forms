@@ -23,20 +23,26 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub: string) =>
 	let keys: Tag[] | undefined;
 	await Promise.allSettled(accessKeyEvents.map(async (keyEvent: Event) => {
 		console.log("Decrypting event,", keyEvent)
-		const sealString = await window.nostr.nip44.decrypt(
-			keyEvent.pubkey,
-			keyEvent.content
-		);
-		const seal = JSON.parse(sealString) as Event;
-		console.log("seal event is ", seal)
-		const rumorString = await window.nostr.nip44.decrypt(
-			seal.pubkey,
-			seal.content
-		);
-		const rumor = JSON.parse(rumorString) as UnsignedEvent;
-		console.log("rumor is ", rumor)
-		let key = rumor.tags
-		keys = key;
+		try{
+			const sealString = await window.nostr.nip44.decrypt(
+				keyEvent.pubkey,
+				keyEvent.content
+			);
+			console.log("Got seal string as", sealString)
+			const seal = JSON.parse(sealString) as Event;
+			console.log("seal event is ", seal)
+			const rumorString = await window.nostr.nip44.decrypt(
+				seal.pubkey,
+				seal.content
+			);
+			const rumor = JSON.parse(rumorString) as UnsignedEvent;
+			console.log("rumor is ", rumor)
+			let key = rumor.tags
+			keys = key;
+		}
+		catch(e) {
+			console.log("Error in decryption", e)
+		}
 	}));
 	return keys
 };

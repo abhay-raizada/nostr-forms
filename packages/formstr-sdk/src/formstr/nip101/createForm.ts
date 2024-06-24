@@ -103,12 +103,13 @@ export const createForm = async (
   console.log("final event is ", templateEvent);
   await sendWraps(wraps);
   const pool = new SimplePool();
-  await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
+  const messages = await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
     () => {},
     (reason: string) => {
       console.log("Errors are here", reason);
     }
   );
+  console.log("Relay messages", messages)
   pool.close(relayList);
   return signingKey;
 };

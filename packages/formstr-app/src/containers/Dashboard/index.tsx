@@ -53,10 +53,12 @@ export const Dashboard = () => {
     const pool = new SimplePool();
     const submissionEvents = await pool.querySync(defaultRelays, filter);
     console.log("ssubmission events", submissionEvents);
+    pool.close(defaultRelays)
     let events: Event[] = [];
     submissionEvents.map((event) => {
       const referenceTag = event.tags.find((tag) => tag[0] == "a") || [];
       const [_, pubKey, d_tag] = referenceTag[1].split(":");
+      const pool = new SimplePool();
       pool
         .get(defaultRelays, {
           kinds: [30168],
@@ -67,6 +69,7 @@ export const Dashboard = () => {
           if (event) {
             events.push(event);
           }
+          pool.close(defaultRelays);
         });
     });
     pool.close(defaultRelays)
