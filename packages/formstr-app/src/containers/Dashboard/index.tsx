@@ -1,59 +1,56 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "../CreateFormNew/components/FormDetails";
-import { Event, SimplePool } from "nostr-tools";
-import useNostrProfile, {
+import { Event, Filter, SimplePool } from "nostr-tools";
+import {
   useProfileContext,
 } from "../../hooks/useProfileContext";
-import { getDefaultRelays } from "@formstr/sdk";
-import { LoggedOutScreen } from "./LoggedOutScreen";
+import { fetchProfiles, getDefaultRelays } from "@formstr/sdk";
 import { FormEventCard } from "./FormEventCard";
 import DashboardStyleWrapper from "./index.style";
+import { Button, Typography } from "antd"
+import EmptyScreen from "../../components/EmptyScreen";
+
+const { Text } = Typography
 
 const defaultRelays = getDefaultRelays();
 
 export const Dashboard = () => {
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
-  const [loggedOut, setLoggedOut] = useState<boolean>(false);
   const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
   const [submissions, setSubmission] = useState<Event[] | undefined>(undefined);
+  const [filteredForms, setFilteredForms] = useState<Event[]>([])
 
   const { pubkey, requestPubkey } = useProfileContext();
 
-  const fetchNostrForms = async () => {
-    if (!pubkey) {
-      setLoggedOut(true);
-      return;
-    } else {
-      setLoggedOut(false);
-    }
+  const fetchParticipantForms = async (pubKey: string) => {
+    const pool = new SimplePool();
     const filter = {
       kinds: [30168],
-      "#p": [pubkey],
+      "#p": [pubKey],
     };
-    const pool = new SimplePool();
-    const events = await pool.querySync(defaultRelays, filter);
-    console.log("Got form events", events);
-    setNostrForms(events);
+    let events = await pool.querySync(defaultRelays, filter);
     pool.close(defaultRelays);
+    return events
+  }
+
+  const fetchNostrForms = async () => {
+    if (!pubkey) return;
+    let participantEvents = await fetchParticipantForms(pubkey);
+    console.log("Got form events", participantEvents);
+    setNostrForms(participantEvents);
+    return participantEvents
   };
 
   const fetchUserSubmissions = async () => {
-    if (!pubkey) {
-      setLoggedOut(true);
-      return;
-    } else {
-      setLoggedOut(false);
-    }
+    if(!pubkey) return;
     const filter = {
-      kinds: [30169],
+      kinds: [1069],
       "#p": [pubkey],
     };
-    const pool = new SimplePool();
+    let pool = new SimplePool()
     const submissionEvents = await pool.querySync(defaultRelays, filter);
-    console.log("ssubmission events", submissionEvents);
-    pool.close(defaultRelays)
     let events: Event[] = [];
     submissionEvents.map((event) => {
       const referenceTag = event.tags.find((tag) => tag[0] == "a") || [];
@@ -75,32 +72,32 @@ export const Dashboard = () => {
     pool.close(defaultRelays)
     console.log("Submission events", events);
     setSubmission(events);
+    return events
   };
 
-  const fetchAllUserForms = () => {
-    fetchNostrForms();
-    fetchUserSubmissions();
+  const fetchAllUserForms = async () => {
+    let nostrForms = await fetchNostrForms();
+    let userSubmissions = await fetchUserSubmissions();
+    const allForms = [...(nostrForms || []), ...(userSubmissions || [])];
+    setFilteredForms(allForms);
   };
 
   useEffect(() => {
     if (!nostrForms || !submissions) fetchAllUserForms();
-  }, [loggedOut]);
-
-  const allForms = [...(nostrForms || []), ...(submissions || [])];
-  console.log("loggedOut", loggedOut);
+  }, [pubkey]);
 
   return (
     <DashboardStyleWrapper>
       <div className="dashboard-container">
-        {loggedOut && <LoggedOutScreen />}
-        {!loggedOut && (
-          <div className="form-cards-container">
-            {allForms.map((formEvent: Event) => {
-              return <FormEventCard event={formEvent} />;
+        {!pubkey ? <><EmptyScreen message="You are logged out" linkLabel="Login" onPress={requestPubkey}/> </> : null}
+        {pubkey ? ( filteredForms.length === 0 ? <EmptyScreen message="Please wait while we fetch your forms..."/>:
+          (<div className="form-cards-container">
+            {filteredForms.map((formEvent: Event) => {
+              return <FormEventCard event={formEvent} key={formEvent.id}/>;
             })}
-          </div>
-        )}
-        {showFormDetails && (
+          </div>)
+        ) : null}
+        {showFormDetails ? (
           <FormDetails
             isOpen={showFormDetails}
             pubKey={state.pubKey}
@@ -108,7 +105,7 @@ export const Dashboard = () => {
             formId={state.formId}
             onClose={() => setShowFormDetails(false)}
           />
-        )}
+        ) : null}
       </div>
     </DashboardStyleWrapper>
   );
