@@ -11,9 +11,10 @@ interface EmptyScreenProps {
   message?: string;
   linkTo?: string;
   linkLabel?: string;
+  onPress?: () => void;
 }
 
-function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
+function EmptyScreen({ message, linkTo, linkLabel, onPress }: EmptyScreenProps) {
   return (
     <StyleWrapper>
       <NoData className="empty-screen" />
@@ -24,6 +25,7 @@ function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
         className="add-form"
         type="primary"
         icon={linkTo ? null : <PlusOutlined style={{ paddingTop: "2px" }} />}
+        onClick={onPress ? onPress : () => {}}
       >
         <Link to={linkTo || ROUTES.CREATE_FORMS}>
           {linkLabel || "Create Form"}

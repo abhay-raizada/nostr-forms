@@ -4,7 +4,7 @@ export const ROUTES = {
   CREATE_FORMS: "/create",
   CREATE_FORMS_NEW: "/c",
   MY_FORMS: "/myforms",
-  Dashboard: "/dashboard",
+  DASHBOARD: "/dashboard",
   PUBLIC_FORMS: "/public",
   FORM_FILLER: "/fill/:formId",
   FORM_FILLER_NEW: "/f/:pubKey/:formId",
