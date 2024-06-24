@@ -36,6 +36,7 @@ export const Dashboard = () => {
     const events = await pool.querySync(defaultRelays, filter);
     console.log("Got form events", events);
     setNostrForms(events);
+    pool.close(defaultRelays);
   };
 
   const fetchUserSubmissions = async () => {
@@ -50,12 +51,14 @@ export const Dashboard = () => {
       "#p": [pubkey],
     };
     const pool = new SimplePool();
-    const submissionEvents = await pool.querySync(getDefaultRelays(), filter);
+    const submissionEvents = await pool.querySync(defaultRelays, filter);
     console.log("ssubmission events", submissionEvents);
+    pool.close(defaultRelays)
     let events: Event[] = [];
     submissionEvents.map((event) => {
       const referenceTag = event.tags.find((tag) => tag[0] == "a") || [];
       const [_, pubKey, d_tag] = referenceTag[1].split(":");
+      const pool = new SimplePool();
       pool
         .get(defaultRelays, {
           kinds: [30168],
@@ -66,8 +69,10 @@ export const Dashboard = () => {
           if (event) {
             events.push(event);
           }
+          pool.close(defaultRelays);
         });
     });
+    pool.close(defaultRelays)
     console.log("Submission events", events);
     setSubmission(events);
   };
@@ -99,6 +104,8 @@ export const Dashboard = () => {
           <FormDetails
             isOpen={showFormDetails}
             pubKey={state.pubKey}
+            secretKey={state.secretKey}
+            formId={state.formId}
             onClose={() => setShowFormDetails(false)}
           />
         )}

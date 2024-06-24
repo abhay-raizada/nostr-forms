@@ -1,7 +1,7 @@
 import { Card, Checkbox, Modal, Typography } from "antd";
-import { constructFormUrl } from "@formstr/sdk";
+import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
-import { constructResponseUrl } from "@formstr/sdk/dist/utils/utils";
+import { constructResponseUrl } from "../../../../utils/formUtils";
 import FormDetailsStyle from "./FormDetails.style";
 import { useState } from "react";
 import { CopyButton } from "../../../../components/CopyButton";
@@ -10,13 +10,15 @@ const { Text } = Typography;
 interface FormDetailsProps {
   isOpen: boolean;
   pubKey: string;
-  secretKey?: string;
+  secretKey: string;
+  formId: string
   onClose: () => void;
 }
 
 export const FormDetails: React.FC<FormDetailsProps> = ({
   isOpen,
   pubKey,
+  formId,
   onClose,
   secretKey,
 }) => {
@@ -35,20 +37,18 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     });
   };
 
-  const formUrl = constructFormUrl(pubKey, window.location.origin);
-  let responsesUrl: string | null = null;
-  if (secretKey)
-    responsesUrl = constructResponseUrl(
+  const formUrl = constructFormUrl(pubKey, formId);
+  const responsesUrl = constructResponseUrl(
       secretKey,
-      window.location.origin,
-      pubKey
+      formId
     );
 
   function constructEmbeddedUrl(
+    pubKey: string,
     formId: string,
     options: { [key: string]: boolean } = {}
   ) {
-    let embeddedUrl = constructFormUrl(formId, window.location.origin, true);
+    let embeddedUrl = constructFormUrl(pubKey, formId);
 
     if (options.hideTitleImage) {
       embeddedUrl += "?hideTitleImage=true";
@@ -66,6 +66,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   function getIframeContent() {
     return `<iframe src="${constructEmbeddedUrl(
       pubKey,
+      formId,
       embedOptions
     )}" height="700px" width="480px" frameborder="0" style="border-style:none;box-shadow:0px 0px 2px 2px rgba(0,0,0,0.2);" cellspacing="0" ></iframe>`;
   }

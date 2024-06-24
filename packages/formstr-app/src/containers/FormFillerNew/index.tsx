@@ -1,4 +1,4 @@
-import { Field, Tag, Option, Response, KeyTags } from "@formstr/sdk/dist/formstr/nip101";
+import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
 import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateFormNew/components/FormTitle";
@@ -19,20 +19,15 @@ import { ROUTES } from "../../old/containers/MyForms/configs/routes";
 import Markdown from "react-markdown";
 import {
   Event,
-  SimplePool,
-  UnsignedEvent,
   generateSecretKey,
-  nip44,
 } from "nostr-tools";
 import { FormFields } from "./FormFields";
 import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
-import { getDefaultRelays } from "@formstr/sdk";
-import {bytesToHex } from "@noble/hashes/utils"
-import { sha256 } from "@noble/hashes/sha256"
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { useProfileContext } from "../../hooks/useProfileContext";
+import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 
 const { Text } = Typography;
 
@@ -54,8 +49,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   );
   const [form] = Form.useForm();
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [keys, setKeys] = useState<KeyTags | undefined>();
-  const [noAccess, setNoAccess] = useState<boolean>(false)
+  const [noAccess, setNoAccess] = useState<boolean>(false);
+  const [editKey, setEditKey] = useState<string | undefined | null>();
+  const [allowedUsers, setAllowedUsers] = useState<string[]>([]);
   const [thankYouScreen, setThankYouScreen] = useState(false);
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
@@ -69,88 +65,31 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return null;
   }
 
-  const getFormSpec = async (formEvent: Event) => {
-    let formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
-    if(!formId) {
-      throw Error("Invalid Form: Does not have Id");
-    }
-    if (formEvent.content === "") {
-      setFormTemplate(formEvent.tags);
-      return formEvent.tags;
-    }
-    else{
-     if(!userPubKey) {
-      console.log("Logged Out, Request Login")
-      return;
-     }
-     else {
-      let keys = await fetchKeys(formEvent.pubkey, formId, userPubKey)
-      if(!keys) {
-        setNoAccess(true)
-        return;
-      }
-      console.log("View key is", keys)
-      let conversationKey = nip44.v2.utils.getConversationKey(keys[1], formEvent.pubkey)
-      let formSpecString = nip44.v2.decrypt(formEvent.content, conversationKey)
-      let FormTemplate = JSON.parse(formSpecString);
-      setFormTemplate(FormTemplate);
-      return FormTemplate;
-     }
-    }
-  };
+  const onKeysFetched = (keys: Tag[] | null) => {
+    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
+    setEditKey(editKey);
+  }
 
   const initialize = async (formAuthor: string, formId: string) => {
+    console.log("Author and id are", formAuthor, formId)
     if(!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
-      if(!form) { console.log("Not Found"); return; } // Set state and render
-      setFormEvent(form)
-      const formSpec = await getFormSpec(form)
+      if(!form) { alert("Could not find the form"); return; }
+      setFormEvent(form);
+      setAllowedUsers(getAllowedUsers(form))
+      const formSpec = await getFormSpec(form, userPubKey, onKeysFetched);
+      if(!formSpec)
+        setNoAccess(true)
       setFormTemplate(formSpec);
     }
   }
-
-  const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
-    const pool = new SimplePool();
-    let defaultRelays = getDefaultRelays();
-    let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPub}`));
-    console.log("alias key calculated is", aliasPubKey)
-    let giftWrapsFilter = {
-      kinds: [1059],
-      "#p": [aliasPubKey],
-    };
-
-    const accessKeyEvents = await pool.querySync(
-      defaultRelays,
-      giftWrapsFilter
-    );
-    console.log("Access Key events", accessKeyEvents);
-    let keys: KeyTags | undefined
-    await Promise.allSettled(accessKeyEvents.map(async (keyEvent: Event) => {
-      const sealString = await window.nostr.nip44.decrypt(
-        keyEvent.pubkey,
-        keyEvent.content
-      );
-      const seal = JSON.parse(sealString) as Event;
-      console.log("seal event is ", seal)
-      const rumorString = await window.nostr.nip44.decrypt(
-        seal.pubkey,
-        seal.content
-      );
-      const rumor = JSON.parse(rumorString) as UnsignedEvent;
-      console.log("rumor is ", rumor)
-      let key = rumor.tags.find((t) => t[0] === "key") as KeyTags;
-      setKeys(key);
-      keys = key;
-    }));
-    return keys
-  };
 
   useEffect(() => {
     if (!(pubKey && formId)) {
       return;
     }
     initialize(pubKey, formId);
-  }, [formEvent, formTemplate, keys, userPubKey]);
+  }, [formEvent, formTemplate, userPubKey]);
 
   const handleInput = (
     questionId: string,
@@ -164,20 +103,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     form.setFieldValue(questionId, [answer, message]);
   };
 
-  const isPoll = (tags?: Tag[]) => {
-    if (!formTemplate && !tags) return;
-    else {
-      const settingsTag = (formTemplate || tags)!.find(
-        (tag) => tag[0] === "settings"
-      );
-      if (!settingsTag) return;
-      const settings = JSON.parse(settingsTag[1] || "{}");
-      return settings.isPoll;
-    }
-  };
-
   const saveResponse = async (anonymous: boolean = true) => {
-    let [_, viewKey, signKey, voteKey] = keys || []
     if (!formId || !pubKey) {
       throw "Cant submit to a form that has not been published";
     }
@@ -191,11 +117,10 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       }
     );
     let anonUser = null;
-    if (voteKey) anonUser = hexToBytes(voteKey);
-    if (!voteKey && anonymous) {
+    if (anonymous) {
       anonUser = generateSecretKey();
     }
-    sendResponses(pubKey, formId, responses, anonUser, !isPoll()).then(
+    sendResponses(pubKey, formId, responses, anonUser).then(
       (val) => {
         console.log("Submitted!");
         setFormSubmitted(true);
@@ -207,7 +132,31 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     );
   };
 
-  let [_, viewKey, signKey, voteKey] = keys || []
+  const renderSubmitButton = () => {
+    if(isPreview) return null;
+    if(allowedUsers.length === 0) {
+      return <SubmitButton
+      selfSign={false}
+      edit={false}
+      onSubmit={saveResponse}
+      form={form}
+    />
+    }
+    else if(!userPubKey) {
+      return <Button onClick={requestPubkey}>Login to fill this form</Button>
+    }
+    else if(userPubKey && !allowedUsers.includes(userPubKey)) {
+      return <RequestAccess pubkey={pubKey!} formId={formId!} />
+    }
+    else {
+      return <SubmitButton
+      selfSign={true}
+      edit={false}
+      onSubmit={saveResponse}
+      form={form}
+    />
+    }
+  }
 
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
@@ -233,11 +182,11 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
     return (
       <FillerStyle $isPreview={isPreview}>
-        {signKey && !isPreview ? (
+        {editKey && !isPreview ? (
           <CheckRequests
             pubkey={pubKey!}
             formId={formId!}
-            secretKey={signKey}
+            secretKey={editKey}
             formEvent={formEvent!}
           />
         ) : null}
@@ -270,19 +219,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
                   <>
-                    {voteKey ? (
-                      <SubmitButton
-                        selfSign={settings.disallowAnonymous}
-                        edit={false}
-                        onSubmit={saveResponse}
-                        form={form}
-                        disabled={
-                          isPreview
-                        }
-                      />
-                    ) : (
-                      <RequestAccess pubkey={pubKey!} formId={formId!} />
-                    )}
+                    {renderSubmitButton()}
                   </>
                 </div>
               </Form>
@@ -316,10 +253,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                let navigationUrl = isPoll()
+                let navigationUrl = editKey 
                   ? `/r/${pubKey}/${formId}`
                   : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
-                console.log("navigation url", navigationUrl);
                 navigate(navigationUrl);
               } else {
                 setThankYouScreen(false);

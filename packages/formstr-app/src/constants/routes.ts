@@ -11,6 +11,7 @@ export const ROUTES = {
   PREVIEW: "/preview",
   RESPONSES: "/response/:formSecret",
   RESPONSES_NEW: "/r/:pubKey/:formId",
+  RESPONSES_SECRET: "/s/:secretKey/:formId",
   DRAFT: "/drafts/:encodedForm",
   EMBEDDED: "/embedded/:formId",
 };

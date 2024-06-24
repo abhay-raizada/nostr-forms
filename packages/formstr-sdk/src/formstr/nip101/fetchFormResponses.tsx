@@ -10,11 +10,12 @@ export const fetchFormResponses = async (
   const pool = new SimplePool();
   let relayList = getDefaultRelays();
   const filter: Filter = {
-    kinds: [30169],
+    kinds: [1069],
     "#a": [`30168:${pubKey}:${formId}`],
   };
   if (allowedPubkeys) filter.authors = allowedPubkeys;
   const nostrEvents = await pool.querySync(relayList, filter);
+  console.log("response events", nostrEvents)
   pool.close(relayList);
   return nostrEvents;
 };

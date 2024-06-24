@@ -6,6 +6,7 @@ import { useState } from "react";
 import AddNpubStyle from "../addNpub.style";
 import { Editors } from "./Editors";
 import { Participants } from "./Participants";
+import { useProfileContext } from "../../../../../hooks/useProfileContext";
 
 enum ROLE {
   VIEW,
@@ -14,8 +15,7 @@ enum ROLE {
 
 const { Text } = Typography;
 export const Sharing = () => {
-  const { editList, viewList, setEditList, setViewList } =
-    useFormBuilderContext();
+  const { pubkey: userPubkey, requestPubkey } = useProfileContext();
   const [isEditListOpen, setIsEditListOpen] = useState<boolean>(false);
   const [isViewListOpen, setIsViewListOpen] = useState<boolean>(false);
   return (

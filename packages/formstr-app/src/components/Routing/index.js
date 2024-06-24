@@ -68,6 +68,10 @@ function Routing() {
         element={withNostrHeaderWrapper(Response)}
       />
       <Route
+        path={`${ROUTES.RESPONSES_SECRET}/*`}
+        element={withNostrHeaderWrapper(Response)}
+      />
+      <Route
         path={`${ROUTES.DRAFT}/*`}
         element={withNostrHeaderWrapper(V1DraftsController)}
       />
