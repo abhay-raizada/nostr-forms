@@ -41,7 +41,7 @@ function Routing() {
         path="forms/:formSecret/responses"
         element={withNostrHeaderWrapper(ResponsesOld)}
       />
-      <Route index element={<Navigate replace to={ROUTES.MY_FORMS} />} />
+      <Route index element={<Navigate replace to={ROUTES.Dashboard} />} />
       <Route
         path={`${ROUTES.CREATE_FORMS_NEW}/*`}
         element={withNewCreateFormHeaderWrapper(CreateForm)}
