@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "../CreateFormNew/components/FormDetails";
-import { Event, SimplePool } from "nostr-tools";
+import { Event, SimplePool, SubCloser } from "nostr-tools";
 import useNostrProfile, {
   useProfileContext,
 } from "../../hooks/useProfileContext";
@@ -19,9 +19,15 @@ export const Dashboard = () => {
   const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
   const [submissions, setSubmission] = useState<Event[] | undefined>(undefined);
 
+  const handleEvent = (event: Event) => {
+    setNostrForms((prevEvents) => {
+      return [...(prevEvents || []), event]
+    })
+  }
+
   const { pubkey, requestPubkey } = useProfileContext();
 
-  const fetchNostrForms = async () => {
+  const fetchNostrForms = () => {
     if (!pubkey) {
       setLoggedOut(true);
       return;
@@ -33,66 +39,26 @@ export const Dashboard = () => {
       "#p": [pubkey],
     };
     const pool = new SimplePool();
-    const events = await pool.querySync(defaultRelays, filter);
-    console.log("Got form events", events);
-    setNostrForms(events);
-    pool.close(defaultRelays);
-  };
-
-  const fetchUserSubmissions = async () => {
-    if (!pubkey) {
-      setLoggedOut(true);
-      return;
-    } else {
-      setLoggedOut(false);
-    }
-    const filter = {
-      kinds: [30169],
-      "#p": [pubkey],
-    };
-    const pool = new SimplePool();
-    const submissionEvents = await pool.querySync(defaultRelays, filter);
-    console.log("ssubmission events", submissionEvents);
-    pool.close(defaultRelays)
-    let events: Event[] = [];
-    submissionEvents.map((event) => {
-      const referenceTag = event.tags.find((tag) => tag[0] == "a") || [];
-      const [_, pubKey, d_tag] = referenceTag[1].split(":");
-      const pool = new SimplePool();
-      pool
-        .get(defaultRelays, {
-          kinds: [30168],
-          "#d": [d_tag],
-          authors: [pubKey],
-        })
-        .then((event: Event | null) => {
-          if (event) {
-            events.push(event);
-          }
-          pool.close(defaultRelays);
-        });
-    });
-    pool.close(defaultRelays)
-    console.log("Submission events", events);
-    setSubmission(events);
-  };
-
-  const fetchAllUserForms = () => {
-    fetchNostrForms();
-    fetchUserSubmissions();
+    const subCloser = pool.subscribeMany(defaultRelays, [filter], { onevent: handleEvent });
+    return subCloser
   };
 
   useEffect(() => {
-    if (!nostrForms || !submissions) fetchAllUserForms();
+    let subCloser: SubCloser | undefined;
+    if (!nostrForms || !submissions) subCloser = fetchNostrForms();
+    return () => {
+      if (subCloser) {
+        subCloser.close()
+      }
+    }
   }, [loggedOut]);
-
   const allForms = [...(nostrForms || []), ...(submissions || [])];
   console.log("loggedOut", loggedOut);
 
   return (
     <DashboardStyleWrapper>
       <div className="dashboard-container">
-        {loggedOut && <LoggedOutScreen />}
+        {loggedOut && <LoggedOutScreen requestLogin={requestPubkey}/>}
         {!loggedOut && (
           <div className="form-cards-container">
             {allForms.map((formEvent: Event) => {
