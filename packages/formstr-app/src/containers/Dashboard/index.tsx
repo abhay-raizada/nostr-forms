@@ -15,9 +15,7 @@ const defaultRelays = getDefaultRelays();
 export const Dashboard = () => {
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
-  const [loggedOut, setLoggedOut] = useState<boolean>(false);
   const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
-  const [submissions, setSubmission] = useState<Event[] | undefined>(undefined);
 
   const handleEvent = (event: Event) => {
     setNostrForms((prevEvents) => {
@@ -28,15 +26,9 @@ export const Dashboard = () => {
   const { pubkey, requestPubkey } = useProfileContext();
 
   const fetchNostrForms = () => {
-    if (!pubkey) {
-      setLoggedOut(true);
-      return;
-    } else {
-      setLoggedOut(false);
-    }
     const filter = {
       kinds: [30168],
-      "#p": [pubkey],
+      "#p": [pubkey!],
     };
     const pool = new SimplePool();
     const subCloser = pool.subscribeMany(defaultRelays, [filter], { onevent: handleEvent });
@@ -45,21 +37,20 @@ export const Dashboard = () => {
 
   useEffect(() => {
     let subCloser: SubCloser | undefined;
-    if (!nostrForms || !submissions) subCloser = fetchNostrForms();
+    if (!nostrForms && pubkey) subCloser = fetchNostrForms();
     return () => {
       if (subCloser) {
         subCloser.close()
       }
     }
-  }, [loggedOut]);
-  const allForms = [...(nostrForms || []), ...(submissions || [])];
-  console.log("loggedOut", loggedOut);
+  }, [pubkey]);
+  const allForms = [...(nostrForms || [])];
 
   return (
     <DashboardStyleWrapper>
       <div className="dashboard-container">
-        {loggedOut && <LoggedOutScreen requestLogin={requestPubkey}/>}
-        {!loggedOut && (
+        {!pubkey && <LoggedOutScreen requestLogin={requestPubkey}/>}
+        {pubkey && (
           <div className="form-cards-container">
             {allForms.map((formEvent: Event) => {
               return <FormEventCard event={formEvent} />;

@@ -7,8 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../utils/localStorage";
-import { Actions, NIP07Interactions } from "../components/NIP07Interactions";
-import { Event } from "nostr-tools";
+import { Modal } from "antd";
 
 interface ProfileProviderProps {
   children?: ReactNode;
@@ -17,6 +16,7 @@ interface ProfileProviderProps {
 export interface ProfileContextType {
   pubkey?: string;
   requestPubkey: () => void;
+  logout: () => void;
 }
 
 export interface IProfile {
@@ -43,24 +43,26 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
     }
   }, [pubkey]);
 
-  const requestPubkey = () => {
+  const logout = () => {
+    setItem(LOCAL_STORAGE_KEYS.PROFILE, null);
+    setPubkey(undefined);
+  }
+
+  const requestPubkey = async () => {
     setUsingNip07(true);
+    console.log("Fetching pubkeyyyyyyy");
+    let publicKey = await window.nostr.getPublicKey();
+    console.log("Got pubkey asdfasfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsdfsdfasdf", publicKey);
+    setPubkey(publicKey);
+    setItem(LOCAL_STORAGE_KEYS.PROFILE, { profile: publicKey }) 
+    setUsingNip07(false)
+    return pubkey
   };
 
   return (
-    <ProfileContext.Provider value={{ pubkey, requestPubkey }}>
+    <ProfileContext.Provider value={{ pubkey, requestPubkey, logout }}>
       {children}
-      {usingNip07 ? (
-        <NIP07Interactions
-          action={Actions.GET_PUBKEY}
-          ModalMessage={"Get pubkey"}
-          callback={(pubkey: string | Event) => {
-            setPubkey(pubkey as string);
-            setUsingNip07(false);
-            setItem(LOCAL_STORAGE_KEYS.PROFILE, { pubkey: pubkey });
-          }}
-        />
-      ) : null}
+      <Modal open={usingNip07}> Check your NIP07 Extension </Modal>
     </ProfileContext.Provider>
   );
 };

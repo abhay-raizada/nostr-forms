@@ -41,8 +41,6 @@ export interface IFormBuilderContext {
   updateQuestionsList: (list: Field[]) => void;
   getFormSpec: () => Tag[];
   saveDraft: () => void;
-  setFormTempId: (formTempId: string) => void;
-  formTempId: string;
   selectedTab: string;
   setSelectedTab: (tab: string) => void;
   bottomElementRef: React.RefObject<HTMLDivElement> | null;
