@@ -46,8 +46,6 @@ export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   updateQuestionsList: (list: Field[]) => null,
   getFormSpec: () => [],
   saveDraft: () => null,
-  setFormTempId: (formTempId: string) => "",
-  formTempId: "",
   selectedTab: HEADER_MENU_KEYS.BUILDER,
   setSelectedTab: (tab: string) => "",
   bottomElementRef: null,
@@ -96,11 +94,9 @@ export default function FormBuilderProvider({
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
   const [editList, setEditList] = useState<Set<string>>(new Set(userPubkey ? [userPubkey] : []));
   const [viewList, setViewList] = useState<Set<string>>(new Set([]));
-  const [formTempId, setFormTempId] = useState<string>(makeTag(6));
   const [selectedTab, setSelectedTab] = useState<string>(
     HEADER_MENU_KEYS.BUILDER
   );
-
   const navigate = useNavigate();
 
   const toggleSettingsWindow = () => {
@@ -238,8 +234,6 @@ export default function FormBuilderProvider({
         updateQuestionsList,
         getFormSpec,
         saveDraft,
-        setFormTempId,
-        formTempId,
         selectedTab,
         setSelectedTab,
         bottomElementRef: bottomElement,
