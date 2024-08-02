@@ -62,7 +62,7 @@ export const Dashboard = () => {
   return (
     <DashboardStyleWrapper>
       <div className="dashboard-container">
-        {!pubkey && <LoggedOutScreen requestLogin={requestPubkey}/>}
+        {!pubkey && <LoggedOutScreen requestLogin={requestPubkey} />}
         {pubkey && (
           <div className="form-cards-container">
             {allForms.map((formEvent: Event) => {
@@ -76,6 +76,7 @@ export const Dashboard = () => {
             isOpen={showFormDetails}
             pubKey={state.pubKey}
             secretKey={state.secretKey}
+            viewKey={state.viewKey}
             formId={state.formId}
             onClose={() => setShowFormDetails(false)}
           />

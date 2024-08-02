@@ -134,14 +134,17 @@ export default function FormBuilderProvider({
       relayUrls,
       viewList,
       editList,
-      Array.from(viewList).length !== 0
+      formSettings.encryptForm
     ).then(
-      (secret: Uint8Array) => {
+      (keys: Array<Uint8Array>) => {
+        console.log("created form with keys", keys)
+        const [secret, viewKey] = keys
         navigate("/dashboard", {
           state: {
             pubKey: getPublicKey(secret),
             formId: formSettings.formId,
             secretKey: bytesToHex(secret),
+            viewKey: bytesToHex(viewKey)
           },
         });
       },

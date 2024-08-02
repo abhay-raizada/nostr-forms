@@ -1,4 +1,4 @@
-import { Button, Divider, Input, Modal, Typography } from "antd";
+import { Button, Divider, Input, Modal, Switch, Tooltip, Typography } from "antd";
 import AddNpubStyle from "../addNpub.style";
 import { ReactNode, useState } from "react";
 import { isValidNpub } from "./utils";
@@ -16,7 +16,7 @@ export const Participants: React.FC<ParticipantProps> = ({
   open,
   onCancel,
 }) => {
-  const { viewList, setViewList } = useFormBuilderContext();
+  const { viewList, setViewList, formSettings, updateFormSetting } = useFormBuilderContext();
   const [newNpub, setNewNpub] = useState<string>();
 
   const renderList = () => {
@@ -37,6 +37,18 @@ export const Participants: React.FC<ParticipantProps> = ({
   return (
     <Modal open={open} onCancel={onCancel} footer={null}>
       <AddNpubStyle className="modal-container">
+      <Tooltip title="This will encrypt the form and only people with the view key will be able to see it.">
+          <Switch checked={formSettings.encryptForm} onChange={() => updateFormSetting({...formSettings, encryptForm: !formSettings.encryptForm})} /> Encrypt Form
+        </Tooltip>
+
+        {formSettings.encryptForm && (
+          <div style={{ marginTop: '10px' }}>
+            <Tooltip title="This toggle will include the view key in the form URL meaning anyone with the url will be able to see it.">
+              <Switch checked={formSettings.viewKeyInUrl} onChange={() => updateFormSetting({...formSettings, viewKeyInUrl: !formSettings.viewKeyInUrl})} /> Include View Key in Url?
+            </Tooltip>
+          </div>
+        )}
+        <Divider />
         {(viewList || {}).size === 0 && (
           <Typography.Text>
             The form is currently public for everyone

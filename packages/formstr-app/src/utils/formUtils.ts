@@ -78,8 +78,12 @@ export const getAllowedUsers = (formEvent: Event) => {
 	return formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1])
 }
 
-export const constructFormUrl = (pubkey: string, formId: string) => {
-	return `${window.location.origin}/#/f/${pubkey}/${formId}`
+export const constructFormUrl = (pubkey: string, formId: string, viewKey?: string) => {
+	let baseUrl = `${window.location.origin}/#/f/${pubkey}/${formId}`
+	let finalUrl = baseUrl
+	if(viewKey)
+		finalUrl = finalUrl + `?viewKey=${viewKey}`
+	return finalUrl
 }
 
 export const constructResponseUrl = (secretKey: string, formId: string) => {
