@@ -9,12 +9,12 @@ import { getDefaultRelays } from "@formstr/sdk";
 import { LoggedOutScreen } from "./LoggedOutScreen";
 import { FormEventCard } from "./FormEventCard";
 import DashboardStyleWrapper from "./index.style";
+import EmptyScreen from "../../components/EmptyScreen";
 
 const defaultRelays = getDefaultRelays();
 
 export const Dashboard = () => {
   const { state } = useLocation();
-  const [relayConnections, setRelayConnections] = useState<Array<Relay>>([])
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
   const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
 
@@ -70,6 +70,7 @@ export const Dashboard = () => {
             })}
           </div>
         )}
+        {pubkey && allForms.length === 0 ? <EmptyScreen /> : null }
         {showFormDetails && (
           <FormDetails
             isOpen={showFormDetails}
