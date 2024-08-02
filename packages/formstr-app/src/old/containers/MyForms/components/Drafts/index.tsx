@@ -40,7 +40,7 @@ const COLUMNS = [
     ellipsis: true,
     render: (_: any, draft: IDraft) => (
       <Link
-        to={ROUTES.CREATE_FORMS}
+        to={ROUTES.CREATE_FORMS_NEW}
         state={{
           formSpec: draft.formSpec,
           tempId: draft.tempId,

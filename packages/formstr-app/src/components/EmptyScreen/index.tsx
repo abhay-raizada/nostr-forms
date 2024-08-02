@@ -25,7 +25,7 @@ function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
         type="primary"
         icon={linkTo ? null : <PlusOutlined style={{ paddingTop: "2px" }} />}
       >
-        <Link to={linkTo || ROUTES.CREATE_FORMS}>
+        <Link to={linkTo || ROUTES.CREATE_FORMS_NEW}>
           {linkLabel || "Create Form"}
         </Link>
       </Button>
