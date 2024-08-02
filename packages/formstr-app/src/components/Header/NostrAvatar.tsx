@@ -3,6 +3,8 @@ import { Avatar } from "antd";
 import { SimplePool, Event } from "nostr-tools";
 import { FC, useEffect, useState } from "react";
 
+const defaultRelays = getDefaultRelays()
+
 interface NostrAvatarProps {
   pubkey: string;
 }
@@ -19,11 +21,12 @@ export const NostrAvatar: FC<NostrAvatarProps> = ({ pubkey }) => {
       authors: [pubkey],
     };
     let pool = new SimplePool();
-    const profile = await pool.get(getDefaultRelays(), filter);
+    const profile = await pool.get(defaultRelays, filter);
     if (profile) setProfile(JSON.parse(profile.content) as Profile);
+    pool.close(defaultRelays)
   }
   useEffect(() => {
-    getProfile();
+    if(!profile) getProfile();
   });
   return <Avatar src={profile?.picture} alt={profile?.name} />;
 };
