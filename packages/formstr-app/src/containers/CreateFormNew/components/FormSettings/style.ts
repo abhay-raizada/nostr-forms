@@ -18,6 +18,15 @@ export default styled.div`
     font-size: 14px;
   }
 
+  .sharing-settings {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    margin: 12px 0;
+    font-size: 14px;
+    min-width: 14px;
+  }
+
   .file-input {
     border: 1px solid #dedede;
     border-radius: 10px;

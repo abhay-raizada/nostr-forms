@@ -41,7 +41,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   embedded,
 }) => {
   const { pubKey, formId } = useParams();
-  
+
   const { pubkey: userPubKey, requestPubkey } = useProfileContext();
   console.log("User Pubkey is", userPubKey)
   const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
@@ -56,6 +56,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
+  const viewKeyParams = searchParams.get("viewKey")
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
 
@@ -72,13 +73,13 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
   const initialize = async (formAuthor: string, formId: string) => {
     console.log("Author and id are", formAuthor, formId)
-    if(!formEvent) {
+    if (!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
-      if(!form) { alert("Could not find the form"); return; }
+      if (!form) { alert("Could not find the form"); return; }
       setFormEvent(form);
       setAllowedUsers(getAllowedUsers(form))
-      const formSpec = await getFormSpec(form, userPubKey, onKeysFetched);
-      if(!formSpec)
+      const formSpec = await getFormSpec(form, userPubKey, onKeysFetched, viewKeyParams);
+      if (!formSpec)
         setNoAccess(true)
       setFormTemplate(formSpec);
     }
@@ -133,44 +134,44 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   };
 
   const renderSubmitButton = () => {
-    if(isPreview) return null;
-    if(allowedUsers.length === 0) {
+    if (isPreview) return null;
+    if (allowedUsers.length === 0) {
       return <SubmitButton
-      selfSign={false}
-      edit={false}
-      onSubmit={saveResponse}
-      form={form}
-    />
+        selfSign={false}
+        edit={false}
+        onSubmit={saveResponse}
+        form={form}
+      />
     }
-    else if(!userPubKey) {
+    else if (!userPubKey) {
       return <Button onClick={requestPubkey}>Login to fill this form</Button>
     }
-    else if(userPubKey && !allowedUsers.includes(userPubKey)) {
+    else if (userPubKey && !allowedUsers.includes(userPubKey)) {
       return <RequestAccess pubkey={pubKey!} formId={formId!} />
     }
     else {
       return <SubmitButton
-      selfSign={true}
-      edit={false}
-      onSubmit={saveResponse}
-      form={form}
-    />
+        selfSign={true}
+        edit={false}
+        onSubmit={saveResponse}
+        form={form}
+      />
     }
   }
 
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
   }
-  if(!formEvent) {
+  if (!formEvent) {
     return <Text>Loading...</Text>
   }
-  if(formEvent.content !== "" && !userPubKey)  {
+  if (formEvent.content !== "" && !userPubKey) {
     return <><Text>This form is access controlled and requires login to continue</Text>
-    <Button onClick={() => { requestPubkey() }}>Login</Button></>
+      <Button onClick={() => { requestPubkey() }}>Login</Button></>
   }
-  if(noAccess)  {
+  if (noAccess) {
     return <><Text>Your profile does not have access to view this form</Text>
-    <RequestAccess pubkey={pubKey!} formId={formId!} /></>
+      <RequestAccess pubkey={pubKey!} formId={formId!} /></>
   }
   let name: string, settings: any, fields: Field[];
   if (formTemplate) {
@@ -211,7 +212,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
               <Form
                 form={form}
-                onFinish={() => {}}
+                onFinish={() => { }}
                 className={
                   hideDescription ? "hidden-description" : "with-description"
                 }
@@ -253,7 +254,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                let navigationUrl = editKey 
+                let navigationUrl = editKey
                   ? `/r/${pubKey}/${formId}`
                   : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
                 navigate(navigationUrl);

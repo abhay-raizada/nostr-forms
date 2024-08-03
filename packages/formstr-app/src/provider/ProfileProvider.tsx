@@ -34,7 +34,6 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
   useEffect(() => {
     const profile = getItem<IProfile>(LOCAL_STORAGE_KEYS.PROFILE);
     if (profile) {
-      console.log("Found npub", profile.pubkey, profile) ;
       setPubkey(profile.pubkey);
     } else {
       console.log("Couldn't find npub");
@@ -48,9 +47,7 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
 
   const requestPubkey = async () => {
     setUsingNip07(true);
-    console.log("Fetching pubkeyyyyyyy");
     let publicKey = await window.nostr.getPublicKey();
-    console.log("Got pubkey asdfasfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasdfsdfsdfasdf", publicKey);
     setPubkey(publicKey);
     setItem(LOCAL_STORAGE_KEYS.PROFILE, { pubkey: publicKey }) 
     setUsingNip07(false)
