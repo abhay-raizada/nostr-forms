@@ -111,5 +111,5 @@ export const createForm = async (
   );
   console.log("Relay messages", messages)
   pool.close(relayList);
-  return signingKey;
+  return [signingKey, viewKey];
 };

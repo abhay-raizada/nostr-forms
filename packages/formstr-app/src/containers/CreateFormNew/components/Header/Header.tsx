@@ -25,7 +25,7 @@ export const CreateFormHeader = () => {
               <Col
                 style={{ paddingRight: 10, paddingBottom: 4, color: "black" }}
               >
-                <Link className="app-link" to="/myForms">
+                <Link className="app-link" to="/">
                   <ArrowLeftOutlined />
                 </Link>
               </Col>

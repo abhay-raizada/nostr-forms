@@ -11,6 +11,7 @@ interface FormDetailsProps {
   isOpen: boolean;
   pubKey: string;
   secretKey: string;
+  viewKey?: string;
   formId: string
   onClose: () => void;
 }
@@ -21,6 +22,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   formId,
   onClose,
   secretKey,
+  viewKey
 }) => {
   type TabKeyType = "share" | "embed";
   type OptionType = "hideTitleImage" | "hideDescription";
@@ -37,7 +39,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     });
   };
 
-  const formUrl = constructFormUrl(pubKey, formId);
+  const formUrl = constructFormUrl(pubKey, formId, viewKey);
   const responsesUrl = constructResponseUrl(
       secretKey,
       formId

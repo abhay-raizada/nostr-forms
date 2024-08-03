@@ -21,18 +21,22 @@ export const Sharing = () => {
   return (
     <>
       <Tooltip
-        title="Notify the given nostr profiles when a response is submitted"
+        title="Configure who can access this form and how?"
         trigger={isMobile() ? "click" : "hover"}
       >
-        <div className="property-setting">
-          <Text>Configure Editors</Text>
-          <EditOutlined
-            onClick={() => {
-              setIsEditListOpen(true);
-            }}
-          />
-          <Text>Configure Participants</Text>
-          <EditOutlined onClick={() => setIsViewListOpen(true)} />
+        <div className="sharing-settings">
+          <div>
+            <Text>Configure Form Admins</Text>
+            <EditOutlined
+              onClick={() => {
+                setIsEditListOpen(true);
+              }}
+            />
+          </div>
+          <div>
+            <Text>Participants & Visibility</Text>
+            <EditOutlined onClick={() => setIsViewListOpen(true)} />
+          </div>
           <Editors
             open={isEditListOpen}
             onCancel={() => setIsEditListOpen(false)}
