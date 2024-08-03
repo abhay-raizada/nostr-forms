@@ -23,7 +23,7 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub: string) =>
 	let keys: Tag[] | undefined;
 	await Promise.allSettled(accessKeyEvents.map(async (keyEvent: Event) => {
 		console.log("Decrypting event,", keyEvent)
-		try{
+		try {
 			const sealString = await window.nostr.nip44.decrypt(
 				keyEvent.pubkey,
 				keyEvent.content
@@ -40,7 +40,7 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub: string) =>
 			let key = rumor.tags
 			keys = key;
 		}
-		catch(e) {
+		catch (e) {
 			console.log("Error in decryption", e)
 		}
 	}));
@@ -48,7 +48,7 @@ const fetchKeys = async (formAuthor: string, formId: string, userPub: string) =>
 };
 
 
-export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysFetched?: (keys: Tag[] | null) => void): Promise<Tag[] | null> => {
+export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysFetched?: (keys: Tag[] | null) => void, paramsViewKey?: string | null): Promise<Tag[] | null> => {
 	let formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
 	if (!formId) {
 		throw Error("Invalid Form: Does not have Id");
@@ -60,13 +60,13 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 		return formEvent.tags;
 	}
 	else {
-		if(!userPubKey) throw Error("User pubkey needed for this form.")		
-		let keys = await fetchKeys(formEvent.pubkey, formId, userPubKey)
+		if (!userPubKey && !paramsViewKey) throw Error("No keys provided to access this form")
+		let keys;
+		if (userPubKey) keys = await fetchKeys(formEvent.pubkey, formId, userPubKey)
 		console.log("got keys as", keys)
-		if(!keys) return null;
-		if (onKeysFetched) onKeysFetched(keys || null)
-		let viewKey = keys.find((k) => k[0] === "ViewAccess")?.[1]
-		if(!viewKey) return null;
+		if (keys && onKeysFetched) onKeysFetched(keys || null)
+		let viewKey = paramsViewKey || keys?.find((k) => k[0] === "ViewAccess")?.[1]
+		if (!viewKey) return null;
 		let conversationKey = nip44.v2.utils.getConversationKey(viewKey, formEvent.pubkey)
 		let formSpecString = nip44.v2.decrypt(formEvent.content, conversationKey)
 		let FormTemplate = JSON.parse(formSpecString);
@@ -81,7 +81,7 @@ export const getAllowedUsers = (formEvent: Event) => {
 export const constructFormUrl = (pubkey: string, formId: string, viewKey?: string) => {
 	let baseUrl = `${window.location.origin}/#/f/${pubkey}/${formId}`
 	let finalUrl = baseUrl
-	if(viewKey)
+	if (viewKey)
 		finalUrl = finalUrl + `?viewKey=${viewKey}`
 	return finalUrl
 }

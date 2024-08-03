@@ -34,7 +34,7 @@ function FormSettings() {
       </div>
       <Divider className="divider" />
       <div className="form-setting">
-        <Text className="property-name">Sharing & Visibility</Text>
+        <Text className="property-name">Form Access Settings</Text>
         <Sharing />
       </div>
 

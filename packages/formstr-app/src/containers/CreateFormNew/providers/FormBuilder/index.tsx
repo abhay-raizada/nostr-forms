@@ -144,7 +144,7 @@ export default function FormBuilderProvider({
             pubKey: getPublicKey(secret),
             formId: formSettings.formId,
             secretKey: bytesToHex(secret),
-            viewKey: bytesToHex(viewKey)
+            viewKey: formSettings.viewKeyInUrl ? bytesToHex(viewKey) : null
           },
         });
       },
@@ -155,7 +155,7 @@ export default function FormBuilderProvider({
     );
   };
 
-  const saveDraft = () => {};
+  const saveDraft = () => { };
 
   const editQuestion = (question: Field, tempId: string) => {
     const editedList = questionsList.map((existingQuestion: Field) => {
@@ -210,7 +210,7 @@ export default function FormBuilderProvider({
     }
   };
 
-  const initializeForm = (draft: IDraft) => {};
+  const initializeForm = (draft: IDraft) => { };
 
   return (
     <FormBuilderContext.Provider
