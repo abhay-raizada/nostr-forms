@@ -28,6 +28,7 @@ import { CheckRequests } from "./CheckRequests";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
+import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 
 const { Text } = Typography;
 
@@ -67,6 +68,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   }
 
   const onKeysFetched = (keys: Tag[] | null) => {
+    console.log("Keys got", keys)
     let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
     setEditKey(editKey);
   }
@@ -134,6 +136,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   };
 
   const renderSubmitButton = () => {
+    console.log("Allowed users are", allowedUsers)
     if (isPreview) return null;
     if (allowedUsers.length === 0) {
       return <SubmitButton
@@ -173,12 +176,12 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return <><Text>Your profile does not have access to view this form</Text>
       <RequestAccess pubkey={pubKey!} formId={formId!} /></>
   }
-  let name: string, settings: any, fields: Field[];
+  let name: string, settings: IFormSettings, fields: Field[];
   if (formTemplate) {
     name = formTemplate.find((tag) => tag[0] === "name")?.[1] || "";
     settings = JSON.parse(
       formTemplate.find((tag) => tag[0] === "settings")?.[1] || "{}"
-    );
+    ) as IFormSettings;
     fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
 
     return (

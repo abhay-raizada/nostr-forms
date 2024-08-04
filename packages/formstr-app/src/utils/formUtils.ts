@@ -55,7 +55,6 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 	}
 	console.log("Getting form spec")
 
-
 	if (formEvent.content === "") {
 		return formEvent.tags;
 	}
@@ -75,7 +74,7 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 };
 
 export const getAllowedUsers = (formEvent: Event) => {
-	return formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1])
+	return formEvent.tags.filter((t) => t[0] === "allowed").map((t) => t[1])
 }
 
 export const constructFormUrl = (pubkey: string, formId: string, viewKey?: string) => {
