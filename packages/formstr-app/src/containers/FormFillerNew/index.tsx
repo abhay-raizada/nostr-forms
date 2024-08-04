@@ -124,13 +124,10 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       anonUser = generateSecretKey();
     }
     sendResponses(pubKey, formId, responses, anonUser).then(
-      (val) => {
+      (res) => {
         console.log("Submitted!");
         setFormSubmitted(true);
         setThankYouScreen(true);
-      },
-      (err) => {
-        console.log("some error", err);
       }
     );
   };
@@ -259,7 +256,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
               if (!embedded) {
                 let navigationUrl = editKey
                   ? `/r/${pubKey}/${formId}`
-                  : `${GLOBAL_ROUTES.MY_FORMS}/${ROUTES.SUBMISSIONS}`;
+                  : `/`;
                 navigate(navigationUrl);
               } else {
                 setThankYouScreen(false);

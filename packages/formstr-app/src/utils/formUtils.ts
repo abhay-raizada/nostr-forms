@@ -4,7 +4,7 @@ import { nip44, Event, UnsignedEvent, SimplePool } from "nostr-tools";
 import { bytesToHex } from "@noble/hashes/utils"
 import { sha256 } from "@noble/hashes/sha256"
 
-const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
+export const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
 	const pool = new SimplePool();
 	let defaultRelays = getDefaultRelays();
 	let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPub}`));
