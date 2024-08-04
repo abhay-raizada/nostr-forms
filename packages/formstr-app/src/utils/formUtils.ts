@@ -4,7 +4,7 @@ import { nip44, Event, UnsignedEvent, SimplePool } from "nostr-tools";
 import { bytesToHex } from "@noble/hashes/utils"
 import { sha256 } from "@noble/hashes/sha256"
 
-const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
+export const fetchKeys = async (formAuthor: string, formId: string, userPub: string) => {
 	const pool = new SimplePool();
 	let defaultRelays = getDefaultRelays();
 	let aliasPubKey = bytesToHex(sha256(`${30168}:${formAuthor}:${formId}:${userPub}`));
@@ -55,7 +55,6 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 	}
 	console.log("Getting form spec")
 
-
 	if (formEvent.content === "") {
 		return formEvent.tags;
 	}
@@ -75,7 +74,7 @@ export const getFormSpec = async (formEvent: Event, userPubKey?: string, onKeysF
 };
 
 export const getAllowedUsers = (formEvent: Event) => {
-	return formEvent.tags.filter((t) => t[0] === "p").map((t) => t[1])
+	return formEvent.tags.filter((t) => t[0] === "allowed").map((t) => t[1])
 }
 
 export const constructFormUrl = (pubkey: string, formId: string, viewKey?: string) => {

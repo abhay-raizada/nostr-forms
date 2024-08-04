@@ -76,30 +76,18 @@ const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: strin
 const sendToUserRelays = async (wrap: Event, pubkey: string) => {
   let pool = new SimplePool()
   const defaultRelays = getDefaultRelays();
-  let RelayFilter: Filter = {
-    kinds: [10050],
-    authors: [pubkey]
-  };
-  let RelayListEvent = await pool.get(
-    defaultRelays,
-    RelayFilter
-  );
-  let RelayList = RelayListEvent?.tags
-      .filter((t) => t[0] === "relay")
-      .map((tag) => tag[1]);
-  RelayList = RelayList || defaultRelays;
-  console.log("Sending event to relays", RelayList, wrap)
+  console.log("Sending event to relays", defaultRelays, wrap)
   let messages = await Promise.allSettled(
-    pool.publish(RelayList, wrap)
+    pool.publish(defaultRelays, wrap)
   );
   console.log("Relay replies", messages)
-  pool.close(RelayList);
+  pool.close(defaultRelays);
 }
 
 export const sendWraps = async (wraps: IWrap[]) => {
   wraps.forEach(async (wrap) => {
     sendToUserRelays(wrap.receiverWrapEvent, wrap.receiverPubkey)
-    if(wrap.senderWrapEvent) {
+    if (wrap.senderWrapEvent) {
       sendToUserRelays(wrap.senderWrapEvent, wrap.issuerPubkey)
     }
     console.log("Published gift wrap for", wrap.receiverPubkey);
@@ -112,13 +100,13 @@ const createTag = (
   viewKey?: Uint8Array
 ) => {
   let tags: string[][] = []
-  if(signingKey) {
+  if (signingKey) {
     tags.push(["EditAccess", bytesToHex(signingKey)])
   }
-  if(viewKey) {
+  if (viewKey) {
     tags.push(["ViewAccess", bytesToHex(viewKey)])
   }
-  if(voterKey) {
+  if (voterKey) {
     tags.push(["SubmitAccess", bytesToHex(voterKey)])
   }
   return tags;
@@ -130,10 +118,10 @@ export const grantAccess = (
   signingKey: Uint8Array,
   viewKey?: Uint8Array,
   isEditor?: boolean
-): IWrap  => {
+): IWrap => {
   const issuerPubkey = getPublicKey(signingKey);
   const formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
-  if(!formId) throw("Cannot grant access to a form without an Id")
+  if (!formId) throw ("Cannot grant access to a form without an Id")
 
   const rumor = createRumor(
     {
@@ -154,9 +142,9 @@ export const grantAccess = (
   const senderWrap = createWrap(seal, issuerPubkey, issuerPubkey, formId);
 
   return {
-      receiverWrapEvent: receiverWrap,
-      receiverPubkey: pubkey,
-      issuerPubkey: issuerPubkey
+    receiverWrapEvent: receiverWrap,
+    receiverPubkey: pubkey,
+    issuerPubkey: issuerPubkey
   };
 };
 

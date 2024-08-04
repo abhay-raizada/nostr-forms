@@ -1,5 +1,5 @@
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { Card, Typography } from "antd";
+import { Button, Card, Divider, Typography } from "antd";
 import { Event } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 
@@ -39,6 +39,8 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
         ) : (
           <Text> Hidden Content</Text>
         )}
+        <Divider />
+        <Button onClick={(e) => { e.stopPropagation(); navigate(`/r/${pubKey}/${formId}`) }}>View Responses</Button>
       </Card>
     </>
   );
