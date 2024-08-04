@@ -96,6 +96,9 @@ export const createForm = async (
       profile.isEditor
     );
     wraps.push(wrap);
+    if (profile.isParticipant) {
+      baseFormEvent.tags.push(["allowed", profile.pubkey])
+    }
     baseFormEvent.tags.push(["p", profile.pubkey])
   });
 
@@ -104,7 +107,7 @@ export const createForm = async (
   await sendWraps(wraps);
   const pool = new SimplePool();
   const messages = await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
-    () => {},
+    () => { },
     (reason: string) => {
       console.log("Errors are here", reason);
     }
