@@ -1,19 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Typography, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { ReactComponent as NoData } from "../../Images/no-forms.svg";
 import StyleWrapper from "./style";
 import { ROUTES } from "../../constants/routes";
+import { act } from "react-dom/test-utils";
 
 const { Text } = Typography;
 
 interface EmptyScreenProps {
   message?: string;
-  linkTo?: string;
-  linkLabel?: string;
+  action?: () => void;
+  actionLabel?: string;
 }
 
-function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
+function EmptyScreen({ message, action, actionLabel }: EmptyScreenProps) {
+  let navigate = useNavigate();
+  console.log("message,", message, action, actionLabel);
   return (
     <StyleWrapper>
       <NoData className="empty-screen" />
@@ -23,11 +26,15 @@ function EmptyScreen({ message, linkTo, linkLabel }: EmptyScreenProps) {
       <Button
         className="add-form"
         type="primary"
-        icon={linkTo ? null : <PlusOutlined style={{ paddingTop: "2px" }} />}
+        icon={action ? null : <PlusOutlined style={{ paddingTop: "2px" }} />}
+        onClick={() => {
+          if (action) action();
+          else {
+            navigate(ROUTES.CREATE_FORMS_NEW);
+          }
+        }}
       >
-        <Link to={linkTo || ROUTES.CREATE_FORMS_NEW}>
-          {linkLabel || "Create Form"}
-        </Link>
+        {actionLabel || "Create Form"}
       </Button>
     </StyleWrapper>
   );

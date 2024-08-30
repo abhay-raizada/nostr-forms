@@ -7,6 +7,7 @@ import { ISubmission, ISubmissionTable } from "./submissions.types";
 import { ROUTES } from "../../../../../constants/routes";
 import { useEffect, useState } from "react";
 import { fetchProfiles } from "@formstr/sdk";
+import { useNavigate } from "react-router-dom";
 
 const COLUMNS = [
   {
@@ -39,6 +40,7 @@ function Submissions() {
     ISubmissionTable[] | null
   >(null);
   const [isLoading, setIsLoading] = useState(false);
+  let navigate = useNavigate();
 
   useEffect(() => {
     async function fetchNames() {
@@ -81,8 +83,10 @@ function Submissions() {
       {!submissionTable && !isLoading && (
         <EmptyScreen
           message="No submissions found, start by filling out a public form?"
-          linkTo={ROUTES.PUBLIC_FORMS}
-          linkLabel="Public Forms"
+          action={() => {
+            navigate(ROUTES.PUBLIC_FORMS);
+          }}
+          actionLabel="Public Forms"
         />
       )}
     </div>

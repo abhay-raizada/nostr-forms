@@ -1,15 +1,19 @@
 import { Button, Typography } from "antd";
+import EmptyScreen from "../../components/EmptyScreen";
 
 interface LoggedOutScreenProps {
-  requestLogin: () => void
+  requestLogin: () => void;
 }
 
 const { Text } = Typography;
-export const LoggedOutScreen: React.FC<LoggedOutScreenProps> = ({ requestLogin }) => {
+export const LoggedOutScreen: React.FC<LoggedOutScreenProps> = ({
+  requestLogin,
+}) => {
   return (
-    <>
-      <Text>You are logged out, login to view your forms on nostr</Text> 
-      <Button onClick={requestLogin}>Login</Button>
-    </>
+    <EmptyScreen
+      message="You are not logged in, Login to see your past forms"
+      action={requestLogin}
+      actionLabel="Login"
+    />
   );
 };

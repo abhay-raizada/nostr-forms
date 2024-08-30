@@ -1,14 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  FC,
-  ReactNode,
-  useEffect,
-  useRef,
-} from "react";
-import { LOCAL_STORAGE_KEYS, getItem, setItem } from "../utils/localStorage";
-import { Modal } from "antd";
+import React, { createContext, FC, ReactNode, useRef } from "react";
 import { SimplePool } from "nostr-tools";
 
 interface ApplicationProviderProps {
@@ -23,7 +13,9 @@ export const ApplicationContext = createContext<
   ApplicationContextType | undefined
 >(undefined);
 
-export const ProfileProvider: FC<ApplicationProviderProps> = ({ children }) => {
+export const ApplicationProvider: FC<ApplicationProviderProps> = ({
+  children,
+}) => {
   const poolRef = useRef(new SimplePool());
 
   return (
