@@ -32,7 +32,7 @@ yarn workspace @formstr/web-app build
 
 ## How to reach the devs
 
-- If you have any questions about formstr, or just want to reach out to us, feel free to ping us on our [telegram](https://t.me/+NQzzsKGGkgtmMjdl)
+- If you have any questions about formstr, or just want to reach out to us, feel free to ping us on our [support channel](https://signal.group/#CjQKIGHSAUZqAspMgPv4oLE9dQVxjDo8NevFguBeaWsTeIJmEhB3FRStllZVHqpXsMhZ7NwF)
 - Or follow us on our nostr handle: npub1qu7dsd44275lms4x9snnwvnnmgx926nsppmr7lcw9dlj36n4fltqgs7p98
 
 ### Setup:
