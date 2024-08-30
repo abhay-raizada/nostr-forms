@@ -11,9 +11,9 @@ export const NostrHeader = () => {
   const { Header } = Layout;
   const { pubkey, requestPubkey, logout } = useProfileContext();
 
-  const dropdownMenuItems: MenuProps['items'] = [
+  const dropdownMenuItems: MenuProps["items"] = [
     {
-      key: '1',
+      key: "1",
       label: <a onClick={logout}>Logout</a>,
     },
   ];
@@ -21,11 +21,20 @@ export const NostrHeader = () => {
   const myForms = {
     key: HEADER_MENU_KEYS.MY_FORMS,
     icon: pubkey ? (
-      <Dropdown menu={{ items: dropdownMenuItems }} trigger={["click"]}>
-        <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-          <NostrAvatar pubkey={pubkey} /> <DownOutlined />
-        </a>
-      </Dropdown>
+      <div>
+        <Dropdown
+          menu={{
+            items: dropdownMenuItems,
+            overflowedIndicator: null,
+            style: { overflow: "auto" },
+          }}
+          trigger={["click"]}
+        >
+          <div onClick={(e) => e.preventDefault()}>
+            <NostrAvatar pubkey={pubkey} /> <DownOutlined />
+          </div>
+        </Dropdown>
+      </div>
     ) : (
       <Button type="dashed" size="small" onClick={() => requestPubkey()}>
         Login
@@ -44,7 +53,7 @@ export const NostrHeader = () => {
       >
         <Row className="header-row" justify="space-between">
           <Col>
-            <Link className="app-link" to="/myForms">
+            <Link className="app-link" to="/">
               <Logo />
             </Link>
           </Col>
