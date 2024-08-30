@@ -14,8 +14,6 @@ import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
-import { ROUTES as GLOBAL_ROUTES } from "../../constants/routes";
-import { ROUTES } from "../../old/containers/MyForms/configs/routes";
 import Markdown from "react-markdown";
 import {
   Event,
