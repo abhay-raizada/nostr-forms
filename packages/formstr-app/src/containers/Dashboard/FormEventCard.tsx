@@ -40,7 +40,14 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
           <Text> Hidden Content</Text>
         )}
         <Divider />
-        <Button onClick={(e) => { e.stopPropagation(); navigate(`/r/${pubKey}/${formId}`) }}>View Responses</Button>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/r/${pubKey}/${formId}`);
+          }}
+        >
+          View Responses
+        </Button>
       </Card>
     </>
   );

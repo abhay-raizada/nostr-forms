@@ -11,12 +11,18 @@ import { FormEventCard } from "./FormEventCard";
 import DashboardStyleWrapper from "./index.style";
 import EmptyScreen from "../../components/EmptyScreen";
 import { useApplicationContext } from "../../hooks/useApplicationContext";
+import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage";
+import { ILocalForm } from "../CreateFormNew/providers/FormBuilder/typeDefs";
+import { LocalFormCard } from "./LocalFormCard";
 
 const defaultRelays = getDefaultRelays();
 
 export const Dashboard = () => {
   const { state } = useLocation();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
+  const [localForms, setLocalForms] = useState<ILocalForm[]>(
+    getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
+  );
   const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
   const { poolRef } = useApplicationContext();
 
@@ -61,7 +67,6 @@ export const Dashboard = () => {
       }
     };
   }, [pubkey]);
-  const allForms = [...(nostrForms || [])];
 
   return (
     <DashboardStyleWrapper>
@@ -69,12 +74,21 @@ export const Dashboard = () => {
         {!pubkey && <LoggedOutScreen requestLogin={requestPubkey} />}
         {pubkey && (
           <div className="form-cards-container">
-            {allForms.map((formEvent: Event) => {
+            {localForms.map((localForm: ILocalForm) => {
+              return <LocalFormCard form={localForm} />;
+            })}
+          </div>
+        )}
+        {pubkey && (
+          <div className="form-cards-container">
+            {(nostrForms || []).map((formEvent: Event) => {
               return <FormEventCard event={formEvent} />;
             })}
           </div>
         )}
-        {pubkey && allForms.length === 0 ? <EmptyScreen /> : null}
+        {pubkey && !nostrForms?.length && !localForms.length ? (
+          <EmptyScreen />
+        ) : null}
         {showFormDetails && (
           <FormDetails
             isOpen={showFormDetails}
