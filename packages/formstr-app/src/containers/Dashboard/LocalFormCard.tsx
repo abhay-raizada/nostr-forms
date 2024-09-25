@@ -22,7 +22,7 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({ form }) => {
       <Button
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/response/${form.privateKey}}`);
+          navigate(`/response/${form.privateKey}`);
         }}
       >
         View Responses

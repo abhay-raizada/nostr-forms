@@ -75,14 +75,19 @@ export const Dashboard = () => {
   }, [pubkey]);
 
   const renderForms = () => {
+    console.log("Filter is ", filter);
     if (filter === "local") {
       return localForms.map((localForm: ILocalForm) => (
         <LocalFormCard key={localForm.key} form={localForm} />
       ));
     } else if (filter === "nostr") {
-      return (nostrForms || []).map((formEvent: Event) => (
-        <FormEventCard key={formEvent.id} event={formEvent} />
-      ));
+      return (nostrForms || []).map((formEvent: Event) => {
+        let d_tag = formEvent.tags.filter((t) => t[0] === "d")[0]?.[1];
+        let key = `${formEvent.kind}:${formEvent.pubkey}:${
+          d_tag ? d_tag : null
+        }`;
+        return <FormEventCard key={key} event={formEvent} />;
+      });
     }
     return null;
   };
