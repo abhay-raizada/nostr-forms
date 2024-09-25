@@ -13,7 +13,8 @@ export default styled.div`
   }
 
   .form-card {
-    min-width: 30%;
+    min-width: 400px;
+    width: 80%;
     margin: 10px;
   }
 `;
