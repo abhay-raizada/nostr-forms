@@ -20,9 +20,16 @@ import { DownOutlined } from "@ant-design/icons";
 const defaultRelays = getDefaultRelays();
 
 export const Dashboard = () => {
-  const { state } = useLocation();
+  // const { state } = useLocation();
   const { pubkey, requestPubkey } = useProfileContext();
 
+  // const { state } = useLocation();
+  const state = {
+    pubKey: "123",
+    viewKey: "123",
+    secretKey: "123",
+    formId: "123",
+  };
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
   const [localForms, setLocalForms] = useState<ILocalForm[]>(
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []

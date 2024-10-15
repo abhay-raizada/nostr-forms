@@ -1,10 +1,17 @@
-import { Card, Checkbox, Modal, Typography } from "antd";
+import { Card, Checkbox, Modal, notification, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
 import FormDetailsStyle from "./FormDetails.style";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CopyButton } from "../../../../components/CopyButton";
+import { SaveButton } from "./SaveButton";
+import { ILocalForm } from "../../providers/FormBuilder/typeDefs";
+import {
+  getItem,
+  LOCAL_STORAGE_KEYS,
+  setItem,
+} from "../../../../utils/localStorage";
 
 const { Text } = Typography;
 interface FormDetailsProps {
@@ -12,7 +19,7 @@ interface FormDetailsProps {
   pubKey: string;
   secretKey: string;
   viewKey?: string;
-  formId: string
+  formId: string;
   onClose: () => void;
 }
 
@@ -22,8 +29,45 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   formId,
   onClose,
   secretKey,
-  viewKey
+  viewKey,
 }) => {
+  const [api, contextHolder] = notification.useNotification();
+  const saveToDevice = (
+    formAuthorPub: string,
+    formAuthorSecret: string,
+    formId: string,
+    name: string
+  ) => {
+    console.log("inside save to device");
+    let saveObject: ILocalForm = {
+      key: `${formAuthorPub}:${formId}`,
+      publicKey: `${formAuthorPub}`,
+      privateKey: `${formAuthorSecret}`,
+      name: name,
+      formId: formId,
+      createdAt: new Date().toString(),
+    };
+    let forms =
+      getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
+    const existingKeys = forms.map((form) => form.key);
+    if (existingKeys.includes(saveObject.key)) {
+      console.log("Exisiting");
+      return;
+    }
+    forms.push(saveObject);
+    //setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
+    api.open({
+      message: "Saved on Device",
+      description:
+        "Your form has been saved on your device. You can view it later on from the dashboard",
+      duration: 2000,
+    });
+  };
+
+  useEffect(() => {
+    saveToDevice(pubKey, secretKey, formId, "");
+  }, []);
+
   type TabKeyType = "share" | "embed";
   type OptionType = "hideTitleImage" | "hideDescription";
   const [activeTab, setActiveTab] = useState<TabKeyType>("share");
@@ -40,10 +84,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   };
 
   const formUrl = constructFormUrl(pubKey, formId, viewKey);
-  const responsesUrl = constructResponseUrl(
-      secretKey,
-      formId
-    );
+  const responsesUrl = constructResponseUrl(secretKey, formId);
 
   function constructEmbeddedUrl(
     pubKey: string,
@@ -86,36 +127,56 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   const TabContent = {
     share: (
       <div className="share-links">
-        <>
-          <div>
-            <Success />
-          </div>
+        <div>
+          <Success />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <div>
             <Text> Your form is now live at the below url! </Text>
           </div>
-          <a href={formUrl}>{formUrl}</a>
-          <CopyButton
-            getText={() => {
-              return formUrl;
-            }}
-          />
-        </>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <a href={formUrl}>{formUrl}</a>
+            <CopyButton
+              getText={() => {
+                return formUrl;
+              }}
+              textBefore=""
+              textAfter=""
+            />
+          </div>
+        </div>
 
         {responsesUrl && (
-          <>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <div>
               <Text>
                 {" "}
                 You can see responses for this form at the below url{" "}
               </Text>
             </div>
-            <a href={responsesUrl}>{responsesUrl}</a>
-            <CopyButton
-              getText={() => {
-                return responsesUrl!;
-              }}
-            />
-          </>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <a href={responsesUrl}>{responsesUrl}</a>
+              <CopyButton
+                getText={() => {
+                  return responsesUrl!;
+                }}
+                textBefore=""
+                textAfter=""
+              />
+            </div>
+          </div>
         )}
       </div>
     ),
@@ -142,7 +203,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
           <code className="embedded-code">{getIframeContent()}</code>
         </div>
         <div>
-          <CopyButton getText={getIframeContent} />
+          <CopyButton getText={getIframeContent} textBefore="" textAfter="" />
         </div>
       </div>
     ),
