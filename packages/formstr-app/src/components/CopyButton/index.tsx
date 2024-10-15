@@ -12,15 +12,9 @@ export const CopyButton = ({
   textBefore?: string;
   textAfter?: string;
 }) => {
-  console.log("Got PRops", textAfter, textBefore);
   const [copyMessage, setCopyMessage] = useState<
     "Copy" | "Copied!" | "Error!" | string
   >(textBefore === undefined ? "Copy" : textBefore);
-  console.log(
-    "textbefore === undefinded",
-    textBefore === undefined,
-    textBefore
-  );
   const copyText = () => {
     navigator.clipboard.writeText(getText()).then(
       (resolve) => {

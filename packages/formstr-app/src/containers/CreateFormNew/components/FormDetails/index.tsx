@@ -1,11 +1,10 @@
-import { Card, Checkbox, Modal, notification, Typography } from "antd";
+import { Card, Checkbox, Divider, Modal, notification, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
 import FormDetailsStyle from "./FormDetails.style";
 import { useEffect, useState } from "react";
 import { CopyButton } from "../../../../components/CopyButton";
-import { SaveButton } from "./SaveButton";
 import { ILocalForm } from "../../providers/FormBuilder/typeDefs";
 import {
   getItem,
@@ -20,6 +19,7 @@ interface FormDetailsProps {
   secretKey: string;
   viewKey?: string;
   formId: string;
+  name: string;
   onClose: () => void;
 }
 
@@ -30,8 +30,9 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   onClose,
   secretKey,
   viewKey,
+  name,
 }) => {
-  const [api, contextHolder] = notification.useNotification();
+  const [savedLocally, setSavedLocally] = useState(false);
   const saveToDevice = (
     formAuthorPub: string,
     formAuthorSecret: string,
@@ -52,20 +53,16 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     const existingKeys = forms.map((form) => form.key);
     if (existingKeys.includes(saveObject.key)) {
       console.log("Exisiting");
+      setSavedLocally(true);
       return;
     }
     forms.push(saveObject);
-    //setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
-    api.open({
-      message: "Saved on Device",
-      description:
-        "Your form has been saved on your device. You can view it later on from the dashboard",
-      duration: 2000,
-    });
+    setItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS, forms);
+    setSavedLocally(true);
   };
 
   useEffect(() => {
-    saveToDevice(pubKey, secretKey, formId, "");
+    saveToDevice(pubKey, secretKey, formId, name);
   }, []);
 
   type TabKeyType = "share" | "embed";
@@ -225,6 +222,8 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
           onTabChange={(key: string) => setActiveTab(key as TabKeyType)}
         >
           {TabContent[activeTab]}
+          <Divider />
+          <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
         </Card>
       </FormDetailsStyle>
     </Modal>
