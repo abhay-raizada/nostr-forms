@@ -9,7 +9,7 @@ import { IDraft } from "../../../../old/containers/MyForms/components/Drafts/typ
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import { IFormSettings } from "../../components/FormSettings/types";
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { bytesToHex } from "@noble/hashes/utils"
+import { bytesToHex } from "@noble/hashes/utils";
 import { getPublicKey } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../../../../hooks/useProfileContext";
@@ -92,7 +92,9 @@ export default function FormBuilderProvider({
     })
   );
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
-  const [editList, setEditList] = useState<Set<string>>(new Set(userPubkey ? [userPubkey] : []));
+  const [editList, setEditList] = useState<Set<string>>(
+    new Set(userPubkey ? [userPubkey] : [])
+  );
   const [viewList, setViewList] = useState<Set<string>>(new Set([]));
   const [selectedTab, setSelectedTab] = useState<string>(
     HEADER_MENU_KEYS.BUILDER
@@ -137,14 +139,15 @@ export default function FormBuilderProvider({
       formSettings.encryptForm
     ).then(
       (keys: Array<Uint8Array>) => {
-        console.log("created form with keys", keys)
-        const [secret, viewKey] = keys
+        console.log("created form with keys", keys);
+        const [secret, viewKey] = keys;
         navigate("/dashboard", {
           state: {
             pubKey: getPublicKey(secret),
             formId: formSettings.formId,
             secretKey: bytesToHex(secret),
-            viewKey: formSettings.viewKeyInUrl ? bytesToHex(viewKey) : null
+            viewKey: formSettings.viewKeyInUrl ? bytesToHex(viewKey) : null,
+            name: formName,
           },
         });
       },
@@ -155,7 +158,7 @@ export default function FormBuilderProvider({
     );
   };
 
-  const saveDraft = () => { };
+  const saveDraft = () => {};
 
   const editQuestion = (question: Field, tempId: string) => {
     const editedList = questionsList.map((existingQuestion: Field) => {
@@ -210,7 +213,7 @@ export default function FormBuilderProvider({
     }
   };
 
-  const initializeForm = (draft: IDraft) => { };
+  const initializeForm = (draft: IDraft) => {};
 
   return (
     <FormBuilderContext.Provider
