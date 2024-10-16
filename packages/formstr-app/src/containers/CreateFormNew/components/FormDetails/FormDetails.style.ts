@@ -44,6 +44,8 @@ export default styled.div`
 
   .share-links {
     word-wrap: break-word;
+    justify-content: center;
+    align-items: center;
   }
 
   .embed-container {
