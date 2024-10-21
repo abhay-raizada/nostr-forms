@@ -26,7 +26,7 @@ export const Dashboard = () => {
   const [localForms, setLocalForms] = useState<ILocalForm[]>(
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
   );
-  const [nostrForms, setNostrForms] = useState<Event[] | undefined>(undefined);
+  const [nostrForms, setNostrForms] = useState<Map<string, Event>>(new Map());
   const [filter, setFilter] = useState<"local" | "nostr">(
     pubkey ? "nostr" : "local"
   );
@@ -36,9 +36,9 @@ export const Dashboard = () => {
   const subCloserRef = useRef<SubCloser | null>(null);
 
   const handleEvent = (event: Event) => {
-    setNostrForms((prevEvents) => {
-      return [...(prevEvents || []), event];
-    });
+    const newMap = new Map(nostrForms);
+    newMap.set(event.id, event);
+    setNostrForms(newMap);
   };
 
   const fetchNostrForms = () => {
@@ -87,7 +87,7 @@ export const Dashboard = () => {
         />
       ));
     } else if (filter === "nostr") {
-      return (nostrForms || []).map((formEvent: Event) => {
+      return Array.from(nostrForms.values()).map((formEvent: Event) => {
         let d_tag = formEvent.tags.filter((t) => t[0] === "d")[0]?.[1];
         let key = `${formEvent.kind}:${formEvent.pubkey}:${
           d_tag ? d_tag : null
@@ -150,7 +150,7 @@ export const Dashboard = () => {
         {pubkey && (
           <>
             <div className="form-cards-container">{renderForms()}</div>
-            {!nostrForms?.length && !localForms.length ? <EmptyScreen /> : null}
+            {!nostrForms.size && !localForms.length ? <EmptyScreen /> : null}
             {showFormDetails && (
               <FormDetails
                 isOpen={showFormDetails}
