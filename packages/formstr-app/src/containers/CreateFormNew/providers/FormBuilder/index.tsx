@@ -3,7 +3,6 @@ import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext, ILocalForm } from "./typeDefs";
 import { generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
-import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
 import { makeTag } from "../../../../utils/utility";
 import { IDraft } from "../../../../old/containers/MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
@@ -13,6 +12,7 @@ import { bytesToHex } from "@noble/hashes/utils";
 import { getPublicKey } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../../../../hooks/useProfileContext";
+import { createForm } from "../../../../nostr/createForm";
 
 export type Field = [
   placeholder: string,
