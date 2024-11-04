@@ -5,7 +5,7 @@ import {
   getPublicKey,
   nip19,
 } from "nostr-tools";
-import { getDefaultRelays, signEvent } from "./common";
+import { customPublish, getDefaultRelays, signEvent } from "./common";
 import { IWrap, Tag } from "./types";
 import { nip44Encrypt } from "./utils";
 import { grantAccess, sendWraps } from "./accessControl";
@@ -51,6 +51,7 @@ export const createForm = async (
   EditList: Set<string>,
   encryptContent?: boolean
 ) => {
+  let acceptedRelays: string[] = [];
   let signingKey = generateSecretKey();
   let formPubkey = getPublicKey(signingKey);
 
@@ -103,18 +104,16 @@ export const createForm = async (
   });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
-  console.log("final event is ", templateEvent);
   await sendWraps(wraps);
-  const pool = new SimplePool();
-  const messages = await Promise.allSettled(
-    pool.publish(relayList, templateEvent)
-  ).then(
-    () => {},
-    (reason: string) => {
-      console.log("Errors are here", reason);
-    }
+  await Promise.allSettled(
+    customPublish(relayList, templateEvent, (url: string) =>
+      acceptedRelays.push(url)
+    )
   );
-  console.log("Relay messages", messages);
-  pool.close(relayList);
-  return [signingKey, viewKey];
+  console.log("Accepted by relays", acceptedRelays);
+  return {
+    signingKey,
+    viewKey,
+    acceptedRelays,
+  };
 };

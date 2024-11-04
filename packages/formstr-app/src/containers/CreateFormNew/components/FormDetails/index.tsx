@@ -20,6 +20,7 @@ interface FormDetailsProps {
   viewKey?: string;
   formId: string;
   name: string;
+  relay: string;
   onClose: () => void;
 }
 
@@ -31,13 +32,15 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   secretKey,
   viewKey,
   name,
+  relay,
 }) => {
   const [savedLocally, setSavedLocally] = useState(false);
   const saveToDevice = (
     formAuthorPub: string,
     formAuthorSecret: string,
     formId: string,
-    name: string
+    name: string,
+    relay: string
   ) => {
     console.log("inside save to device");
     let saveObject: ILocalForm = {
@@ -46,13 +49,13 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
       privateKey: `${formAuthorSecret}`,
       name: name,
       formId: formId,
+      relay: relay,
       createdAt: new Date().toString(),
     };
     let forms =
       getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
     const existingKeys = forms.map((form) => form.key);
     if (existingKeys.includes(saveObject.key)) {
-      console.log("Exisiting");
       setSavedLocally(true);
       return;
     }
@@ -62,7 +65,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   };
 
   useEffect(() => {
-    saveToDevice(pubKey, secretKey, formId, name);
+    saveToDevice(pubKey, secretKey, formId, name, relay);
   }, []);
 
   type TabKeyType = "share" | "embed";
@@ -80,7 +83,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     });
   };
 
-  const formUrl = constructFormUrl(pubKey, formId, viewKey);
+  const formUrl = constructFormUrl(pubKey, formId, relay, viewKey);
   const responsesUrl = constructResponseUrl(secretKey, formId);
 
   function constructEmbeddedUrl(
@@ -88,7 +91,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     formId: string,
     options: { [key: string]: boolean } = {}
   ) {
-    let embeddedUrl = constructFormUrl(pubKey, formId);
+    let embeddedUrl = constructFormUrl(pubKey, formId, relay);
 
     if (options.hideTitleImage) {
       embeddedUrl += "?hideTitleImage=true";

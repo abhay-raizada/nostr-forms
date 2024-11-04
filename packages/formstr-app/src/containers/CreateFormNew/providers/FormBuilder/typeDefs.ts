@@ -12,6 +12,7 @@ export interface ILocalForm {
   privateKey: string;
   formCredentials?: Array<string>;
   formId: string;
+  relay: string;
 }
 
 export interface IFormBuilderContext {

@@ -1,4 +1,12 @@
-import { finalizeEvent, getPublicKey, UnsignedEvent } from "nostr-tools";
+import {
+  AbstractRelay,
+  Event,
+  finalizeEvent,
+  getPublicKey,
+  Relay,
+  UnsignedEvent,
+} from "nostr-tools";
+import { normalizeURL } from "nostr-tools/utils";
 
 declare global {
   // TODO: make this better
@@ -67,3 +75,37 @@ export async function signEvent(
   }
   return nostrEvent;
 }
+
+export const customPublish = (
+  relays: string[],
+  event: Event,
+  acceptedRelays?: (relay: string) => void
+): Promise<string>[] => {
+  return relays.map(normalizeURL).map(async (url, i, arr) => {
+    if (arr.indexOf(url) !== i) {
+      // duplicate
+      return Promise.reject("duplicate url");
+    }
+
+    let r = await ensureRelay(url);
+    return r.publish(event).then((reason) => {
+      console.log("accepted relays", url);
+      acceptedRelays?.(url);
+      return reason;
+    });
+  });
+};
+
+export const ensureRelay = async (
+  url: string,
+  params?: { connectionTimeout?: number }
+): Promise<AbstractRelay> => {
+  url = normalizeURL(url);
+
+  let relay = new Relay(url);
+  if (params?.connectionTimeout)
+    relay.connectionTimeout = params.connectionTimeout;
+  await relay.connect();
+
+  return relay;
+};

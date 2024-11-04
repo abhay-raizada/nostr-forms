@@ -159,6 +159,7 @@ export const Dashboard = () => {
                 viewKey={state.viewKey}
                 formId={state.formId}
                 name={state.name}
+                relay={state.relay}
                 onClose={() => {
                   setShowFormDetails(false);
                   setLocalForms(getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []);

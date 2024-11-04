@@ -15,10 +15,7 @@ import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
 import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-using-formstr.svg";
 import Markdown from "react-markdown";
-import {
-  Event,
-  generateSecretKey,
-} from "nostr-tools";
+import { Event, generateSecretKey, nip19 } from "nostr-tools";
 import { FormFields } from "./FormFields";
 import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
@@ -27,6 +24,7 @@ import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTem
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
+import { AddressPointer } from "nostr-tools/nip19";
 
 const { Text } = Typography;
 
@@ -39,10 +37,16 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   formSpec,
   embedded,
 }) => {
-  const { pubKey, formId } = useParams();
+  const { naddr } = useParams();
+  if (!naddr) return <Typography.Text> Corrupted Form Link</Typography.Text>;
+  const {
+    pubkey: pubKey,
+    identifier: formId,
+    kind,
+    relays,
+  } = nip19.decode(naddr).data as AddressPointer;
 
   const { pubkey: userPubKey, requestPubkey } = useProfileContext();
-  console.log("User Pubkey is", userPubKey)
   const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
     formSpec || null
   );
@@ -55,7 +59,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const [formEvent, setFormEvent] = useState<Event | undefined>();
   const [searchParams] = useSearchParams();
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
-  const viewKeyParams = searchParams.get("viewKey")
+  const viewKeyParams = searchParams.get("viewKey");
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
 
@@ -66,24 +70,31 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   }
 
   const onKeysFetched = (keys: Tag[] | null) => {
-    console.log("Keys got", keys)
-    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
+    console.log("Keys got", keys);
+    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null;
     setEditKey(editKey);
-  }
+  };
 
   const initialize = async (formAuthor: string, formId: string) => {
-    console.log("Author and id are", formAuthor, formId)
+    console.log("Author and id are", formAuthor, formId);
     if (!formEvent) {
       const form = await fetchFormTemplate(formAuthor, formId);
-      if (!form) { alert("Could not find the form"); return; }
+      if (!form) {
+        alert("Could not find the form");
+        return;
+      }
       setFormEvent(form);
-      setAllowedUsers(getAllowedUsers(form))
-      const formSpec = await getFormSpec(form, userPubKey, onKeysFetched, viewKeyParams);
-      if (!formSpec)
-        setNoAccess(true)
+      setAllowedUsers(getAllowedUsers(form));
+      const formSpec = await getFormSpec(
+        form,
+        userPubKey,
+        onKeysFetched,
+        viewKeyParams
+      );
+      if (!formSpec) setNoAccess(true);
       setFormTemplate(formSpec);
     }
-  }
+  };
 
   useEffect(() => {
     if (!(pubKey && formId)) {
@@ -121,55 +132,70 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     if (anonymous) {
       anonUser = generateSecretKey();
     }
-    sendResponses(pubKey, formId, responses, anonUser).then(
-      (res) => {
-        console.log("Submitted!");
-        setFormSubmitted(true);
-        setThankYouScreen(true);
-      }
-    );
+    sendResponses(pubKey, formId, responses, anonUser).then((res) => {
+      console.log("Submitted!");
+      setFormSubmitted(true);
+      setThankYouScreen(true);
+    });
   };
 
   const renderSubmitButton = () => {
-    console.log("Allowed users are", allowedUsers)
+    console.log("Allowed users are", allowedUsers);
     if (isPreview) return null;
     if (allowedUsers.length === 0) {
-      return <SubmitButton
-        selfSign={false}
-        edit={false}
-        onSubmit={saveResponse}
-        form={form}
-      />
+      return (
+        <SubmitButton
+          selfSign={false}
+          edit={false}
+          onSubmit={saveResponse}
+          form={form}
+        />
+      );
+    } else if (!userPubKey) {
+      return <Button onClick={requestPubkey}>Login to fill this form</Button>;
+    } else if (userPubKey && !allowedUsers.includes(userPubKey)) {
+      return <RequestAccess pubkey={pubKey!} formId={formId!} />;
+    } else {
+      return (
+        <SubmitButton
+          selfSign={true}
+          edit={false}
+          onSubmit={saveResponse}
+          form={form}
+        />
+      );
     }
-    else if (!userPubKey) {
-      return <Button onClick={requestPubkey}>Login to fill this form</Button>
-    }
-    else if (userPubKey && !allowedUsers.includes(userPubKey)) {
-      return <RequestAccess pubkey={pubKey!} formId={formId!} />
-    }
-    else {
-      return <SubmitButton
-        selfSign={true}
-        edit={false}
-        onSubmit={saveResponse}
-        form={form}
-      />
-    }
-  }
+  };
 
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
   }
   if (!formEvent) {
-    return <Text>Loading...</Text>
+    return <Text>Loading...</Text>;
   }
   if (formEvent.content !== "" && !userPubKey) {
-    return <><Text>This form is access controlled and requires login to continue</Text>
-      <Button onClick={() => { requestPubkey() }}>Login</Button></>
+    return (
+      <>
+        <Text>
+          This form is access controlled and requires login to continue
+        </Text>
+        <Button
+          onClick={() => {
+            requestPubkey();
+          }}
+        >
+          Login
+        </Button>
+      </>
+    );
   }
   if (noAccess) {
-    return <><Text>Your profile does not have access to view this form</Text>
-      <RequestAccess pubkey={pubKey!} formId={formId!} /></>
+    return (
+      <>
+        <Text>Your profile does not have access to view this form</Text>
+        <RequestAccess pubkey={pubKey!} formId={formId!} />
+      </>
+    );
   }
   let name: string, settings: IFormSettings, fields: Field[];
   if (formTemplate) {
@@ -210,16 +236,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
 
               <Form
                 form={form}
-                onFinish={() => { }}
+                onFinish={() => {}}
                 className={
                   hideDescription ? "hidden-description" : "with-description"
                 }
               >
                 <div>
                   <FormFields fields={fields} handleInput={handleInput} />
-                  <>
-                    {renderSubmitButton()}
-                  </>
+                  <>{renderSubmitButton()}</>
                 </div>
               </Form>
             </div>
@@ -252,9 +276,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
             isOpen={thankYouScreen}
             onClose={() => {
               if (!embedded) {
-                let navigationUrl = editKey
-                  ? `/r/${pubKey}/${formId}`
-                  : `/`;
+                let navigationUrl = editKey ? `/r/${pubKey}/${formId}` : `/`;
                 navigate(navigationUrl);
               } else {
                 setThankYouScreen(false);
