@@ -3,16 +3,16 @@ import { AnswerSettings, FormSpec } from "@formstr/sdk/dist/interfaces";
 import { IFormBuilderContext, ILocalForm } from "./typeDefs";
 import { generateQuestion } from "../../utils";
 import { getDefaultRelays } from "@formstr/sdk";
-import { createForm } from "@formstr/sdk/dist/formstr/nip101/createForm";
 import { makeTag } from "../../../../utils/utility";
 import { IDraft } from "../../../../old/containers/MyForms/components/Drafts/typeDefs";
 import { HEADER_MENU_KEYS } from "../../components/Header/config";
 import { IFormSettings } from "../../components/FormSettings/types";
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { bytesToHex } from "@noble/hashes/utils";
-import { getPublicKey } from "nostr-tools";
+import { getPublicKey, nip04, nip19 } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../../../../hooks/useProfileContext";
+import { createForm } from "../../../../nostr/createForm";
 
 export type Field = [
   placeholder: string,
@@ -138,16 +138,21 @@ export default function FormBuilderProvider({
       editList,
       formSettings.encryptForm
     ).then(
-      (keys: Array<Uint8Array>) => {
-        console.log("created form with keys", keys);
-        const [secret, viewKey] = keys;
+      (artifacts: {
+        signingKey: Uint8Array;
+        viewKey: Uint8Array;
+        acceptedRelays: string[];
+      }) => {
+        console.log("created form with keys", artifacts);
+        const { signingKey, viewKey, acceptedRelays } = artifacts;
         navigate("/dashboard", {
           state: {
-            pubKey: getPublicKey(secret),
+            pubKey: getPublicKey(signingKey),
             formId: formSettings.formId,
-            secretKey: bytesToHex(secret),
+            secretKey: bytesToHex(signingKey),
             viewKey: formSettings.viewKeyInUrl ? bytesToHex(viewKey) : null,
             name: formName,
+            relay: acceptedRelays[0],
           },
         });
       },
