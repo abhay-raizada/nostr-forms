@@ -15,15 +15,10 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
   onDeleted,
 }) => {
   const navigate = useNavigate();
-  console.log("local form, form", form);
   return (
     <Card
       title={form.name}
       className="form-card"
-      // onClick={() => {
-      //   navigate(`/fill/${form.publicKey}`);
-      // }}
-      hoverable={true}
       extra={<DeleteFormTrigger formKey={form.key} onDeleted={onDeleted} />}
     >
       <Divider />
@@ -33,6 +28,17 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
         }}
       >
         View Responses
+      </Button>
+      <Button
+        onClick={(e: any) => {
+          e.stopPropagation();
+          navigate(`/f/${form.publicKey}/${form.formId}`);
+        }}
+        style={{
+          marginLeft: "10px",
+        }}
+      >
+        Open Form
       </Button>
     </Card>
   );
