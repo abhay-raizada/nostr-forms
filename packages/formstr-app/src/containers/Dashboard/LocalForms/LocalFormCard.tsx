@@ -24,7 +24,7 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
       <Divider />
       <Button
         onClick={(e) => {
-          navigate(`/response/${form.privateKey}`);
+          navigate(`/s/${form.privateKey}/${form.formId}`);
         }}
       >
         View Responses
