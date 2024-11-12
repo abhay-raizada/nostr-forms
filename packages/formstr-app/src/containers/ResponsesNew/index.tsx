@@ -11,6 +11,7 @@ import { useProfileContext } from "../../hooks/useProfileContext";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
 import { hexToBytes } from "@noble/hashes/utils";
 import { fetchKeys, getAllowedUsers, getFormSpec } from "../../utils/formUtils";
+import { Export } from "./Export";
 
 const { Text } = Typography;
 
@@ -25,10 +26,10 @@ export const Response = () => {
 
   console.log("params received are:", pubKey, formId, secretKey);
 
-  const onKeysFetched = (keys: Tag[] | null) => {
-    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null;
-    setEditKey(editKey);
-  };
+  // const onKeysFetched = (keys: Tag[] | null) => {
+  //   let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null;
+  //   setEditKey(editKey);
+  // };
 
   const initialize = async () => {
     if (!formId) return;
@@ -89,7 +90,7 @@ export const Response = () => {
     return [];
   };
 
-  const getData = () => {
+  const getData = (useLabels: boolean = false) => {
     let answers: Array<{
       [key: string]: string;
     }> = [];
@@ -104,7 +105,11 @@ export const Response = () => {
         authorPubkey: nip19.npubEncode(response.pubkey),
       };
       inputs.forEach((input) => {
-        answerObject[input[1]] = input[2];
+        let question = formSpec?.find(
+          (t) => t[0] === "field" && t[1] === input[1]
+        )?.[3];
+        const label = useLabels ? question || input[1] : input[1];
+        answerObject[label] = input[2];
       });
       answers.push(answerObject);
     });
@@ -188,6 +193,7 @@ export const Response = () => {
           </div>
         </SummaryStyle>
         <ResponseWrapper>
+          <Export responsesData={getData(true)} formName={getFormName()} />
           <div style={{ overflow: "scroll", marginBottom: 60 }}>
             <Table
               columns={getColumns()}
