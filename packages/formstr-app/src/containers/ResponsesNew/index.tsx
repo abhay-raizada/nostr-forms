@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Event, getPublicKey, nip44 } from "nostr-tools";
+import { Event, getPublicKey, nip19, nip44 } from "nostr-tools";
 import { useParams } from "react-router-dom";
 import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { fetchFormResponses } from "@formstr/sdk/dist/formstr/nip101/fetchFormResponses";
@@ -9,8 +9,9 @@ import ResponseWrapper from "./Responses.style";
 import { isMobile } from "../../utils/utility";
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
-import { hexToBytes } from "@noble/hashes/utils"
+import { hexToBytes } from "@noble/hashes/utils";
 import { fetchKeys, getAllowedUsers, getFormSpec } from "../../utils/formUtils";
+import { Export } from "./Export";
 
 const { Text } = Typography;
 
@@ -23,48 +24,46 @@ export const Response = () => {
 
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
 
-  console.log("params received are:", pubKey, formId, secretKey)
+  console.log("params received are:", pubKey, formId, secretKey);
 
-  const onKeysFetched = (keys: Tag[] | null) => {
-    let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
-    setEditKey(editKey);
-  }
+  // const onKeysFetched = (keys: Tag[] | null) => {
+  //   let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null;
+  //   setEditKey(editKey);
+  // };
 
   const initialize = async () => {
-    if (!formId)
-      return;
+    if (!formId) return;
 
     if (!(pubKey || secretKey)) return;
 
     if (secretKey) {
       setEditKey(secretKey);
-      pubKey = getPublicKey(hexToBytes(secretKey))
+      pubKey = getPublicKey(hexToBytes(secretKey));
     }
     const formEvent = await fetchFormTemplate(pubKey!, formId);
     if (!formEvent) return;
     if (!secretKey) {
       if (userPubkey) {
-        let keys = await fetchKeys(formEvent.pubkey, formId, userPubkey)
-        console.log("GOT KEYS AS", keys)
-        let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null
+        let keys = await fetchKeys(formEvent.pubkey, formId, userPubkey);
+        console.log("GOT KEYS AS", keys);
+        let editKey = keys?.find((k) => k[0] === "EditAccess")?.[1] || null;
         setEditKey(editKey);
       }
     }
     setFormEvent(formEvent);
-    let keyFetcher;
-    const formSpec = await getFormSpec(formEvent, userPubkey, keyFetcher);
-    console.log("FormSpec is", formSpec)
-    setFormSpec(formSpec)
+    const formSpec = await getFormSpec(formEvent, userPubkey);
+    console.log("FormSpec is", formSpec);
+    setFormSpec(formSpec);
     let allowedPubkeys;
     let pubkeys = getAllowedUsers(formEvent);
-    if (pubkeys.length !== 0) allowedPubkeys = pubkeys
+    if (pubkeys.length !== 0) allowedPubkeys = pubkeys;
     const responses = await fetchFormResponses(pubKey!, formId, allowedPubkeys);
-    setResponses(responses)
-  }
+    setResponses(responses);
+  };
 
   useEffect(() => {
     if (!formEvent) initialize();
-  })
+  });
 
   const getInputs = (responseEvent: Event) => {
     if (responseEvent.content === "") {
@@ -85,14 +84,13 @@ export const Response = () => {
       } catch (e) {
         return [];
       }
-    }
-    else {
-      alert("You do not have access to view responses for this form.")
+    } else {
+      alert("You do not have access to view responses for this form.");
     }
     return [];
   };
 
-  const getData = () => {
+  const getData = (useLabels: boolean = false) => {
     let answers: Array<{
       [key: string]: string;
     }> = [];
@@ -104,10 +102,14 @@ export const Response = () => {
       } = {
         key: response.pubkey,
         createdAt: new Date(response.created_at * 1000).toDateString(),
-        authorName: "",
+        authorPubkey: nip19.npubEncode(response.pubkey),
       };
       inputs.forEach((input) => {
-        answerObject[input[1]] = input[2];
+        let question = formSpec?.find(
+          (t) => t[0] === "field" && t[1] === input[1]
+        )?.[3];
+        const label = useLabels ? question || input[1] : input[1];
+        answerObject[label] = input[2];
       });
       answers.push(answerObject);
     });
@@ -130,20 +132,20 @@ export const Response = () => {
       fixed?: "left" | "right";
       width?: number;
     }> = [
-        {
-          key: "createdAt",
-          title: "Created At",
-          dataIndex: "createdAt",
-          fixed: "left",
-          width: isMobile() ? 10 : 20,
-        },
-        {
-          key: "author",
-          title: "Author",
-          dataIndex: "author",
-          width: isMobile() ? 10 : 20,
-        },
-      ];
+      {
+        key: "createdAt",
+        title: "Created At",
+        dataIndex: "createdAt",
+        fixed: "left",
+        width: isMobile() ? 2.5 : 5,
+      },
+      {
+        key: "author",
+        title: "Author Id",
+        dataIndex: "authorPubkey",
+        width: isMobile() ? 2.5 : 5,
+      },
+    ];
     let fields =
       formSpec?.filter((field) => field[0] === "field") || ([] as Field[]);
     fields.forEach((field) => {
@@ -158,11 +160,20 @@ export const Response = () => {
     return columns;
   };
 
-  console.log("should render formSpec", !!formSpec)
+  console.log("should render formSpec", !!formSpec);
   if (!(pubKey || secretKey) || !formId) return <Text>Invalid url</Text>;
 
   if (formEvent?.content !== "" && !userPubkey)
-    return (<><Text>Friend, You need to login</Text><Button onClick={() => { requestPubkey() }}></Button></>)
+    return (
+      <>
+        <Text>Friend, You need to login</Text>
+        <Button
+          onClick={() => {
+            requestPubkey();
+          }}
+        ></Button>
+      </>
+    );
 
   if (!!formSpec)
     return (
@@ -182,6 +193,7 @@ export const Response = () => {
           </div>
         </SummaryStyle>
         <ResponseWrapper>
+          <Export responsesData={getData(true)} formName={getFormName()} />
           <div style={{ overflow: "scroll", marginBottom: 60 }}>
             <Table
               columns={getColumns()}
@@ -197,5 +209,4 @@ export const Response = () => {
         </ResponseWrapper>
       </div>
     );
-
 };

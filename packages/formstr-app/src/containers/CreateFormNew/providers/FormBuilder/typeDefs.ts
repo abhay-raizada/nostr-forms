@@ -11,7 +11,7 @@ export interface ILocalForm {
   publicKey: string;
   privateKey: string;
   formCredentials?: Array<string>;
-  formId: string;
+  formId?: string;
   relay: string;
 }
 

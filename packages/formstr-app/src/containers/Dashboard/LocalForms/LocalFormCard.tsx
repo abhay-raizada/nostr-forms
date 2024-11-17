@@ -15,6 +15,13 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
   onDeleted,
 }) => {
   const navigate = useNavigate();
+  let responseUrl = form.formId
+    ? `/s/${form.privateKey}/${form.formId}`
+    : `/response/${form.privateKey}`;
+  let formUrl =
+    form.publicKey && form.formId
+      ? `/f/${form.publicKey}/${form.formId}`
+      : `/fill/${form.formId}`;
   return (
     <Card
       title={form.name}
@@ -24,7 +31,7 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
       <Divider />
       <Button
         onClick={(e) => {
-          navigate(`/response/${form.privateKey}`);
+          navigate(responseUrl);
         }}
       >
         View Responses
@@ -32,7 +39,7 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
       <Button
         onClick={(e: any) => {
           e.stopPropagation();
-          navigate(`/f/${form.publicKey}/${form.formId}`);
+          navigate(formUrl);
         }}
         style={{
           marginLeft: "10px",
