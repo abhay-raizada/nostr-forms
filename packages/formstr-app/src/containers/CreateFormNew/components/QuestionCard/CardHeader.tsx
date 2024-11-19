@@ -1,6 +1,7 @@
 import {
   ArrowDownOutlined,
   ArrowUpOutlined,
+  DeleteOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
@@ -28,7 +29,11 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   lastQuestion,
 }) => {
   const { MOBILE } = useDeviceType();
-  const { toggleSettingsWindow } = useFormBuilderContext();
+  const { toggleSettingsWindow,deleteQuestion,setQuestionIdInFocus} = useFormBuilderContext();
+  const handleDelete = () => {
+    deleteQuestion(question[1]); 
+    setQuestionIdInFocus(undefined);
+  };
   return (
     <StyledWrapper>
       <div className="action-wrapper">
@@ -57,6 +62,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({
               }}
             />
           </div>
+          <DeleteOutlined className="action-icon" style={{ color: "red" }} onClick={handleDelete} />
         </div>
 
         {MOBILE && (

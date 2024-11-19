@@ -13,9 +13,16 @@ const { Text } = Typography;
 function AnswerSettings() {
   const { questionsList, questionIdInFocus, editQuestion, deleteQuestion } =
     useFormBuilderContext();
-  const questionIndex = questionsList.findIndex(
-    (field: Field) => field[1] === questionIdInFocus
-  );
+    
+    if (!questionIdInFocus) {
+      return null;
+    }
+    const questionIndex = questionsList.findIndex(
+      (field: Field) => field[1] === questionIdInFocus
+    );
+    if (questionIndex === -1) {
+      return null;
+    }
   const question = questionsList[questionIndex];
   const answerSettings = JSON.parse(
     question[5] || '{ "renderElement": "shortText"}'
