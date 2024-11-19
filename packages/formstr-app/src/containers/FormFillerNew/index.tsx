@@ -38,14 +38,19 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   embedded,
 }) => {
   const { naddr } = useParams();
-  if (!naddr) return <Typography.Text> Corrupted Form Link</Typography.Text>;
-  const {
-    pubkey: pubKey,
-    identifier: formId,
-    kind,
-    relays,
-  } = nip19.decode(naddr).data as AddressPointer;
-
+  let isPreview: boolean = false;
+  if (!naddr) isPreview = true;
+  //if (!naddr) return <Typography.Text> Corrupted Form Link</Typography.Text>;
+  // let {
+  //   pubkey,
+  //   identifier,
+  //   kind,
+  //   relays,
+  // } = nip19.decode(naddr).data as AddressPointer;
+  let decodedData;
+  if (!isPreview) decodedData = nip19.decode(naddr!).data as AddressPointer;
+  let pubKey = decodedData?.pubkey;
+  let formId = decodedData?.identifier;
   const { pubkey: userPubKey, requestPubkey } = useProfileContext();
   const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
     formSpec || null
@@ -63,7 +68,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const hideDescription = searchParams.get("hideDescription") === "true";
   const navigate = useNavigate();
 
-  const isPreview = !!formSpec;
+  isPreview = !!formSpec;
 
   if (!formId && !formSpec) {
     return null;
@@ -170,10 +175,9 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   if ((!pubKey || !formId) && !isPreview) {
     return <Text>INVALID FORM URL</Text>;
   }
-  if (!formEvent) {
+  if (!formEvent && !isPreview) {
     return <Text>Loading...</Text>;
-  }
-  if (formEvent.content !== "" && !userPubKey) {
+  } else if (!isPreview && formEvent?.content !== "" && !userPubKey) {
     return (
       <>
         <Text>
