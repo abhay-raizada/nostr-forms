@@ -7,6 +7,8 @@ import StyleWrapper from "./style";
 import { RightAnswer } from "./RightAnswer";
 import { Field } from "../../providers/FormBuilder";
 import { IAnswerSettings } from "./types";
+import UploadImage from "./UploadImage";
+import { useState } from "react";
 
 const { Text } = Typography;
 
@@ -31,6 +33,8 @@ function AnswerSettings() {
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
   );
+
+  const [imageUrl, setImageUrl] = useState<string>("");
 
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
@@ -68,12 +72,25 @@ function AnswerSettings() {
     editQuestion(field, field[1]);
   };
 
+  const handleImageUpload = (markdownUrl: string) => {
+    console.log('Received markdown URL:', markdownUrl);
+    setImageUrl(markdownUrl);
+    let field = question;
+    let newAnswerSettings = { 
+      ...answerSettings, 
+      imageUrl: markdownUrl 
+    };
+    field[5] = JSON.stringify(newAnswerSettings);
+    editQuestion(field, field[1]);
+  };
+
   return (
     <StyleWrapper>
       <Text className="question">
         Question {questionIndex + 1} of {questionsList.length}
       </Text>
       <Divider className="divider" />
+      <UploadImage onImageUpload={handleImageUpload} />
       <div className="input-property">
         <Text className="property-title">Properties</Text>
         <div className="property-setting">
