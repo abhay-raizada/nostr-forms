@@ -73,14 +73,23 @@ function AnswerSettings() {
   };
 
   const handleImageUpload = (markdownUrl: string) => {
-    console.log('Received markdown URL:', markdownUrl);
-    setImageUrl(markdownUrl);
-    let field = question;
-    let newAnswerSettings = { 
-      ...answerSettings, 
-      imageUrl: markdownUrl 
-    };
-    field[5] = JSON.stringify(newAnswerSettings);
+    // Extract name and url from [name](url) format
+    const name = markdownUrl.match(/\[(.*?)\]/)?.[1] || '';
+    const url = markdownUrl.match(/\((.*?)\)/)?.[1] || '';
+    const imageMarkdown = `![${name}](${url})`;
+
+    const field: Field = [
+      question[0],
+      question[1],
+      question[2],
+      imageMarkdown, // Store full markdown in display field
+      question[4],
+      JSON.stringify({
+        ...answerSettings,
+        imageUrl: imageMarkdown
+      })
+    ];
+    
     editQuestion(field, field[1]);
   };
 
