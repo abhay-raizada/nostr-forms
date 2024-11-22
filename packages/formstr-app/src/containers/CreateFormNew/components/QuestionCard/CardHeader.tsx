@@ -1,14 +1,12 @@
-import {
-  ArrowDownOutlined,
-  ArrowUpOutlined,
-  MoreOutlined,
-} from "@ant-design/icons";
+import React from "react";
+import { ArrowDownOutlined, ArrowUpOutlined, MoreOutlined } from "@ant-design/icons";
 import { ReactComponent as Asterisk } from "../../../../Images/asterisk.svg";
 import StyledWrapper from "./CardHeader.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import useDeviceType from "../../../../hooks/useDeviceType";
 import { classNames } from "../../../../utils/utility";
 import { Field } from "../../providers/FormBuilder";
+import DeleteButton from "./DeleteButton";
 
 interface CardHeaderProps {
   required?: boolean;
@@ -28,7 +26,9 @@ const CardHeader: React.FC<CardHeaderProps> = ({
   lastQuestion,
 }) => {
   const { MOBILE } = useDeviceType();
-  const { toggleSettingsWindow } = useFormBuilderContext();
+  const { toggleSettingsWindow, deleteQuestion, setQuestionIdInFocus } =
+    useFormBuilderContext();
+
   return (
     <StyledWrapper>
       <div className="action-wrapper">
@@ -57,6 +57,13 @@ const CardHeader: React.FC<CardHeaderProps> = ({
               }}
             />
           </div>
+          <DeleteButton
+            className="action-icon"
+            onDelete={() => {
+              deleteQuestion(question[1]);
+              setQuestionIdInFocus(undefined);
+            }}
+          />
         </div>
 
         {MOBILE && (
