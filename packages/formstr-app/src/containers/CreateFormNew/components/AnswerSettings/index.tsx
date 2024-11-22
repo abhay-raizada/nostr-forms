@@ -8,7 +8,7 @@ import { RightAnswer } from "./RightAnswer";
 import { Field } from "../../providers/FormBuilder";
 import { IAnswerSettings } from "./types";
 import UploadImage from "./UploadImage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const { Text } = Typography;
 
@@ -34,7 +34,16 @@ function AnswerSettings() {
       option.answerSettings.renderElement === answerSettings.renderElement
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [uploadedImages, setUploadedImages] = useState<Array<{name: string, url: string}>>(() => {
+    const saved = localStorage.getItem(`uploadedImages_${questionIdInFocus}`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    if (answerSettings.uploadedImages) {
+      setUploadedImages(answerSettings.uploadedImages);
+    }
+  }, [questionIdInFocus]);
 
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
@@ -73,26 +82,41 @@ function AnswerSettings() {
   };
 
   const handleImageUpload = (markdownUrl: string) => {
-    // Extract name and url from [name](url) format
     const name = markdownUrl.match(/\[(.*?)\]/)?.[1] || '';
     const url = markdownUrl.match(/\((.*?)\)/)?.[1] || '';
     const imageMarkdown = `![${name}](${url})`;
+  
+    const newImages = [...uploadedImages, { name, url }];
+    setUploadedImages(newImages);
+    localStorage.setItem(`uploadedImages_${questionIdInFocus}`, JSON.stringify(newImages));
+  
+    const existingConfig = JSON.parse(question[5] || '{}');
+    const existingText = question[3] || '';
 
+    let newDisplay = existingText;
+    if (existingText && !existingText.endsWith('\n\n')) {
+        newDisplay += '\n\n';
+    }
+    newDisplay += imageMarkdown;
+  
     const field: Field = [
       question[0],
-      question[1],
+      question[1],       
       question[2],
-      imageMarkdown, // Store full markdown in display field
+      newDisplay.trim(),
       question[4],
       JSON.stringify({
-        ...answerSettings,
-        imageUrl: imageMarkdown
+          ...existingConfig,
+          imageUrl: imageMarkdown,
+          uploadedImages: newImages,
+          displayImages: true,
+          text: existingText
       })
-    ];
-    
-    editQuestion(field, field[1]);
-  };
+  ];
 
+  editQuestion(field, field[1]);
+  };
+  
   return (
     <StyleWrapper>
       <Text className="question">

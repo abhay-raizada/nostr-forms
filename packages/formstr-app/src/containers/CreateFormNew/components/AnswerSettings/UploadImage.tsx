@@ -174,7 +174,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
         <img 
           src={imageUrl} 
           alt="Uploaded" 
-          style={{ maxWidth: '100%', marginTop: '16px' }}
+          style={{ maxWidth: '100%', marginTop: '16px', padding: '10px', border: '1px solid #ccc' }}
         />
       )}
     </div>
