@@ -34,16 +34,6 @@ function AnswerSettings() {
       option.answerSettings.renderElement === answerSettings.renderElement
   );
 
-  const [uploadedImages, setUploadedImages] = useState<Array<{name: string, url: string}>>(() => {
-    const saved = localStorage.getItem(`uploadedImages_${questionIdInFocus}`);
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  useEffect(() => {
-    if (answerSettings.uploadedImages) {
-      setUploadedImages(answerSettings.uploadedImages);
-    }
-  }, [questionIdInFocus]);
 
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
@@ -86,37 +76,27 @@ function AnswerSettings() {
     const url = markdownUrl.match(/\((.*?)\)/)?.[1] || '';
     const imageMarkdown = `![${name}](${url})`;
   
-    const newImages = [...uploadedImages, { name, url }];
-    setUploadedImages(newImages);
-    localStorage.setItem(`uploadedImages_${questionIdInFocus}`, JSON.stringify(newImages));
-  
-    const existingConfig = JSON.parse(question[5] || '{}');
-    const existingText = question[3] || '';
-
-    let newDisplay = existingText;
-    if (existingText && !existingText.endsWith('\n\n')) {
-        newDisplay += '\n\n';
-    }
-    newDisplay += imageMarkdown;
+    // Update the display field with proper line breaks
+    const currentDisplay = question[3] || '';
+    const newDisplay = currentDisplay 
+      ? `${currentDisplay}\n\n${imageMarkdown}`
+      : imageMarkdown;
   
     const field: Field = [
       question[0],
-      question[1],       
+      question[1],
       question[2],
-      newDisplay.trim(),
+      newDisplay,
       question[4],
       JSON.stringify({
-          ...existingConfig,
-          imageUrl: imageMarkdown,
-          uploadedImages: newImages,
-          displayImages: true,
-          text: existingText
+        ...answerSettings,
+        imageUrl: imageMarkdown,
+        displayImages: true
       })
-  ];
-
-  editQuestion(field, field[1]);
-  };
-  
+    ];
+    
+    editQuestion(field, field[1]);
+};
   return (
     <StyleWrapper>
       <Text className="question">
