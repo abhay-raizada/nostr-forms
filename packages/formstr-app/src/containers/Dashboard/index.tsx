@@ -7,7 +7,7 @@ import useNostrProfile, {
 } from "../../hooks/useProfileContext";
 import { getDefaultRelays } from "@formstr/sdk";
 import { LoggedOutScreen } from "./LoggedOutScreen";
-import { FormEventCard } from "./FormEventCard";
+import { FormEventCard } from "./LocalForms/FormEventCard";
 import DashboardStyleWrapper from "./index.style";
 import EmptyScreen from "../../components/EmptyScreen";
 import { useApplicationContext } from "../../hooks/useApplicationContext";
@@ -36,15 +36,14 @@ export const Dashboard = () => {
   const subCloserRef = useRef<SubCloser | null>(null);
 
   const handleEvent = (event: Event) => {
-    console.log("found event", event);
-    const newMap = new Map(nostrForms);
-    newMap.set(event.id, event);
-    setNostrForms(newMap);
+    setNostrForms((prevMap) => {
+      const newMap = new Map(prevMap);
+      newMap.set(event.id, event);
+      return newMap;
+    });
   };
 
   const fetchNostrForms = () => {
-    console.log("Inside fetchNostrForms");
-
     const queryFilter = {
       kinds: [30168],
       "#p": [pubkey!],
@@ -65,7 +64,6 @@ export const Dashboard = () => {
   };
 
   useEffect(() => {
-    console.log("Pubkey is", pubkey, "nostr forms is", nostrForms);
     if (pubkey && nostrForms.size === 0) {
       fetchNostrForms();
     }
@@ -77,9 +75,7 @@ export const Dashboard = () => {
   }, [pubkey]);
 
   const renderForms = () => {
-    console.log("Filter is ", filter);
     if (filter === "local") {
-      console.log("Rendering local forms");
       return localForms.map((localForm: ILocalForm) => (
         <LocalFormCard
           key={localForm.key}
