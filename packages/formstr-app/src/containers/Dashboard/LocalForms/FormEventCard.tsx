@@ -1,6 +1,6 @@
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { Button, Card, Divider, Typography } from "antd";
-import { Event } from "nostr-tools";
+import { Event, nip19 } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
@@ -14,6 +14,9 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
   const name = event.tags.find((tag: Tag) => tag[0] === "name") || [];
   const pubKey = event.pubkey;
   const formId = event.tags.find((tag: Tag) => tag[0] === "d")?.[1];
+  const relays = event.tags
+    .filter((tag: Tag) => tag[0] === "relay")
+    .map((t) => t[1]);
 
   if (!formId) {
     return <Card title="Invalid Form Event">{JSON.stringify(event)}</Card>;
@@ -26,7 +29,14 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
         title={name[1] || "Hidden Form"}
         className="form-card"
         onClick={() => {
-          navigate(`/f/${pubKey}/${formId}`);
+          navigate(
+            `/f/${nip19.naddrEncode({
+              identifier: formId,
+              pubkey: pubKey,
+              kind: event.kind,
+              relays: relays.length ? relays : ["wss://relay.damus.io"],
+            })}`
+          );
         }}
         hoverable={true}
       >
