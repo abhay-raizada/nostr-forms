@@ -78,32 +78,32 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   };
 
   const items = [
-    {
-      key: '1',
-      label: 'Upload Image',
-      children: (
-        <div style={{ padding: '20px 0' }}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-            aria-label="File upload"
-          />
-          <Button
-            type="primary"
-            icon={<UploadOutlined />}
-            onClick={handleButtonClick}
-            loading={uploading}
-            size="large"
-            style={{ width: '100%' }}
-          >
-            {uploading ? "Uploading..." : "Click to Upload"}
-          </Button>
-        </div>
-      ),
-    },
+    // {
+    //   key: '1',
+    //   label: 'Upload Image',
+    //   children: (
+    //     <div style={{ padding: '20px 0' }}>
+    //       <input
+    //         ref={fileInputRef}
+    //         type="file"
+    //         accept="image/*"
+    //         onChange={handleFileSelect}
+    //         style={{ display: "none" }}
+    //         aria-label="File upload"
+    //       />
+    //       <Button
+    //         type="primary"
+    //         icon={<UploadOutlined />}
+    //         onClick={handleButtonClick}
+    //         loading={uploading}
+    //         size="large"
+    //         style={{ width: '100%' }}
+    //       >
+    //         {uploading ? "Uploading..." : "Click to Upload"}
+    //       </Button>
+    //     </div>
+    //   ),
+    // },
     {
       key: '2',
       label: 'Image URL',
@@ -131,25 +131,14 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   ];
 
   return (
-    <div className="p-4">
+    <div>
       <Button
-        type="primary"
-        icon={<UploadOutlined />}
         onClick={showModal}
-        size="large"
-        style={{ 
-          marginBottom: 16,
-          width: '60%',
-          height: 40,
-          borderRadius: 6,
-          marginLeft: 12,
-          marginTop: 10,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
+        type="text"
+        shape="circle"
+        style={{ fontSize: '16px', marginRight: '10px' }}
       >
-        Upload Image
+        📁
       </Button>
 
       <Modal 
