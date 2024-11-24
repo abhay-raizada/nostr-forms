@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "../CreateFormNew/components/FormDetails";
-import { Event, Relay, SimplePool, SubCloser } from "nostr-tools";
-import useNostrProfile, {
-  useProfileContext,
-} from "../../hooks/useProfileContext";
+import { Event, SubCloser } from "nostr-tools";
+import { useProfileContext } from "../../hooks/useProfileContext";
 import { getDefaultRelays } from "@formstr/sdk";
 import { LoggedOutScreen } from "./LoggedOutScreen";
 import { FormEventCard } from "./LocalForms/FormEventCard";
@@ -16,6 +14,11 @@ import { ILocalForm } from "../CreateFormNew/providers/FormBuilder/typeDefs";
 import { LocalFormCard } from "./LocalForms/LocalFormCard";
 import { Dropdown, Menu, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+const MENU_OPTIONS = {
+  local: "On this device",
+  shared: "Shared with me",
+  myForms: "My forms",
+};
 
 const defaultRelays = getDefaultRelays();
 
@@ -27,9 +30,7 @@ export const Dashboard = () => {
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
   );
   const [nostrForms, setNostrForms] = useState<Map<string, Event>>(new Map());
-  const [filter, setFilter] = useState<"local" | "nostr">(
-    pubkey ? "nostr" : "local"
-  );
+  const [filter, setFilter] = useState<"local" | "shared" | "myForms">("local");
 
   const { poolRef } = useApplicationContext();
 
@@ -49,7 +50,6 @@ export const Dashboard = () => {
       "#p": [pubkey!],
     };
 
-    // Subscribe to events on all relays
     console.log("search filters are", queryFilter);
     subCloserRef.current = poolRef.current.subscribeMany(
       defaultRelays,
@@ -85,7 +85,7 @@ export const Dashboard = () => {
           }}
         />
       ));
-    } else if (filter === "nostr") {
+    } else if (filter === "shared") {
       return Array.from(nostrForms.values()).map((formEvent: Event) => {
         let d_tag = formEvent.tags.filter((t) => t[0] === "d")[0]?.[1];
         let key = `${formEvent.kind}:${formEvent.pubkey}:${
@@ -100,14 +100,21 @@ export const Dashboard = () => {
   const menu = (
     <Menu>
       <Menu.Item key="local" onClick={() => setFilter("local")}>
-        Forms on this device
+        {MENU_OPTIONS.local}
       </Menu.Item>
       <Menu.Item
-        key="nostr"
-        onClick={() => setFilter("nostr")}
+        key="shared"
+        onClick={() => setFilter("shared")}
         disabled={!pubkey}
       >
-        Forms on your Nostr profile
+        {MENU_OPTIONS.shared}
+      </Menu.Item>
+      <Menu.Item
+        key="myForms"
+        onClick={() => setFilter("myForms")}
+        disabled={true}
+      >
+        {MENU_OPTIONS.myForms}
       </Menu.Item>
     </Menu>
   );
@@ -125,13 +132,7 @@ export const Dashboard = () => {
                 alignItems: "center",
               }}
             >
-              {filter === "local" ? (
-                <Typography.Text> Forms on this device </Typography.Text>
-              ) : (
-                <Typography.Text>
-                  Forms linked to your Nostr profile
-                </Typography.Text>
-              )}
+              <Typography.Text>{MENU_OPTIONS[filter]} </Typography.Text>
               <DownOutlined
                 style={{ marginLeft: "8px", fontSize: "12px", marginTop: -5 }}
               />
