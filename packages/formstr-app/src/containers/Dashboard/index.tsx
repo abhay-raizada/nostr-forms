@@ -29,7 +29,6 @@ export const Dashboard = () => {
   const { state } = useLocation();
   const { pubkey, requestPubkey } = useProfileContext();
   const [showFormDetails, setShowFormDetails] = useState<boolean>(!!state);
-  console.log("state received", state, showFormDetails);
   const [localForms, setLocalForms] = useState<ILocalForm[]>(
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
   );

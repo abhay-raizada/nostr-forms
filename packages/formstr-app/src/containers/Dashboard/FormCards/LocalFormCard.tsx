@@ -1,9 +1,7 @@
-import { Button, Card, Divider, Typography } from "antd";
+import { Button, Card, Typography } from "antd";
 import { ILocalForm } from "../../CreateFormNew/providers/FormBuilder/typeDefs";
 import { useNavigate } from "react-router-dom";
-import { DeleteFilled } from "@ant-design/icons";
 import DeleteFormTrigger from "./DeleteForm";
-import { constructFormUrl } from "../../../utils/formUtils";
 import { nip19 } from "nostr-tools";
 
 interface LocalFormCardProps {
@@ -35,7 +33,6 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
       className="form-card"
       extra={<DeleteFormTrigger formKey={form.key} onDeleted={onDeleted} />}
     >
-      <Divider />
       <Button
         onClick={(e) => {
           navigate(responseUrl);

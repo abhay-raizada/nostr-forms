@@ -22,12 +22,11 @@ export function constructDraftUrl(
 export const Drafts = () => {
   type Draft = { formSpec: Tag[]; tempId: string };
   const [drafts, setDrafts] = useState<Draft[]>(
-    getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) as Draft[]
+    (getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || []) as Draft[]
   );
   useEffect(() => {
-    setDrafts(getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) as Draft[]);
+    setDrafts((getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || []) as Draft[]);
   }, []);
-  console.log("Drafts are", drafts);
   return (
     <div>
       {drafts.map((d: Draft) => {
@@ -39,7 +38,9 @@ export const Drafts = () => {
               <DeleteOutlined
                 onClick={() => {
                   deleteDraft(d.tempId);
-                  setDrafts(getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) as Draft[]);
+                  setDrafts(
+                    (getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || []) as Draft[]
+                  );
                 }}
               />
             }
