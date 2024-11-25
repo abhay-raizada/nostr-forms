@@ -143,7 +143,6 @@ export default function FormBuilderProvider({
         viewKey: Uint8Array;
         acceptedRelays: string[];
       }) => {
-        console.log("created form with keys", artifacts);
         const { signingKey, viewKey, acceptedRelays } = artifacts;
         navigate("/dashboard", {
           state: {

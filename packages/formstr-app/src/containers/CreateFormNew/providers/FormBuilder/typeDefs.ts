@@ -9,6 +9,7 @@ export interface ILocalForm {
   name: string;
   createdAt: string;
   publicKey: string;
+  viewKey?: string;
   privateKey: string;
   formCredentials?: Array<string>;
   formId: string;
