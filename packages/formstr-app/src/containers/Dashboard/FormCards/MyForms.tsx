@@ -11,7 +11,7 @@ export const MyForms = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [formEvents, setFormEvents] = useState<Event[]>([]);
 
-  const fetchFormEvents = async (forms: Tag[]) => {
+  const fetchFormEvents = async (forms: Tag[], pool: SimplePool) => {
     const dTags = forms.map((f) => f[1].split(":")[1]);
     const pubkeys = forms.map((f) => f[1].split(":")[0]);
     console.log("Dtags", dTags, "pubkeys", pubkeys);
@@ -21,11 +21,11 @@ export const MyForms = () => {
       authors: pubkeys,
     };
     console.log("my forms filter", myFormsFilter);
-    let pool = new SimplePool();
     let myForms = await pool.querySync(getDefaultRelays(), myFormsFilter);
     console.log("Final my forms", myForms);
     setFormEvents(myForms);
     setRefreshing(false);
+    pool.close(getDefaultRelays());
   };
 
   useEffect(() => {
@@ -38,8 +38,9 @@ export const MyForms = () => {
       };
       let pool = new SimplePool();
       let myFormsList = await pool.get(getDefaultRelays(), existingListFilter);
-      pool.close(getDefaultRelays());
+      console.log("myFormList", myFormsList);
       if (!myFormsList) {
+        setRefreshing(false);
         return;
       }
       let forms = await window.nostr.nip44.decrypt(
@@ -47,7 +48,7 @@ export const MyForms = () => {
         myFormsList.content
       );
       console.log("myFormList", forms);
-      fetchFormEvents(JSON.parse(forms));
+      fetchFormEvents(JSON.parse(forms), pool);
     };
     if (userPub) fetchMyForms();
   }, [userPub]);

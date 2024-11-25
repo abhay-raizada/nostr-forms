@@ -15,10 +15,12 @@ import { LocalFormCard } from "./FormCards/LocalFormCard";
 import { Dropdown, Menu, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { MyForms } from "./FormCards/MyForms";
+import { Drafts } from "./FormCards/Drafts";
 const MENU_OPTIONS = {
   local: "On this device",
   shared: "Shared with me",
   myForms: "My forms",
+  drafts: "Drafts",
 };
 
 const defaultRelays = getDefaultRelays();
@@ -32,7 +34,9 @@ export const Dashboard = () => {
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
   );
   const [nostrForms, setNostrForms] = useState<Map<string, Event>>(new Map());
-  const [filter, setFilter] = useState<"local" | "shared" | "myForms">("local");
+  const [filter, setFilter] = useState<
+    "local" | "shared" | "myForms" | "drafts"
+  >("local");
 
   const { poolRef } = useApplicationContext();
 
@@ -100,6 +104,8 @@ export const Dashboard = () => {
       });
     } else if (filter === "myForms") {
       return <MyForms />;
+    } else if (filter === "drafts") {
+      return <Drafts />;
     }
     return null;
   };
@@ -122,6 +128,9 @@ export const Dashboard = () => {
         disabled={!pubkey}
       >
         {MENU_OPTIONS.myForms}
+      </Menu.Item>
+      <Menu.Item key="drafts" onClick={() => setFilter("drafts")}>
+        {MENU_OPTIONS.drafts}
       </Menu.Item>
     </Menu>
   );

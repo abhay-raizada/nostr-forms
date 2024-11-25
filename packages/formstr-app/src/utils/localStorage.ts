@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export const LOCAL_STORAGE_KEYS = {
   LOCAL_FORMS: "formstr:forms",
-  DRAFT_FORMS: "formstr:drafts",
+  DRAFT_FORMS: "formstr:draftForms",
   SUBMISSIONS: "formstr:submissions",
   PROFILE: "formstr:profile",
 };

@@ -17,7 +17,7 @@ export interface ILocalForm {
 }
 
 export interface IFormBuilderContext {
-  initializeForm: (draft: IDraft) => void;
+  initializeForm: (draft: { formSpec: Tag[]; tempId: string }) => void;
   questionsList: Field[];
   saveForm: () => void;
   closeSettingsOnOutsideClick: () => void;
