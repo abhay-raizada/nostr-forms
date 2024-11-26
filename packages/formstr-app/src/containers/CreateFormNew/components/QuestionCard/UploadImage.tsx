@@ -1,4 +1,4 @@
-import { UploadOutlined } from "@ant-design/icons";
+import { FolderOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, Modal, Input, Tabs } from "antd";
 import React, { useState, ChangeEvent, useRef } from "react";
 
@@ -138,7 +138,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
         shape="circle"
         style={{ fontSize: '16px', marginRight: '10px' }}
       >
-        📁
+        <FolderOutlined />
       </Button>
 
       <Modal 
