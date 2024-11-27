@@ -32,6 +32,7 @@ function AnswerSettings() {
       option.answerSettings.renderElement === answerSettings.renderElement
   );
 
+
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
     let newAnswerSettings = {
