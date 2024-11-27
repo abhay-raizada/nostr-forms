@@ -108,11 +108,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
                 question[2],
                 newDisplay,
                 question[4],
-                JSON.stringify({
-                  ...answerSettings,
-                  imageUrl: imageMarkdown,
-                  displayImages: true
-                })
+                question[5]
               ];
               
               onEdit(field, field[1]);

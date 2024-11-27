@@ -1,4 +1,4 @@
-import { FolderOutlined, UploadOutlined } from "@ant-design/icons";
+import  {PictureOutlined} from "@ant-design/icons";
 import { Button, Modal, Input, Tabs } from "antd";
 import React, { useState, ChangeEvent, useRef } from "react";
 
@@ -53,7 +53,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
       formData.append("image", file);
 
       const response = await fetch(
-        "https://api.imgbb.com/1/upload?key=47b2691c6dca3f52bf6f70029396682d",
+        "https://api.imgbb.com/1/upload?key=apikey",
         {
           method: "POST",
           body: formData,
@@ -138,7 +138,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
         shape="circle"
         style={{ fontSize: '16px', marginRight: '10px' }}
       >
-        <FolderOutlined />
+        <PictureOutlined />
       </Button>
 
       <Modal 
