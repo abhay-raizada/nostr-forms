@@ -1,14 +1,16 @@
 import { Layout, Menu, Row, Col, Typography, MenuProps, Modal, Spin } from "antd";
 import { Link } from "react-router-dom";
-import { ArrowLeftOutlined, MenuOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { HEADER_MENU, HEADER_MENU_KEYS } from "./config";
 import { Button } from "antd";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./Header.style";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { normalizeURL } from "nostr-tools/utils";
 
 export const CreateFormHeader: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPostPublishModalOpen, setIsPostPublishModalOpen] = useState(false);
+  const [acceptedRelays, setAcceptedRelays] = useState<string[]>([]);
 
   const { Header } = Layout;
   const { Text } = Typography;
@@ -18,13 +20,29 @@ export const CreateFormHeader: React.FC = () => {
     setSelectedTab(e.key);
   };
 
+  useEffect(() => {
+    const originalLog = console.log;
+    console.log = (...args) => {
+      if (args[0] === "accepted relays" && args[1]) {
+        const normalizedUrl = normalizeURL(args[1]);
+        setAcceptedRelays(prev => [...prev, normalizedUrl]);
+      }
+      originalLog.apply(console, args);
+    };
+
+    return () => {
+      console.log = originalLog;
+    };
+  }, []);
+
   const handlePublishClick = async () => {
     if (!formSettings?.formId) {
       alert("Form ID is required");
       return;
     }
 
-    setIsModalOpen(true);
+    setIsPostPublishModalOpen(true);
+    setAcceptedRelays([]);
 
     try {
       await saveForm();
@@ -35,13 +53,32 @@ export const CreateFormHeader: React.FC = () => {
 
   const renderRelays = () => {
     if (!relayList) return null;
-    return relayList.map(({ url }) => (
-      <Row key={url} align="middle" style={{ marginBottom: 8 }}>
-        <Spin size="small" style={{ marginRight: 8 }} />
-        <Text>{url}</Text>
-      </Row>
-    ));
+    
+    return relayList.map(({ url }) => {
+      const normalizedUrl = normalizeURL(url);
+      const isAccepted = acceptedRelays.includes(normalizedUrl);
+      
+      return (
+        <Row key={url} align="middle" style={{ marginBottom: 8 }}>
+          {isAccepted ? (
+            <CheckCircleOutlined 
+              style={{ 
+                color: '#52c41a', 
+                marginRight: 8,
+                fontSize: '16px'
+              }} 
+            />
+          ) : (
+            <Spin size="small" style={{ marginRight: 8 }} />
+          )}
+          <Text>{url}</Text>
+        </Row>
+      );
+    });
   };
+
+  const allRelaysAccepted = relayList && 
+  relayList.every(({ url }) => acceptedRelays.includes(normalizeURL(url)));
 
   return (
     <StyleWrapper>
@@ -63,7 +100,11 @@ export const CreateFormHeader: React.FC = () => {
           <Col md={8} xs={10} sm={10}>
             <Row className="header-row" justify="end">
               <Col>
-                <Button type="primary" onClick={handlePublishClick}>
+                <Button 
+                  type="primary" 
+                  onClick={handlePublishClick}
+                  disabled={isPostPublishModalOpen}
+                >
                   Publish
                 </Button>
               </Col>
@@ -83,13 +124,22 @@ export const CreateFormHeader: React.FC = () => {
 
         <Modal
           title="Publishing Form"
-          open={isModalOpen}
-          footer={null}
-          closable={false}
+          open={isPostPublishModalOpen}
+          footer={allRelaysAccepted ? (
+            <Button 
+              type="primary" 
+              onClick={() => setIsPostPublishModalOpen(false)}
+            >
+              Done
+            </Button>
+          ) : null}
+          closable={allRelaysAccepted}
+          maskClosable={allRelaysAccepted}
+          onCancel={() => setIsPostPublishModalOpen(false)}
         >
           <div>
             <Text strong style={{ display: "block", marginBottom: 16 }}>
-              Relays
+              Relays {allRelaysAccepted && '(Complete)'}
             </Text>
             {renderRelays()}
           </div>
