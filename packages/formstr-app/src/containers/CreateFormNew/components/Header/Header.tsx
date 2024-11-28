@@ -1,11 +1,24 @@
-import { Layout, Menu, Row, Col, Typography, MenuProps, Modal, Spin } from "antd";
+import {
+  Layout,
+  Menu,
+  Row,
+  Col,
+  Typography,
+  MenuProps,
+  Modal,
+  Spin,
+} from "antd";
 import { Link } from "react-router-dom";
-import { ArrowLeftOutlined, MenuOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  ArrowLeftOutlined,
+  MenuOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { HEADER_MENU, HEADER_MENU_KEYS } from "./config";
 import { Button } from "antd";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
 import StyleWrapper from "./Header.style";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { normalizeURL } from "nostr-tools/utils";
 
 export const CreateFormHeader: React.FC = () => {
@@ -14,26 +27,12 @@ export const CreateFormHeader: React.FC = () => {
 
   const { Header } = Layout;
   const { Text } = Typography;
-  const { saveForm, setSelectedTab, formSettings, relayList } = useFormBuilderContext();
+  const { saveForm, setSelectedTab, formSettings, relayList } =
+    useFormBuilderContext();
 
   const onClickHandler: MenuProps["onClick"] = (e) => {
     setSelectedTab(e.key);
   };
-
-  useEffect(() => {
-    const originalLog = console.log;
-    console.log = (...args) => {
-      if (args[0] === "accepted relays" && args[1]) {
-        const normalizedUrl = normalizeURL(args[1]);
-        setAcceptedRelays(prev => [...prev, normalizedUrl]);
-      }
-      originalLog.apply(console, args);
-    };
-
-    return () => {
-      console.log = originalLog;
-    };
-  }, []);
 
   const handlePublishClick = async () => {
     if (!formSettings?.formId) {
@@ -45,7 +44,10 @@ export const CreateFormHeader: React.FC = () => {
     setAcceptedRelays([]);
 
     try {
-      await saveForm();
+      await saveForm((url: string) => {
+        const normalizedUrl = normalizeURL(url);
+        setAcceptedRelays((prev) => [...prev, normalizedUrl]);
+      });
     } catch (error) {
       console.error("Failed to publish the form", error);
     }
@@ -53,20 +55,20 @@ export const CreateFormHeader: React.FC = () => {
 
   const renderRelays = () => {
     if (!relayList) return null;
-    
+
     return relayList.map(({ url }) => {
       const normalizedUrl = normalizeURL(url);
       const isAccepted = acceptedRelays.includes(normalizedUrl);
-      
+
       return (
         <Row key={url} align="middle" style={{ marginBottom: 8 }}>
           {isAccepted ? (
-            <CheckCircleOutlined 
-              style={{ 
-                color: '#52c41a', 
+            <CheckCircleOutlined
+              style={{
+                color: "#52c41a",
                 marginRight: 8,
-                fontSize: '16px'
-              }} 
+                fontSize: "16px",
+              }}
             />
           ) : (
             <Spin size="small" style={{ marginRight: 8 }} />
@@ -77,8 +79,9 @@ export const CreateFormHeader: React.FC = () => {
     });
   };
 
-  const allRelaysAccepted = relayList && 
-  relayList.every(({ url }) => acceptedRelays.includes(normalizeURL(url)));
+  const allRelaysAccepted =
+    relayList &&
+    relayList.every(({ url }) => acceptedRelays.includes(normalizeURL(url)));
 
   return (
     <StyleWrapper>
@@ -86,7 +89,9 @@ export const CreateFormHeader: React.FC = () => {
         <Row className="header-row" justify="space-between">
           <Col>
             <Row className="header-row" justify="space-between">
-              <Col style={{ paddingRight: 10, paddingBottom: 4, color: "black" }}>
+              <Col
+                style={{ paddingRight: 10, paddingBottom: 4, color: "black" }}
+              >
                 <Link className="app-link" to="/">
                   <ArrowLeftOutlined />
                 </Link>
@@ -100,8 +105,8 @@ export const CreateFormHeader: React.FC = () => {
           <Col md={8} xs={10} sm={10}>
             <Row className="header-row" justify="end">
               <Col>
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   onClick={handlePublishClick}
                   disabled={isPostPublishModalOpen}
                 >
@@ -125,21 +130,23 @@ export const CreateFormHeader: React.FC = () => {
         <Modal
           title="Publishing Form"
           open={isPostPublishModalOpen}
-          footer={allRelaysAccepted ? (
-            <Button 
-              type="primary" 
-              onClick={() => setIsPostPublishModalOpen(false)}
-            >
-              Done
-            </Button>
-          ) : null}
+          footer={
+            allRelaysAccepted ? (
+              <Button
+                type="primary"
+                onClick={() => setIsPostPublishModalOpen(false)}
+              >
+                Done
+              </Button>
+            ) : null
+          }
           closable={allRelaysAccepted}
           maskClosable={allRelaysAccepted}
           onCancel={() => setIsPostPublishModalOpen(false)}
         >
           <div>
             <Text strong style={{ display: "block", marginBottom: 16 }}>
-              Relays {allRelaysAccepted && '(Complete)'}
+              Relays {allRelaysAccepted && "(Complete)"}
             </Text>
             {renderRelays()}
           </div>

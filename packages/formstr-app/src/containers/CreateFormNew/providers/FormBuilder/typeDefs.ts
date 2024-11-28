@@ -18,7 +18,7 @@ export interface ILocalForm {
 export interface IFormBuilderContext {
   initializeForm: (draft: IDraft) => void;
   questionsList: Field[];
-  saveForm: () => void;
+  saveForm: (onRelayAccepted?: (url: string) => void) => Promise<void>;
   closeSettingsOnOutsideClick: () => void;
   closeMenuOnOutsideClick: () => void;
   editQuestion: (question: Field, tempId: string) => void;

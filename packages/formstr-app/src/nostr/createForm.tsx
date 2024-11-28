@@ -49,7 +49,8 @@ export const createForm = async (
   relayList: Array<string> = defaultRelays,
   viewList: Set<string>,
   EditList: Set<string>,
-  encryptContent?: boolean
+  encryptContent?: boolean,
+  onRelayAccepted?: (url: string) => void    
 ) => {
   let acceptedRelays: string[] = [];
   let signingKey = generateSecretKey();
@@ -104,16 +105,17 @@ export const createForm = async (
   });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
-  await sendWraps(wraps);
-  await Promise.allSettled(
-    customPublish(relayList, templateEvent, (url: string) =>
-      acceptedRelays.push(url)
-    )
-  );
-  console.log("Accepted by relays", acceptedRelays);
-  return {
-    signingKey,
-    viewKey,
-    acceptedRelays,
-  };
+await sendWraps(wraps);
+await Promise.allSettled(
+  customPublish(relayList, templateEvent, (url: string) => {
+    acceptedRelays.push(url);
+    onRelayAccepted?.(url); 
+  })
+);
+console.log("Accepted by relays", acceptedRelays);
+return {
+  signingKey,
+  viewKey,
+  acceptedRelays,
+};
 };
