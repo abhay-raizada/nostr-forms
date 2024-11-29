@@ -30,7 +30,7 @@ export const Drafts = () => {
   return (
     <div>
       {drafts.map((d: Draft) => {
-        let name = d.formSpec.filter((t) => t[0] === "name");
+        let name = d.formSpec.filter((t) => t[0] === "name")?.[0][1];
         return (
           <Card
             style={{ margin: 10 }}
@@ -42,6 +42,7 @@ export const Drafts = () => {
                     (getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || []) as Draft[]
                   );
                 }}
+                style={{ margin: 10 }}
               />
             }
             title={name}

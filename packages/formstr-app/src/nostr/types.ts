@@ -37,3 +37,8 @@ export interface IWrap {
   receiverPubkey: string;
   issuerPubkey: string;
 }
+
+export const KINDS = {
+  myFormsList: 14083,
+  formTemplate: 30168,
+};

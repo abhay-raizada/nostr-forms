@@ -141,7 +141,7 @@ export default function FormBuilderProvider({
       formToSave,
       relayUrls,
       viewList,
-      editList,
+      editList, 
       formSettings.encryptForm
     ).then(
       (artifacts: {

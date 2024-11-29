@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  Divider,
-  Modal,
-  notification,
-  Typography,
-} from "antd";
+import { Button, Card, Checkbox, Divider, Modal, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
@@ -20,9 +12,9 @@ import {
   setItem,
 } from "../../../../utils/localStorage";
 import { useProfileContext } from "../../../../hooks/useProfileContext";
-import { Event, SimplePool, UnsignedEvent } from "nostr-tools";
+import { SimplePool, UnsignedEvent } from "nostr-tools";
 import { getDefaultRelays } from "@formstr/sdk";
-import { Tag } from "../../../../nostr/types";
+import { KINDS, Tag } from "../../../../nostr/types";
 
 const { Text } = Typography;
 interface FormDetailsProps {
@@ -47,8 +39,9 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   relay,
 }) => {
   const [savedLocally, setSavedLocally] = useState(false);
-  const [savedOnNostr, setSavedOnNostr] = useState(false);
-  const [savingOnNostr, setSavingOnNostr] = useState(false);
+  const [savedOnNostr, setSavedOnNostr] = useState<null | "saving" | "saved">(
+    null
+  );
 
   console.log("Inside form details", isOpen);
   const { pubkey: userPub, requestPubkey } = useProfileContext();
@@ -91,9 +84,9 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     viewKey?: string
   ) => {
     if (!userPub) return;
-    setSavingOnNostr(true);
+    setSavedOnNostr("saving");
     let existingListFilter = {
-      kinds: [14083],
+      kinds: [KINDS.myFormsList],
       authors: [userPub],
     };
     let pool = new SimplePool();
@@ -107,12 +100,16 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
         userPub,
         existingList[0].content
       );
-      forms = JSON.parse(formsString);
+      try {
+        forms = JSON.parse(formsString);
+      } catch (e) {
+        console.error("My Forms List is not parseable");
+        return;
+      }
     }
     let key = `${formAuthorPub}:${formId}`;
     if (forms.map((f) => f[1]).includes(key)) {
-      setSavedOnNostr(true);
-      setSavingOnNostr(false);
+      setSavedOnNostr("saved");
       return;
     }
     let secrets = `${formAuthorSecret}`;
@@ -123,7 +120,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
       JSON.stringify(forms)
     );
     let myFormEvent: UnsignedEvent = {
-      kind: 14083,
+      kind: KINDS.myFormsList,
       content: encryptedString,
       pubkey: userPub,
       tags: [],
@@ -131,8 +128,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     };
     let signedEvent = await window.nostr.signEvent(myFormEvent);
     await Promise.allSettled(pool.publish(getDefaultRelays(), signedEvent));
-    setSavedOnNostr(true);
-    setSavingOnNostr(false);
+    setSavedOnNostr("saved");
   };
 
   useEffect(() => {
@@ -300,7 +296,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
           <Divider />
           <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
           {userPub ? (
-            savingOnNostr ? (
+            savedOnNostr === "saving" ? (
               <div>Saving to nostr profile..</div>
             ) : (
               <div> Saved To Profile? {savedOnNostr ? "✅" : "❌"}</div>
