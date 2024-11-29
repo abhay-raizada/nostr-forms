@@ -77,7 +77,7 @@ export async function signEvent(
 export const customPublish = (
   relays: string[],
   event: Event,
-  acceptedRelays?: (relay: string) => void
+  onAcceptedRelays?: (relay: string) => void
 ): Promise<string>[] => {
   return relays.map(normalizeURL).map(async (url, i, arr) => {
     if (arr.indexOf(url) !== i) {
@@ -88,7 +88,7 @@ export const customPublish = (
     let r = await ensureRelay(url);
     return r.publish(event).then((reason) => {
       console.log("accepted relays", url);
-      acceptedRelays?.(url);
+      onAcceptedRelays?.(url);  
       return reason;
     });
   });
