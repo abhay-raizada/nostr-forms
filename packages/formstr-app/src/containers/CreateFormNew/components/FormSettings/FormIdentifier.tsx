@@ -6,10 +6,8 @@ const { Text } = Typography;
 
 function FormIdentifier() {
   const { updateFormSetting, formSettings } = useFormBuilderContext();
-  const [formId, setFormId] = useState<string>(formSettings.formId || "");
-
+  console.log("Form id is", formSettings.formId);
   const handleIdentifierChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFormId(e.target.value);
     updateFormSetting({ ...formSettings, formId: e.target.value });
   };
   return (
@@ -17,8 +15,8 @@ function FormIdentifier() {
       <input
         className="file-input"
         type="text"
-        placeholder="FormId: Ex - Registration Form"
-        value={formId}
+        placeholder="Form Identifier"
+        value={formSettings.formId}
         onChange={handleIdentifierChange}
       />
     </>

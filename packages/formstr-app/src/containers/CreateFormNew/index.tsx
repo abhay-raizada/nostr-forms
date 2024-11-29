@@ -19,6 +19,7 @@ function CreateForm() {
     return () => {
       if (initialized) {
         saveDraft();
+        console.log("saving draft...");
       }
     };
   }, [state, initialized, initializeForm, saveDraft]);

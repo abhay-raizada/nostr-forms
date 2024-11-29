@@ -1,5 +1,6 @@
 import { constructFormUrl as constructFormUrlSDK } from "@formstr/sdk";
 import { DEVICE_TYPE, DEVICE_WIDTH } from "../constants/index";
+import { getItem, LOCAL_STORAGE_KEYS, setItem } from "./localStorage";
 
 export function makeTag(length: number) {
   let result = "";
@@ -92,3 +93,10 @@ export function classNames(...classNames: any) {
 
   return classes;
 }
+
+export const deleteDraft = (formTempId: string) => {
+  type Draft = { formSpec: unknown; tempId: string };
+  let draftArr = getItem<Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
+  draftArr = draftArr.filter((draft: Draft) => draft.tempId !== formTempId);
+  setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
+};

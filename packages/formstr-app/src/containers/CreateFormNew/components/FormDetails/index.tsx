@@ -1,4 +1,4 @@
-import { Card, Checkbox, Divider, Modal, notification, Typography } from "antd";
+import { Button, Card, Checkbox, Divider, Modal, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
@@ -11,6 +11,10 @@ import {
   LOCAL_STORAGE_KEYS,
   setItem,
 } from "../../../../utils/localStorage";
+import { useProfileContext } from "../../../../hooks/useProfileContext";
+import { SimplePool, UnsignedEvent } from "nostr-tools";
+import { getDefaultRelays } from "@formstr/sdk";
+import { KINDS, Tag } from "../../../../nostr/types";
 
 const { Text } = Typography;
 interface FormDetailsProps {
@@ -35,12 +39,19 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   relay,
 }) => {
   const [savedLocally, setSavedLocally] = useState(false);
+  const [savedOnNostr, setSavedOnNostr] = useState<null | "saving" | "saved">(
+    null
+  );
+
+  console.log("Inside form details", isOpen);
+  const { pubkey: userPub, requestPubkey } = useProfileContext();
   const saveToDevice = (
     formAuthorPub: string,
     formAuthorSecret: string,
     formId: string,
     name: string,
-    relay: string
+    relay: string,
+    viewKey?: string
   ) => {
     console.log("inside save to device");
     let saveObject: ILocalForm = {
@@ -52,6 +63,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
       relay: relay,
       createdAt: new Date().toString(),
     };
+    if (viewKey) saveObject.viewKey = viewKey;
     let forms =
       getItem<Array<ILocalForm>>(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || [];
     const existingKeys = forms.map((form) => form.key);
@@ -64,9 +76,65 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     setSavedLocally(true);
   };
 
+  const saveToMyForms = async (
+    formAuthorPub: string,
+    formAuthorSecret: string,
+    formId: string,
+    relay: string,
+    viewKey?: string
+  ) => {
+    if (!userPub) return;
+    setSavedOnNostr("saving");
+    let existingListFilter = {
+      kinds: [KINDS.myFormsList],
+      authors: [userPub],
+    };
+    let pool = new SimplePool();
+    let existingList = await pool.querySync(
+      getDefaultRelays(),
+      existingListFilter
+    );
+    let forms: Tag[] = [];
+    if (existingList[0]) {
+      let formsString = await window.nostr.nip44.decrypt(
+        userPub,
+        existingList[0].content
+      );
+      try {
+        forms = JSON.parse(formsString);
+      } catch (e) {
+        console.error("My Forms List is not parseable");
+        return;
+      }
+    }
+    let key = `${formAuthorPub}:${formId}`;
+    if (forms.map((f) => f[1]).includes(key)) {
+      setSavedOnNostr("saved");
+      return;
+    }
+    let secrets = `${formAuthorSecret}`;
+    if (viewKey) secrets = `${secrets}:${viewKey}`;
+    forms.push(["f", `${key}`, `${relay}`, `${secrets}`]);
+    let encryptedString = await window.nostr.nip44.encrypt(
+      userPub,
+      JSON.stringify(forms)
+    );
+    let myFormEvent: UnsignedEvent = {
+      kind: KINDS.myFormsList,
+      content: encryptedString,
+      pubkey: userPub,
+      tags: [],
+      created_at: Math.round(Date.now() / 1000),
+    };
+    let signedEvent = await window.nostr.signEvent(myFormEvent);
+    await Promise.allSettled(pool.publish(getDefaultRelays(), signedEvent));
+    setSavedOnNostr("saved");
+  };
+
   useEffect(() => {
-    saveToDevice(pubKey, secretKey, formId, name, relay);
-  }, []);
+    saveToDevice(pubKey, secretKey, formId, name, relay, viewKey);
+    if (userPub) saveToMyForms(pubKey, secretKey, formId, relay, viewKey);
+  }, [userPub]);
 
   type TabKeyType = "share" | "embed";
   type OptionType = "hideTitleImage" | "hideDescription";
@@ -227,6 +295,18 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
           {TabContent[activeTab]}
           <Divider />
           <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
+          {userPub ? (
+            savedOnNostr === "saving" ? (
+              <div>Saving to nostr profile..</div>
+            ) : (
+              <div> Saved To Profile? {savedOnNostr ? "✅" : "❌"}</div>
+            )
+          ) : (
+            <div>
+              <Typography.Text>Login to save to your profile</Typography.Text>
+              <Button onClick={requestPubkey}>Login</Button>
+            </div>
+          )}
         </Card>
       </FormDetailsStyle>
     </Modal>
