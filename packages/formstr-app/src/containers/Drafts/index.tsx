@@ -4,6 +4,7 @@ import { IDraft } from "../../old/containers/MyForms/components/Drafts/typeDefs"
 import { ROUTES } from "../../constants/routes";
 import useFormBuilderContext from "../CreateFormNew/hooks/useFormBuilderContext";
 import { useEffect } from "react";
+import { Tag } from "../../nostr/types";
 const { Text } = Typography;
 
 export const V1DraftsController = () => {
@@ -12,7 +13,7 @@ export const V1DraftsController = () => {
   const navigate = useNavigate();
 
   let draft: string | null = null;
-  let parsedDraft: IDraft | null = null;
+  let parsedDraft: { formSpec: Tag[]; tempId: string } | null = null;
   if (encodedForm) {
     draft = window.decodeURIComponent(encodedForm);
     parsedDraft = JSON.parse(decodeURIComponent(window.atob(draft)));

@@ -38,26 +38,33 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
     } else {
       console.log("Couldn't find npub");
     }
-  }, [])
+  }, []);
 
   const logout = () => {
     setItem(LOCAL_STORAGE_KEYS.PROFILE, null);
     setPubkey(undefined);
-  }
+  };
 
   const requestPubkey = async () => {
     setUsingNip07(true);
     let publicKey = await window.nostr.getPublicKey();
     setPubkey(publicKey);
-    setItem(LOCAL_STORAGE_KEYS.PROFILE, { pubkey: publicKey }) 
-    setUsingNip07(false)
-    return pubkey
+    setItem(LOCAL_STORAGE_KEYS.PROFILE, { pubkey: publicKey });
+    setUsingNip07(false);
+    return pubkey;
   };
 
   return (
     <ProfileContext.Provider value={{ pubkey, requestPubkey, logout }}>
       {children}
-      <Modal open={usingNip07}> Check your NIP07 Extension </Modal>
+      <Modal
+        open={usingNip07}
+        footer={null}
+        onCancel={() => setUsingNip07(false)}
+      >
+        {" "}
+        Check your NIP07 Extension{" "}
+      </Modal>
     </ProfileContext.Provider>
   );
 };

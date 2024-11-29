@@ -75,6 +75,7 @@ export const QuestionsList = () => {
       >
         <div>
           {questionsList.map((question, idx) => {
+            console.log("Rendering Question", question);
             return (
               <Reorder.Item
                 value={question}

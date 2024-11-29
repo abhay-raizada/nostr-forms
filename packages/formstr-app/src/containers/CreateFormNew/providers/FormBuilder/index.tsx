@@ -13,6 +13,11 @@ import { getPublicKey, nip04, nip19 } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../../../../hooks/useProfileContext";
 import { createForm } from "../../../../nostr/createForm";
+import {
+  getItem,
+  LOCAL_STORAGE_KEYS,
+  setItem,
+} from "../../../../utils/localStorage";
 
 export type Field = [
   placeholder: string,
@@ -25,14 +30,14 @@ export type Field = [
 
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
-  initializeForm: (draft: IDraft) => null,
+  initializeForm: (draft: { formSpec: Tag[]; tempId: string }) => null,
   saveForm: () => null,
   editQuestion: (question: Field, tempId: string) => null,
   addQuestion: (primitive?: string, label?: string) => null,
   deleteQuestion: (tempId: string) => null,
   questionIdInFocus: undefined,
   setQuestionIdInFocus: (tempId?: string) => null,
-  formSettings: { titleImageUrl: "" },
+  formSettings: { titleImageUrl: "", formId: "" },
   updateFormSetting: (settings: IFormSettings) => null,
   updateFormTitleImage: (e: React.FormEvent<HTMLInputElement>) => null,
   closeSettingsOnOutsideClick: () => null,
@@ -64,6 +69,7 @@ const InitialFormSettings: IFormSettings = {
     "This is the description, you can use markdown while editing it!" +
     " tap anywhere on the form to edit, including this description.",
   thankYouPage: true,
+  formId: makeTag(6),
 };
 
 export default function FormBuilderProvider({
@@ -135,7 +141,7 @@ export default function FormBuilderProvider({
       formToSave,
       relayUrls,
       viewList,
-      editList,
+      editList, 
       formSettings.encryptForm
     ).then(
       (artifacts: {
@@ -143,7 +149,6 @@ export default function FormBuilderProvider({
         viewKey: Uint8Array;
         acceptedRelays: string[];
       }) => {
-        console.log("created form with keys", artifacts);
         const { signingKey, viewKey, acceptedRelays } = artifacts;
         navigate("/dashboard", {
           state: {
@@ -163,7 +168,30 @@ export default function FormBuilderProvider({
     );
   };
 
-  const saveDraft = () => {};
+  const saveDraft = () => {
+    if (formSettings.formId === "") return;
+    type Draft = { formSpec: Tag[]; tempId: string };
+    const formSpec = getFormSpec();
+    const draftObject = { formSpec, tempId: formSettings.formId! };
+    let draftArr = getItem<Draft[]>(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || [];
+    const draftIds = draftArr.map((draft: Draft) => draft.tempId);
+    if (!draftIds.includes(draftObject.tempId)) {
+      draftArr.push(draftObject);
+    } else {
+      draftArr = draftArr.map((draft: Draft) => {
+        if (draftObject.tempId === draft.tempId) {
+          return draftObject;
+        }
+        return draft;
+      });
+    }
+    console.log("setting", LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
+    setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
+    console.log(
+      "current local storage",
+      getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS)
+    );
+  };
 
   const editQuestion = (question: Field, tempId: string) => {
     const editedList = questionsList.map((existingQuestion: Field) => {
@@ -218,7 +246,17 @@ export default function FormBuilderProvider({
     }
   };
 
-  const initializeForm = (draft: IDraft) => {};
+  const initializeForm = (draft: { formSpec: Tag[]; tempId: string }) => {
+    let formSpec = draft.formSpec;
+    setFormName(draft.formSpec.filter((f) => f[0] === "name")?.[0][1] || "");
+    let settings = JSON.parse(
+      draft.formSpec.filter((f) => f[0] === "settings")?.[0][1] || "{}"
+    );
+    settings = { ...InitialFormSettings, ...settings };
+    let fields = draft.formSpec.filter((f) => f[0] === "field") as Field[];
+    setFormSettings(settings);
+    setQuestionsList(fields);
+  };
 
   return (
     <FormBuilderContext.Provider

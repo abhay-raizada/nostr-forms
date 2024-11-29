@@ -12,7 +12,7 @@ import { AccessRequest, IWrap } from "./interfaces";
 import { nip44Encrypt } from "./utils";
 import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import { getDefaultRelays } from "../formstr";
-import { sha256 } from "@noble/hashes/sha256"
+import { sha256 } from "@noble/hashes/sha256";
 
 const now = () => Math.round(Date.now() / 1000);
 
@@ -54,10 +54,17 @@ const createSeal = (
   ) as Event;
 };
 
-const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: string, d_tag: string) => {
+const createWrap = (
+  event: Event,
+  recipientPublicKey: string,
+  eventAuthor: string,
+  d_tag: string
+) => {
   const randomKey = generateSecretKey();
-  let aliasPubKey = bytesToHex(sha256(`${30168}:${eventAuthor}:${d_tag}:${recipientPublicKey}`))
-  console.log("Alias pubkey created is", aliasPubKey)
+  let aliasPubKey = bytesToHex(
+    sha256(`${30168}:${eventAuthor}:${d_tag}:${recipientPublicKey}`)
+  );
+  console.log("Alias pubkey created is", aliasPubKey);
   return finalizeEvent(
     {
       kind: 1059,
@@ -74,40 +81,31 @@ const createWrap = (event: Event, recipientPublicKey: string, eventAuthor: strin
 };
 
 const sendToUserRelays = async (wrap: Event, pubkey: string) => {
-  let pool = new SimplePool()
+  let pool = new SimplePool();
   const defaultRelays = getDefaultRelays();
-  console.log("Sending event to relays", defaultRelays, wrap)
-  let messages = await Promise.allSettled(
-    pool.publish(defaultRelays, wrap)
-  );
-  console.log("Relay replies", messages)
+  console.log("Sending event to relays", defaultRelays, wrap);
+  let messages = await Promise.allSettled(pool.publish(defaultRelays, wrap));
+  console.log("Relay replies", messages);
   pool.close(defaultRelays);
-}
+};
 
 export const sendWraps = async (wraps: IWrap[]) => {
   wraps.forEach(async (wrap) => {
-    sendToUserRelays(wrap.receiverWrapEvent, wrap.receiverPubkey)
+    sendToUserRelays(wrap.receiverWrapEvent, wrap.receiverPubkey);
     if (wrap.senderWrapEvent) {
-      sendToUserRelays(wrap.senderWrapEvent, wrap.issuerPubkey)
+      sendToUserRelays(wrap.senderWrapEvent, wrap.issuerPubkey);
     }
     console.log("Published gift wrap for", wrap.receiverPubkey);
   });
 };
 
-const createTag = (
-  signingKey?: Uint8Array,
-  voterKey?: Uint8Array,
-  viewKey?: Uint8Array
-) => {
-  let tags: string[][] = []
+const createTag = (signingKey?: Uint8Array, viewKey?: Uint8Array) => {
+  let tags: string[][] = [];
   if (signingKey) {
-    tags.push(["EditAccess", bytesToHex(signingKey)])
+    tags.push(["EditAccess", bytesToHex(signingKey)]);
   }
   if (viewKey) {
-    tags.push(["ViewAccess", bytesToHex(viewKey)])
-  }
-  if (voterKey) {
-    tags.push(["SubmitAccess", bytesToHex(voterKey)])
+    tags.push(["ViewAccess", bytesToHex(viewKey)]);
   }
   return tags;
 };
@@ -120,8 +118,8 @@ export const grantAccess = (
   isEditor?: boolean
 ): IWrap => {
   const issuerPubkey = getPublicKey(signingKey);
-  const formId = formEvent.tags.find((t) => t[0] === "d")?.[1]
-  if (!formId) throw ("Cannot grant access to a form without an Id")
+  const formId = formEvent.tags.find((t) => t[0] === "d")?.[1];
+  if (!formId) throw "Cannot grant access to a form without an Id";
 
   const rumor = createRumor(
     {
@@ -130,7 +128,6 @@ export const grantAccess = (
       tags: [
         ...createTag(
           isEditor ? signingKey : undefined,
-          undefined,
           viewKey ? viewKey : undefined
         ),
       ],
@@ -144,7 +141,7 @@ export const grantAccess = (
   return {
     receiverWrapEvent: receiverWrap,
     receiverPubkey: pubkey,
-    issuerPubkey: issuerPubkey
+    issuerPubkey: issuerPubkey,
   };
 };
 
@@ -162,15 +159,13 @@ export const acceptAccessRequests = async (
       hexToBytes(signingKey)
     );
     wraps.push(wrap);
-    newFormEvent.tags.push(["p", request.pubkey])
+    newFormEvent.tags.push(["p", request.pubkey]);
   });
   newFormEvent.created_at = Math.floor(Date.now() / 1000);
   let finalEvent = finalizeEvent(newFormEvent, hexToBytes(signingKey));
   console.log("FINAL EDITED EVENT IS", finalEvent);
   const pool = new SimplePool();
-  let a = await Promise.allSettled(
-    pool.publish(defaultRelays, finalEvent)
-  );
+  let a = await Promise.allSettled(pool.publish(defaultRelays, finalEvent));
   console.log("Published!!!", a);
   pool.close(defaultRelays);
   await sendWraps(wraps);

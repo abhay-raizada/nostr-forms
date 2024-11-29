@@ -1,21 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FormDetails } from "../CreateFormNew/components/FormDetails";
-import { Event, Relay, SimplePool, SubCloser } from "nostr-tools";
-import useNostrProfile, {
-  useProfileContext,
-} from "../../hooks/useProfileContext";
+import { Event, SubCloser } from "nostr-tools";
+import { useProfileContext } from "../../hooks/useProfileContext";
 import { getDefaultRelays } from "@formstr/sdk";
 import { LoggedOutScreen } from "./LoggedOutScreen";
-import { FormEventCard } from "./LocalForms/FormEventCard";
+import { FormEventCard } from "./FormCards/FormEventCard";
 import DashboardStyleWrapper from "./index.style";
 import EmptyScreen from "../../components/EmptyScreen";
 import { useApplicationContext } from "../../hooks/useApplicationContext";
 import { getItem, LOCAL_STORAGE_KEYS } from "../../utils/localStorage";
 import { ILocalForm } from "../CreateFormNew/providers/FormBuilder/typeDefs";
-import { LocalFormCard } from "./LocalForms/LocalFormCard";
+import { LocalFormCard } from "./FormCards/LocalFormCard";
 import { Dropdown, Menu, Typography } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import { MyForms } from "./FormCards/MyForms";
+import { Drafts } from "./FormCards/Drafts";
+const MENU_OPTIONS = {
+  local: "On this device",
+  shared: "Shared with me",
+  myForms: "My forms",
+  drafts: "Drafts",
+};
 
 const defaultRelays = getDefaultRelays();
 
@@ -27,15 +33,16 @@ export const Dashboard = () => {
     getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []
   );
   const [nostrForms, setNostrForms] = useState<Map<string, Event>>(new Map());
-  const [filter, setFilter] = useState<"local" | "nostr">(
-    pubkey ? "nostr" : "local"
-  );
+  const [filter, setFilter] = useState<
+    "local" | "shared" | "myForms" | "drafts"
+  >("local");
 
   const { poolRef } = useApplicationContext();
 
   const subCloserRef = useRef<SubCloser | null>(null);
 
   const handleEvent = (event: Event) => {
+    console.log("got form event");
     setNostrForms((prevMap) => {
       const newMap = new Map(prevMap);
       newMap.set(event.id, event);
@@ -44,12 +51,12 @@ export const Dashboard = () => {
   };
 
   const fetchNostrForms = () => {
+    console.log("fetching forms shared with me");
     const queryFilter = {
       kinds: [30168],
       "#p": [pubkey!],
     };
 
-    // Subscribe to events on all relays
     console.log("search filters are", queryFilter);
     subCloserRef.current = poolRef.current.subscribeMany(
       defaultRelays,
@@ -61,6 +68,7 @@ export const Dashboard = () => {
         },
       }
     );
+    console.log("subscribed to relays", subCloserRef);
   };
 
   useEffect(() => {
@@ -85,7 +93,7 @@ export const Dashboard = () => {
           }}
         />
       ));
-    } else if (filter === "nostr") {
+    } else if (filter === "shared") {
       return Array.from(nostrForms.values()).map((formEvent: Event) => {
         let d_tag = formEvent.tags.filter((t) => t[0] === "d")[0]?.[1];
         let key = `${formEvent.kind}:${formEvent.pubkey}:${
@@ -93,6 +101,10 @@ export const Dashboard = () => {
         }`;
         return <FormEventCard key={key} event={formEvent} />;
       });
+    } else if (filter === "myForms") {
+      return <MyForms />;
+    } else if (filter === "drafts") {
+      return <Drafts />;
     }
     return null;
   };
@@ -100,14 +112,24 @@ export const Dashboard = () => {
   const menu = (
     <Menu>
       <Menu.Item key="local" onClick={() => setFilter("local")}>
-        Forms on this device
+        {MENU_OPTIONS.local}
       </Menu.Item>
       <Menu.Item
-        key="nostr"
-        onClick={() => setFilter("nostr")}
+        key="shared"
+        onClick={() => setFilter("shared")}
         disabled={!pubkey}
       >
-        Forms on your Nostr profile
+        {MENU_OPTIONS.shared}
+      </Menu.Item>
+      <Menu.Item
+        key="myForms"
+        onClick={() => setFilter("myForms")}
+        disabled={!pubkey}
+      >
+        {MENU_OPTIONS.myForms}
+      </Menu.Item>
+      <Menu.Item key="drafts" onClick={() => setFilter("drafts")}>
+        {MENU_OPTIONS.drafts}
       </Menu.Item>
     </Menu>
   );
@@ -125,13 +147,7 @@ export const Dashboard = () => {
                 alignItems: "center",
               }}
             >
-              {filter === "local" ? (
-                <Typography.Text> Forms on this device </Typography.Text>
-              ) : (
-                <Typography.Text>
-                  Forms linked to your Nostr profile
-                </Typography.Text>
-              )}
+              <Typography.Text>{MENU_OPTIONS[filter]} </Typography.Text>
               <DownOutlined
                 style={{ marginLeft: "8px", fontSize: "12px", marginTop: -5 }}
               />
@@ -145,28 +161,20 @@ export const Dashboard = () => {
         {!pubkey && localForms.length === 0 && (
           <LoggedOutScreen requestLogin={requestPubkey} />
         )}
-
-        {pubkey && (
-          <>
-            <div className="form-cards-container">{renderForms()}</div>
-            {!nostrForms.size && !localForms.length ? <EmptyScreen /> : null}
-            {showFormDetails && (
-              <FormDetails
-                isOpen={showFormDetails}
-                pubKey={state.pubKey}
-                secretKey={state.secretKey}
-                viewKey={state.viewKey}
-                formId={state.formId}
-                name={state.name}
-                relay={state.relay}
-                onClose={() => {
-                  setShowFormDetails(false);
-                  setLocalForms(getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []);
-                }}
-              />
-            )}
-          </>
-        )}
+        <>
+          <div className="form-cards-container">{renderForms()}</div>
+          {!nostrForms.size && !localForms.length ? <EmptyScreen /> : null}
+          {state && (
+            <FormDetails
+              isOpen={showFormDetails}
+              {...state}
+              onClose={() => {
+                setShowFormDetails(false);
+                setLocalForms(getItem(LOCAL_STORAGE_KEYS.LOCAL_FORMS) || []);
+              }}
+            />
+          )}
+        </>
       </div>
     </DashboardStyleWrapper>
   );
