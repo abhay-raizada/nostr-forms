@@ -97,22 +97,24 @@ export const createForm = async (
     );
     wraps.push(wrap);
     if (profile.isParticipant) {
-      baseFormEvent.tags.push(["allowed", profile.pubkey])
+      baseFormEvent.tags.push(["allowed", profile.pubkey]);
     }
-    baseFormEvent.tags.push(["p", profile.pubkey])
+    baseFormEvent.tags.push(["p", profile.pubkey]);
   });
 
   const templateEvent = await signEvent(baseTemplateEvent, signingKey);
   console.log("final event is ", templateEvent);
   await sendWraps(wraps);
   const pool = new SimplePool();
-  const messages = await Promise.allSettled(pool.publish(relayList, templateEvent)).then(
-    () => { },
+  const messages = await Promise.allSettled(
+    pool.publish(relayList, templateEvent)
+  ).then(
+    () => {},
     (reason: string) => {
       console.log("Errors are here", reason);
     }
   );
-  console.log("Relay messages", messages)
+  console.log("Relay messages", messages);
   pool.close(relayList);
   return [signingKey, viewKey];
 };
