@@ -31,7 +31,7 @@ export type Field = [
 export const FormBuilderContext = React.createContext<IFormBuilderContext>({
   questionsList: [],
   initializeForm: (draft: { formSpec: Tag[]; tempId: string }) => null,
-  saveForm: () => null,
+  saveForm: (onRelayAccepted?: (url: string) => void) => Promise.resolve(),
   editQuestion: (question: Field, tempId: string) => null,
   addQuestion: (primitive?: string, label?: string) => null,
   deleteQuestion: (tempId: string) => null,
@@ -130,7 +130,7 @@ export default function FormBuilderProvider({
     return formSpec;
   };
 
-  const saveForm = async () => {
+  const saveForm = async (onRelayAccepted?: (url: string) => void) => {
     const formToSave = getFormSpec();
     if (!formSettings.formId) {
       alert("Form ID is required");
@@ -141,8 +141,9 @@ export default function FormBuilderProvider({
       formToSave,
       relayUrls,
       viewList,
-      editList, 
-      formSettings.encryptForm
+      editList,
+      formSettings.encryptForm,
+      onRelayAccepted
     ).then(
       (artifacts: {
         signingKey: Uint8Array;
@@ -166,8 +167,8 @@ export default function FormBuilderProvider({
         alert("error creating the form: " + error);
       }
     );
-  };
-
+};
+  
   const saveDraft = () => {
     if (formSettings.formId === "") return;
     type Draft = { formSpec: Tag[]; tempId: string };
