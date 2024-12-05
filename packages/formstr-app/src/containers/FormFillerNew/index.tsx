@@ -25,6 +25,7 @@ import { useProfileContext } from "../../hooks/useProfileContext";
 import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const { Text } = Typography;
 
@@ -176,7 +177,34 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return <Text>INVALID FORM URL</Text>;
   }
   if (!formEvent && !isPreview) {
-    return <Text>Loading...</Text>;
+    return (
+      <div
+      style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center", 
+        alignItems: "center"    
+      }}
+    >
+      <Text
+        style={{
+          textAlign: "center",
+          display: "block"
+        }}
+      >
+        <DotLottieReact
+          style={{ width: '120px', height: '120px' }}  
+          src="https://lottie.host/0f1b00d2-8a8e-4aba-98ca-1fc06cf60acc/ZJVN63anSQ.lottie"
+          loop
+          autoplay
+        />
+      </Text>
+    </div>
+    );
   } else if (!isPreview && formEvent?.content !== "" && !userPubKey) {
     return (
       <>

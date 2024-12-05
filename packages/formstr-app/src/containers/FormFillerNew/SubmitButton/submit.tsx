@@ -1,6 +1,5 @@
-import { CheckCircleTwoTone, DownOutlined } from "@ant-design/icons";
-import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { Dropdown, Modal, Spin, MenuProps, FormInstance } from "antd";
+import { CheckCircleTwoTone, DownOutlined, LoadingOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Modal, Spin, Button, FormInstance, Dropdown, MenuProps, Alert } from "antd";
 import React, { useState } from "react";
 
 interface SubmitButtonProps {
@@ -22,20 +21,30 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [submissionType, setSubmissionType] = useState<'anonymous' | 'signed'>('anonymous');
 
   const signAndSubmit = async () => {
-    await submitForm(false);
-    setIsSigning(false);
-    closeModal();
+    try {
+      await submitForm(false);
+    } finally {
+      setIsSigning(false);
+      closeModal();
+    }
   };
 
   const submitForm = async (anonymous: boolean = true) => {
+    setIsSubmitting(true);
     try {
       await form.validateFields();
-    } catch (err) {}
-    let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
-    if (errors.length === 0) {
-      await onSubmit(anonymous);
+      let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
+      if (errors.length === 0) {
+        await onSubmit(anonymous);
+      }
+    } catch (err) {
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -45,25 +54,33 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
     signAndSubmit();
   };
 
-  function closeModal() {
+  const closeModal = () => {
     setIsModalOpen(false);
-  }
+  };
 
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    if (e.key === "signSubmition") {
+  const closeConfirmModal = () => {
+    setShowConfirmModal(false);
+  };
+
+  const handleConfirm = async () => {
+    if (submissionType === 'signed') {
       showModal();
     } else {
-      submitForm();
+      await submitForm(true);
     }
+    closeConfirmModal();
+  };
+
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    setSubmissionType(e.key === "signSubmition" ? 'signed' : 'anonymous');
+    setShowConfirmModal(true);
   };
 
   const handleButtonClick = () => {
-    if (selfSign) {
-      showModal();
-      return;
-    }
-    submitForm();
+    setSubmissionType(selfSign ? 'signed' : 'anonymous');
+    setShowConfirmModal(true);
   };
+
   const items = [
     {
       label: "Submit Anonymously",
@@ -81,6 +98,17 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
     onClick: handleMenuClick,
   };
 
+  const getConfirmModalText = () => {
+    if (edit) {
+      return submissionType === 'signed' 
+        ? "Are you sure you want to update this response?" 
+        : "Are you sure you want to update this response anonymously?";
+    }
+    return submissionType === 'signed'
+      ? "Are you sure you want to submit this response?"
+      : "Are you sure you want to submit this response anonymously?";
+  };
+
   return (
     <>
       <Dropdown.Button
@@ -88,11 +116,66 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
         type="primary"
         onClick={handleButtonClick}
         icon={<DownOutlined />}
-        disabled={disabled}
+        disabled={disabled || isSubmitting}
         className="submit-button"
       >
-        {disabled ? disabledMessage : selfSign ? items[1].label : "Submit"}
+        {disabled ? (
+          disabledMessage
+        ) : isSubmitting ? (
+          <span>
+            <LoadingOutlined className="mr-2" />
+            Submitting...
+          </span>
+        ) : (
+          selfSign ? items[1].label : "Submit"
+        )}
       </Dropdown.Button>
+
+      {/* Confirm Modal */}
+      <Modal
+        title="Confirm Submission"
+        open={showConfirmModal}
+        onCancel={closeConfirmModal}
+        footer={[
+          <Button key="back" onClick={closeConfirmModal}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            loading={isSubmitting}
+            onClick={handleConfirm}
+          >
+            Confirm
+          </Button>,
+        ]}
+      >
+        <p>{getConfirmModalText()}</p>
+        {submissionType === 'signed' && (
+          <Alert
+            message="Login Required"
+            description={
+              <span>
+                You'll need to sign this submission using a Nip-07 browser extension.{" "}
+                <a
+                  href="https://nostrcheck.me/register/browser-extension.php"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Click here
+                </a>{" "}
+                to learn more about Nip-07 signing.
+              </span>
+            }
+            type="info"
+            showIcon
+            icon={<InfoCircleOutlined />}
+            className="mt-4"
+          />
+        )}
+      </Modal>
+
+      {/* Sign Modal */}
       <Modal
         open={isModalOpen}
         onCancel={closeModal}
@@ -101,7 +184,6 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
       >
         {!isSigning && (
           <div>
-            {" "}
             <CheckCircleTwoTone /> Access granted
           </div>
         )}

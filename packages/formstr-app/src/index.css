@@ -1,4 +1,18 @@
-@import url("https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@600;800&display=swap");
+@font-face {
+  font-family: 'Anek Devanagari';
+  src: url('/fonts/AnekDevanagari-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Anek Devanagari';
+  src: url('/fonts/AnekDevanagari-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
 
 body {
   margin: 0;
@@ -6,6 +20,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #dedede;
+  font-family: 'Anek Devanagari', sans-serif;
 }
 
 code {

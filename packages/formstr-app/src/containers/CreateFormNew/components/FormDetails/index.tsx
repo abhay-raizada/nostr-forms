@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Divider, Modal, Typography } from "antd";
+import { Button, Card, Checkbox, Divider, Modal, Spin, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
@@ -84,53 +84,99 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     viewKey?: string
   ) => {
     if (!userPub) return;
-    setSavedOnNostr("saving");
-    let existingListFilter = {
-      kinds: [KINDS.myFormsList],
-      authors: [userPub],
-    };
-    let pool = new SimplePool();
-    let existingList = await pool.querySync(
-      getDefaultRelays(),
-      existingListFilter
-    );
-    let forms: Tag[] = [];
-    if (existingList[0]) {
-      let formsString = await window.nostr.nip44.decrypt(
-        userPub,
-        existingList[0].content
-      );
-      try {
-        forms = JSON.parse(formsString);
-      } catch (e) {
-        console.error("My Forms List is not parseable");
-        return;
-      }
-    }
-    let key = `${formAuthorPub}:${formId}`;
-    if (forms.map((f) => f[1]).includes(key)) {
-      setSavedOnNostr("saved");
+    
+    if (saveToMyForms.isRunning) {
+      console.log('Save operation already in progress');
       return;
     }
-    let secrets = `${formAuthorSecret}`;
-    if (viewKey) secrets = `${secrets}:${viewKey}`;
-    forms.push(["f", `${key}`, `${relay}`, `${secrets}`]);
-    let encryptedString = await window.nostr.nip44.encrypt(
-      userPub,
-      JSON.stringify(forms)
-    );
-    let myFormEvent: UnsignedEvent = {
-      kind: KINDS.myFormsList,
-      content: encryptedString,
-      pubkey: userPub,
-      tags: [],
-      created_at: Math.round(Date.now() / 1000),
-    };
-    let signedEvent = await window.nostr.signEvent(myFormEvent);
-    await Promise.allSettled(pool.publish(getDefaultRelays(), signedEvent));
-    setSavedOnNostr("saved");
+    
+    saveToMyForms.isRunning = true;
+    setSavedOnNostr("saving");
+  
+    const pool = new SimplePool();
+    const abortController = new AbortController();
+    const relays = getDefaultRelays();
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          console.log('Operation timed out after 15s');
+          reject(new Error('Operation timed out'));
+        }, 15000);
+      });
+  
+      const operationPromise = async () => {
+        try {
+          let existingList = await pool.querySync(
+            relays,
+            { kinds: [KINDS.myFormsList], authors: [userPub] }
+          );
+  
+          let forms: Tag[] = [];
+          if (existingList[0]) {
+            let formsString = await window.nostr.nip44.decrypt(
+              userPub,
+              existingList[0].content
+            );
+            forms = JSON.parse(formsString);
+          }
+  
+          let key = `${formAuthorPub}:${formId}`;
+          if (forms.map((f) => f[1]).includes(key)) {
+            console.log('Form already exists in your saved forms');
+            return "already_saved";
+          }
+  
+          let secrets = `${formAuthorSecret}`;
+          if (viewKey) secrets = `${secrets}:${viewKey}`;
+          forms.push(["f", key, relay, secrets]);
+  
+          let encryptedString = await window.nostr.nip44.encrypt(
+            userPub,
+            JSON.stringify(forms)
+          );
+          
+          let myFormEvent: UnsignedEvent = {
+            kind: KINDS.myFormsList,
+            content: encryptedString,
+            pubkey: userPub,
+            tags: [],
+            created_at: Math.round(Date.now() / 1000),
+          };
+  
+          const signedEvent = await window.nostr.signEvent(myFormEvent);
+          await Promise.allSettled(
+            pool.publish(relays, signedEvent)
+          );
+  
+          return "saved";
+        } catch (error) {
+          console.error('Save operation failed:', error);
+          throw error;
+        }
+      };
+  
+      const result = await Promise.race([
+        operationPromise(),
+        timeoutPromise
+      ]);
+  
+      if (timeoutId) clearTimeout(timeoutId);
+      setSavedOnNostr(result === "already_saved" ? "saved" : "saved");
+  
+    } catch (error) {
+      console.error("Failed to save to nostr:", error);
+      setSavedOnNostr(null);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+      pool.close(relays);
+      saveToMyForms.isRunning = false;
+    }
   };
-
+  
+  saveToMyForms.isRunning = false;
+  
   useEffect(() => {
     saveToDevice(pubKey, secretKey, formId, name, relay, viewKey);
     if (userPub) saveToMyForms(pubKey, secretKey, formId, relay, viewKey);
@@ -277,38 +323,52 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     ),
   };
 
+
+  const SaveStatus = () => {
+    return (
+      <div className="save-status">
+        <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
+        {userPub ? (
+          <div className="nostr-save-status">
+            {savedOnNostr === "saving" ? (
+              <div className="saving-indicator">
+                <Text>Saving to nostr profile...</Text>
+                <Spin size="small" style={{ marginLeft: 4 }} />
+              </div>
+            ) : (
+              <div>Saved To Profile? {savedOnNostr === "saved" ? "✅" : "❌"}</div>
+            )}
+          </div>
+        ) : (
+          <div className="login-prompt">
+            <Text>Login to save to your profile</Text>
+            <Button onClick={requestPubkey} className="ml-2">Login</Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Modal
-      open={isOpen}
-      onCancel={onClose}
-      footer={null}
-      closable={false}
-      width="auto"
-    >
-      <FormDetailsStyle className="form-details">
-        <Card
-          bordered={false}
-          tabList={tabList}
-          className="form-details-card"
-          onTabChange={(key: string) => setActiveTab(key as TabKeyType)}
-        >
-          {TabContent[activeTab]}
-          <Divider />
-          <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
-          {userPub ? (
-            savedOnNostr === "saving" ? (
-              <div>Saving to nostr profile..</div>
-            ) : (
-              <div> Saved To Profile? {savedOnNostr ? "✅" : "❌"}</div>
-            )
-          ) : (
-            <div>
-              <Typography.Text>Login to save to your profile</Typography.Text>
-              <Button onClick={requestPubkey}>Login</Button>
-            </div>
-          )}
-        </Card>
-      </FormDetailsStyle>
-    </Modal>
+    open={isOpen}
+    onCancel={onClose}
+    footer={null}
+    closable={false}
+    width="auto"
+  >
+    <FormDetailsStyle className="form-details">
+      <Card
+        bordered={false}
+        tabList={tabList}
+        className="form-details-card"
+        onTabChange={(key: string) => setActiveTab(key as TabKeyType)}
+      >
+        {TabContent[activeTab]}
+        <Divider />
+        <SaveStatus />
+      </Card>
+    </FormDetailsStyle>
+  </Modal>
   );
 };

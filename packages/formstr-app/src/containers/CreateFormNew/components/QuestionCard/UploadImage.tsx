@@ -1,5 +1,5 @@
-import  {PictureOutlined} from "@ant-design/icons";
-import { Button, Modal, Input, Tabs } from "antd";
+import { PictureOutlined } from "@ant-design/icons";
+import { Button, Modal, Input, Tabs, Alert } from "antd";
 import React, { useState, ChangeEvent, useRef } from "react";
 
 interface Props {
@@ -11,6 +11,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [urlInput, setUrlInput] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -21,11 +22,14 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
 
   const showModal = () => {
     setIsModalOpen(true);
+    setPreviewError(false);
+    setUrlInput("");
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
     setUrlInput("");
+    setPreviewError(false);
   };
 
   const handleButtonClick = () => {
@@ -33,11 +37,22 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   };
 
   const handleUrlSubmit = () => {
-    if (urlInput) {
+    if (urlInput && !previewError) {
       onImageUpload?.(formatImageUrl(urlInput));
       setIsModalOpen(false);
       setUrlInput("");
+      setPreviewError(false);
     }
+  };
+
+  const handleUrlInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const url = e.target.value;
+    setUrlInput(url);
+    setPreviewError(false); // Reset error state when input changes
+  };
+
+  const handlePreviewError = () => {
+    setPreviewError(true);
   };
 
   const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -78,32 +93,6 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   };
 
   const items = [
-    // {
-    //   key: '1',
-    //   label: 'Upload Image',
-    //   children: (
-    //     <div style={{ padding: '20px 0' }}>
-    //       <input
-    //         ref={fileInputRef}
-    //         type="file"
-    //         accept="image/*"
-    //         onChange={handleFileSelect}
-    //         style={{ display: "none" }}
-    //         aria-label="File upload"
-    //       />
-    //       <Button
-    //         type="primary"
-    //         icon={<UploadOutlined />}
-    //         onClick={handleButtonClick}
-    //         loading={uploading}
-    //         size="large"
-    //         style={{ width: '100%' }}
-    //       >
-    //         {uploading ? "Uploading..." : "Click to Upload"}
-    //       </Button>
-    //     </div>
-    //   ),
-    // },
     {
       key: '2',
       label: 'Image URL',
@@ -112,15 +101,48 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
           <Input.TextArea
             placeholder="Enter image URL"
             value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
+            onChange={handleUrlInputChange}
             style={{ marginBottom: 16 }}
             rows={4}
             aria-label="Image URL input"
           />
+          {urlInput && (
+            <div style={{ marginBottom: 16 }}>
+              {previewError ? (
+                <Alert
+                  message="Invalid image URL"
+                  type="error"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                />
+              ) : (
+                <div className="image-preview-container" style={{
+                  border: '1px solid #d9d9d9',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  marginBottom: '16px'
+                }}>
+                  <p style={{ margin: '0 0 8px 0', color: '#666' }}>Preview:</p>
+                  <img
+                    src={urlInput}
+                    alt="Preview"
+                    onError={handlePreviewError}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '200px',
+                      objectFit: 'contain',
+                      display: 'block',
+                      margin: '0 auto'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
           <Button 
             type="primary" 
             onClick={handleUrlSubmit}
-            disabled={!urlInput}
+            disabled={!urlInput || previewError}
             style={{ width: '100%' }}
           >
             Submit URL
@@ -146,6 +168,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
         open={isModalOpen} 
         onCancel={handleCancel}
         footer={null}
+        width={480}
         modalRender={(modal) => (
           <div ref={modalRef} tabIndex={-1}>
             {modal}
@@ -153,7 +176,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
         )}
       >
         <Tabs 
-          defaultActiveKey="1" 
+          defaultActiveKey="2" 
           items={items}
           centered
         />

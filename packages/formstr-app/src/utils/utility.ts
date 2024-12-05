@@ -24,7 +24,9 @@ export function constructFormUrl(
     hostname += "/nostr-forms";
   }
   if (!formIdentifier) `http://${hostname}/#/fill/${publicKey}/`;
-  return `http://${hostname}/#/f/${publicKey}/${formIdentifier}`;
+  return !formIdentifier 
+  ? `http://${hostname}/#/fill/${publicKey}`
+  : `http://${hostname}/#/f/${publicKey}/${formIdentifier}`;
 }
 
 export function constructDraftUrl(
