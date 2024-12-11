@@ -81,29 +81,39 @@ export const customPublish = (
 ): Promise<string>[] => {
   return relays.map(normalizeURL).map(async (url, i, arr) => {
     if (arr.indexOf(url) !== i) {
-      // duplicate
       return Promise.reject("duplicate url");
     }
 
-    let r = await ensureRelay(url);
-    return r.publish(event).then((reason) => {
-      console.log("accepted relays", url);
-      onAcceptedRelays?.(url);  
-      return reason;
-    });
+    let relay: AbstractRelay | null = null;
+    try {
+      relay = await ensureRelay(url, { connectionTimeout: 5000 });
+      return await Promise.race<string>([
+        relay.publish(event).then((reason) => {
+          console.log("accepted relays", url);
+          onAcceptedRelays?.(url);
+          return reason;
+        }),
+        new Promise<string>((_, reject) => setTimeout(() => reject("timeout"), 5000))
+      ]);
+    } finally {
+      if (relay) {
+        try {
+          await relay.close();
+        } catch {
+          // Ignore closing errors
+        }
+      }
+    }
   });
 };
-
 export const ensureRelay = async (
   url: string,
   params?: { connectionTimeout?: number }
 ): Promise<AbstractRelay> => {
   url = normalizeURL(url);
-
   let relay = new Relay(url);
   if (params?.connectionTimeout)
     relay.connectionTimeout = params.connectionTimeout;
   await relay.connect();
-
   return relay;
 };

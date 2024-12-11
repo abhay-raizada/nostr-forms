@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button, Form, Typography } from "antd";
+import { Button, Form, Spin, Typography } from "antd";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
@@ -26,6 +26,7 @@ import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -196,12 +197,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
           display: "block"
         }}
       >
-        <DotLottieReact
-          style={{ width: '120px', height: '120px' }}  
-          src="https://lottie.host/0f1b00d2-8a8e-4aba-98ca-1fc06cf60acc/ZJVN63anSQ.lottie"
-          loop
-          autoplay
-        />
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: "#F7931A" }} spin />} />
       </Text>
     </div>
     );

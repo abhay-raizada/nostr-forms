@@ -1,6 +1,7 @@
 import { PictureOutlined } from "@ant-design/icons";
-import { Button, Modal, Input, Tabs, Alert } from "antd";
+import { Button, Modal, Input, Tabs, Alert, Typography } from "antd";
 import React, { useState, ChangeEvent, useRef } from "react";
+const { Text } = Typography;
 
 interface Props {
   onImageUpload?: (url: string) => void;
@@ -122,7 +123,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
                   padding: '8px',
                   marginBottom: '16px'
                 }}>
-                  <p style={{ margin: '0 0 8px 0', color: '#666' }}>Preview:</p>
+                  <Text>Preview:</Text>
                   <img
                     src={urlInput}
                     alt="Preview"
