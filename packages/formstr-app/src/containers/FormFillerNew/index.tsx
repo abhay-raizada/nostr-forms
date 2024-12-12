@@ -26,7 +26,7 @@ import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
 import { LoadingOutlined } from "@ant-design/icons";
-import { sendNotification } from "@formstr/sdk";
+import { sendNotification } from "../../nostr/common";
 
 const { Text } = Typography;
 
@@ -141,7 +141,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     }
     sendResponses(pubKey, formId, responses, anonUser).then((res) => {
       console.log("Submitted!");
-      sendNotification(formTemplate, response);
+      sendNotification(formTemplate!, responses);
       setFormSubmitted(true);
       setThankYouScreen(true);
     });
@@ -181,26 +181,33 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   if (!formEvent && !isPreview) {
     return (
       <div
-      style={{
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "100%",
-        display: "flex",
-        justifyContent: "center", 
-        alignItems: "center"    
-      }}
-    >
-      <Text
         style={{
-          textAlign: "center",
-          display: "block"
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: "#F7931A" }} spin />} />
-      </Text>
-    </div>
+        <Text
+          style={{
+            textAlign: "center",
+            display: "block",
+          }}
+        >
+          <Spin
+            indicator={
+              <LoadingOutlined
+                style={{ fontSize: 48, color: "#F7931A" }}
+                spin
+              />
+            }
+          />
+        </Text>
+      </div>
     );
   } else if (!isPreview && formEvent?.content !== "" && !userPubKey) {
     return (
