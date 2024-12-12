@@ -25,7 +25,6 @@ import { useProfileContext } from "../../hooks/useProfileContext";
 import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { LoadingOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
