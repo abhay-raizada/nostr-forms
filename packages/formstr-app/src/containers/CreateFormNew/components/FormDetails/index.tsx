@@ -90,14 +90,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
   ) => {
     if (!userPub) return;
     
-    if (saveToMyForms.isRunning) {
-      console.log('Save operation already in progress');
-      return;
-    }
-    
-    saveToMyForms.isRunning = true;
     setSavedOnNostr("saving");
-
     const pool = new SimplePool();    
     const relays = getDefaultRelays();
     
@@ -110,7 +103,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
         return new Promise(async (resolve, reject) => {
           const timeoutId = setTimeout(() => {
             reject(new Error('Setup timed out after 15s'));
-          }, 5000);
+          }, 10000);
   
           try {
             const existingList = await pool.querySync(
@@ -160,7 +153,6 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
       const encryptedString = await window.nostr.nip44.encrypt(
         userPub,
         JSON.stringify(forms)
-
       );
       
       const myFormEvent: UnsignedEvent = {
@@ -183,11 +175,8 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
       setSavedOnNostr(null);
     } finally {
       pool.close(relays);
-      saveToMyForms.isRunning = false;
     }
   };
-  
-  saveToMyForms.isRunning = false;
 
   useEffect(() => {
     saveToDevice(pubKey, secretKey, formId, name, relay, viewKey);
