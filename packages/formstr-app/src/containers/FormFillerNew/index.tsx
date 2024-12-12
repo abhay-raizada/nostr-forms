@@ -26,6 +26,7 @@ import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
 import { LoadingOutlined } from "@ant-design/icons";
+import { sendNotification } from "@formstr/sdk";
 
 const { Text } = Typography;
 
@@ -140,6 +141,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     }
     sendResponses(pubKey, formId, responses, anonUser).then((res) => {
       console.log("Submitted!");
+      sendNotification(formTemplate, response);
       setFormSubmitted(true);
       setThankYouScreen(true);
     });
