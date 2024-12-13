@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, Divider, Modal, Typography } from "antd";
+import { Button, Card, Checkbox, Divider, Modal, Spin, Typography } from "antd";
 import { constructFormUrl } from "../../../../utils/formUtils";
 import { ReactComponent as Success } from "../../../../Images/success.svg";
 import { constructResponseUrl } from "../../../../utils/formUtils";
@@ -76,6 +76,11 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     setSavedLocally(true);
   };
 
+  type SetupResult = {
+    status: "exists" | "ready";
+    forms: Tag[];
+  };
+
   const saveToMyForms = async (
     formAuthorPub: string,
     formAuthorSecret: string,
@@ -84,51 +89,93 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     viewKey?: string
   ) => {
     if (!userPub) return;
+    
     setSavedOnNostr("saving");
-    let existingListFilter = {
-      kinds: [KINDS.myFormsList],
-      authors: [userPub],
-    };
-    let pool = new SimplePool();
-    let existingList = await pool.querySync(
-      getDefaultRelays(),
-      existingListFilter
-    );
-    let forms: Tag[] = [];
-    if (existingList[0]) {
-      let formsString = await window.nostr.nip44.decrypt(
-        userPub,
-        existingList[0].content
-      );
-      try {
-        forms = JSON.parse(formsString);
-      } catch (e) {
-        console.error("My Forms List is not parseable");
+    const pool = new SimplePool();    
+    const relays = getDefaultRelays();
+    
+    try {
+      if (!window.nostr) {
+        throw new Error('Nostr client not available');
+      }
+  
+      const setupWithTimeout = async ():Promise<SetupResult> => {
+        return new Promise(async (resolve, reject) => {
+          const timeoutId = setTimeout(() => {
+            reject(new Error('Setup timed out after 15s'));
+          }, 10000);
+  
+          try {
+            const existingList = await pool.querySync(
+              relays,
+              { kinds: [KINDS.myFormsList], authors: [userPub] }
+            );
+  
+            let forms: Tag[] = [];
+            if (existingList[0]) {
+              const formsString = await window.nostr.nip44.decrypt(
+                userPub,
+                existingList[0].content
+              );
+              forms = JSON.parse(formsString);
+            }
+  
+            const key = `${formAuthorPub}:${formId}`;
+            if (forms.map((f) => f[1]).includes(key)) {
+              console.log('Form already exists in your saved forms');
+              clearTimeout(timeoutId);
+              resolve({ status: "exists", forms });
+              return;
+            }
+  
+            clearTimeout(timeoutId);
+            resolve({ status: "ready", forms });
+          } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
+          }
+        });
+      };
+  
+      const setupResult = await setupWithTimeout();
+      
+      if (setupResult.status === "exists") {
+        setSavedOnNostr("saved");
         return;
       }
-    }
-    let key = `${formAuthorPub}:${formId}`;
-    if (forms.map((f) => f[1]).includes(key)) {
+  
+      let secrets = `${formAuthorSecret}`;
+      if (viewKey) secrets = `${secrets}:${viewKey}`;
+      
+      const forms = setupResult.forms;
+      forms.push(["f", `${formAuthorPub}:${formId}`, relay, secrets]);
+  
+      const encryptedString = await window.nostr.nip44.encrypt(
+        userPub,
+        JSON.stringify(forms)
+      );
+      
+      const myFormEvent: UnsignedEvent = {
+        kind: KINDS.myFormsList,
+        content: encryptedString,
+        pubkey: userPub,
+        tags: [],
+        created_at: Math.round(Date.now() / 1000),
+      };
+  
+      const signedEvent = await window.nostr.signEvent(myFormEvent);
+      await Promise.allSettled(
+        pool.publish(relays, signedEvent)
+      );
+  
       setSavedOnNostr("saved");
-      return;
+  
+    } catch (error) {
+      console.error("Failed to save to nostr:", error);
+      setSavedOnNostr(null);
+    } finally {
+      pool.close(relays);
     }
-    let secrets = `${formAuthorSecret}`;
-    if (viewKey) secrets = `${secrets}:${viewKey}`;
-    forms.push(["f", `${key}`, `${relay}`, `${secrets}`]);
-    let encryptedString = await window.nostr.nip44.encrypt(
-      userPub,
-      JSON.stringify(forms)
-    );
-    let myFormEvent: UnsignedEvent = {
-      kind: KINDS.myFormsList,
-      content: encryptedString,
-      pubkey: userPub,
-      tags: [],
-      created_at: Math.round(Date.now() / 1000),
-    };
-    let signedEvent = await window.nostr.signEvent(myFormEvent);
-    await Promise.allSettled(pool.publish(getDefaultRelays(), signedEvent));
-    setSavedOnNostr("saved");
   };
 
   useEffect(() => {
@@ -277,6 +324,35 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     ),
   };
 
+  const SaveStatus = () => {
+    return (
+      <div className="save-status">
+        <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
+        {userPub ? (
+          <div className="nostr-save-status">
+            {savedOnNostr === "saving" ? (
+              <div className="saving-indicator">
+                <Text>Saving to nostr profile...</Text>
+                <Spin size="small" style={{ marginLeft: 4 }} />
+              </div>
+            ) : (
+              <div>
+                Saved To Profile? {savedOnNostr === "saved" ? "✅" : "❌"}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="login-prompt">
+            <Text>Login to save to your profile</Text>
+            <Button onClick={requestPubkey} className="ml-2">
+              Login
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -294,19 +370,7 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
         >
           {TabContent[activeTab]}
           <Divider />
-          <div>Saved Locally? {savedLocally ? "✅" : "❌"}</div>
-          {userPub ? (
-            savedOnNostr === "saving" ? (
-              <div>Saving to nostr profile..</div>
-            ) : (
-              <div> Saved To Profile? {savedOnNostr ? "✅" : "❌"}</div>
-            )
-          ) : (
-            <div>
-              <Typography.Text>Login to save to your profile</Typography.Text>
-              <Button onClick={requestPubkey}>Login</Button>
-            </div>
-          )}
+          <SaveStatus />
         </Card>
       </FormDetailsStyle>
     </Modal>

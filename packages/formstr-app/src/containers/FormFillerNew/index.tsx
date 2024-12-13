@@ -9,7 +9,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Button, Form, Typography } from "antd";
+import { Button, Form, Spin, Typography } from "antd";
 import { ThankYouScreen } from "./ThankYouScreen";
 import { SubmitButton } from "./SubmitButton/submit";
 import { isMobile } from "../../utils/utility";
@@ -25,6 +25,7 @@ import { useProfileContext } from "../../hooks/useProfileContext";
 import { getAllowedUsers, getFormSpec } from "../../utils/formUtils";
 import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
+import { LoadingOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -176,7 +177,29 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     return <Text>INVALID FORM URL</Text>;
   }
   if (!formEvent && !isPreview) {
-    return <Text>Loading...</Text>;
+    return (
+      <div
+      style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center", 
+        alignItems: "center"    
+      }}
+    >
+      <Text
+        style={{
+          textAlign: "center",
+          display: "block"
+        }}
+      >
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: "#F7931A" }} spin />} />
+      </Text>
+    </div>
+    );
   } else if (!isPreview && formEvent?.content !== "" && !userPubKey) {
     return (
       <>
