@@ -1,6 +1,5 @@
-import { CheckCircleTwoTone, DownOutlined } from "@ant-design/icons";
-import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { Dropdown, Modal, Spin, MenuProps, FormInstance } from "antd";
+import { LoadingOutlined, DownOutlined } from "@ant-design/icons";
+import { Button, FormInstance, Dropdown, MenuProps } from "antd";
 import React, { useState } from "react";
 
 interface SubmitButtonProps {
@@ -20,50 +19,36 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   disabled = false,
   disabledMessage = "disabled",
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSigning, setIsSigning] = useState(false);
-
-  const signAndSubmit = async () => {
-    await submitForm(false);
-    setIsSigning(false);
-    closeModal();
-  };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const submitForm = async (anonymous: boolean = true) => {
+    setIsDisabled(true);
+    setIsSubmitting(true);
     try {
       await form.validateFields();
-    } catch (err) {}
-    let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
-    if (errors.length === 0) {
-      await onSubmit(anonymous);
+      let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
+      if (errors.length === 0) {
+        await onSubmit(anonymous);
+      }
+    } catch (err) {
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const showModal = () => {
-    setIsSigning(true);
-    setIsModalOpen(true);
-    signAndSubmit();
-  };
-
-  function closeModal() {
-    setIsModalOpen(false);
-  }
-
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
+  const handleMenuClick: MenuProps["onClick"] = async (e) => {
     if (e.key === "signSubmition") {
-      showModal();
+      await submitForm(false);
     } else {
-      submitForm();
+      await submitForm(true);
     }
   };
 
-  const handleButtonClick = () => {
-    if (selfSign) {
-      showModal();
-      return;
-    }
-    submitForm();
+  const handleButtonClick = async () => {
+    await submitForm(!selfSign);
   };
+
   const items = [
     {
       label: "Submit Anonymously",
@@ -82,44 +67,24 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   };
 
   return (
-    <>
-      <Dropdown.Button
-        menu={menuProps}
-        type="primary"
-        onClick={handleButtonClick}
-        icon={<DownOutlined />}
-        disabled={disabled}
-        className="submit-button"
-      >
-        {disabled ? disabledMessage : selfSign ? items[1].label : "Submit"}
-      </Dropdown.Button>
-      <Modal
-        open={isModalOpen}
-        onCancel={closeModal}
-        footer={null}
-        title="Nip-07 browser extension needed to sign"
-      >
-        {!isSigning && (
-          <div>
-            {" "}
-            <CheckCircleTwoTone /> Access granted
-          </div>
-        )}
-        {isSigning && (
-          <div>
-            <Spin size="small" /> Waiting for you to finish signing your
-            response. Click{" "}
-            <a
-              href="https://nostrcheck.me/register/browser-extension.php"
-              target="_blank"
-              rel="noreferrer"
-            >
-              here
-            </a>{" "}
-            to read more about nip-07 signing.
-          </div>
-        )}
-      </Modal>
-    </>
+    <Dropdown.Button
+      menu={menuProps}
+      type="primary"
+      onClick={handleButtonClick}
+      icon={<DownOutlined />}
+      disabled={isDisabled}
+      className="submit-button"
+    >
+      {disabled ? (
+        disabledMessage
+      ) : isSubmitting ? (
+        <span>
+          <LoadingOutlined className="mr-2" />
+          Submitting...
+        </span>
+      ) : (
+        selfSign ? items[1].label : "Submit"
+      )}
+    </Dropdown.Button>
   );
 };
