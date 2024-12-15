@@ -2,11 +2,17 @@ import {
   AbstractRelay,
   Event,
   finalizeEvent,
+  generateSecretKey,
   getPublicKey,
+  nip04,
+  nip19,
   Relay,
+  SimplePool,
   UnsignedEvent,
 } from "nostr-tools";
 import { normalizeURL } from "nostr-tools/utils";
+import { Field, Response, Tag } from "./types";
+import { IFormSettings } from "../containers/CreateFormNew/components/FormSettings/types";
 
 declare global {
   // TODO: make this better
@@ -93,7 +99,9 @@ export const customPublish = (
           onAcceptedRelays?.(url);
           return reason;
         }),
-        new Promise<string>((_, reject) => setTimeout(() => reject("timeout"), 5000))
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject("timeout"), 5000)
+        ),
       ]);
     } finally {
       if (relay) {
@@ -106,6 +114,72 @@ export const customPublish = (
     }
   });
 };
+
+function createQuestionMap(form: Tag[]) {
+  const questionMap: { [key: string]: Field } = {};
+  form.forEach((field) => {
+    if (field[0] !== "field") return;
+    questionMap[field[1]] = field as Field;
+  });
+  return questionMap;
+}
+
+const getDisplayAnswer = (answer: string | number | boolean, field: Field) => {
+  let choices = JSON.parse(field[4]);
+  return (
+    choices
+      ?.filter((choice: Tag) => {
+        const answers = answer.toString().split(";");
+        return answers.includes(choice[0]);
+      })
+      .map((choice: Tag) => choice[1])
+      .join(", ") || (answer || "").toString()
+  );
+};
+
+export const sendNotification = async (
+  form: Tag[],
+  response: Array<Response>
+) => {
+  const name = form.filter((f) => f[0] === "name")?.[0][1];
+  let settings = JSON.parse(
+    form.filter((f) => f[0] === "settings")?.[0][1]
+  ) as IFormSettings;
+  let message = 'New response for form: "' + name + '"';
+  const questionMap = createQuestionMap(form);
+  message += "\n" + "Answers: \n";
+  response.forEach((response) => {
+    if (response[0] !== "response") return;
+    const question = questionMap[response[1]];
+    message +=
+      "\n" +
+      question[3] +
+      ": \n" +
+      getDisplayAnswer(response[2], question) +
+      "\n";
+  });
+  message += "Visit https://formstr.app to view the responses.";
+  const newSk = generateSecretKey();
+  const newPk = getPublicKey(newSk);
+  const pool = new SimplePool();
+  settings.notifyNpubs?.forEach(async (npub) => {
+    const hexNpub = nip19.decode(npub).data.toString();
+    const encryptedMessage = await nip04.encrypt(newSk, hexNpub, message);
+    const baseKind4Event: Event = {
+      kind: 4,
+      pubkey: newPk,
+      tags: [["p", hexNpub]],
+      content: encryptedMessage,
+      created_at: Math.floor(Date.now() / 1000),
+      id: "",
+      sig: "",
+    };
+    const kind4Event = finalizeEvent(baseKind4Event, newSk);
+    pool.publish(defaultRelays, kind4Event);
+  });
+  pool.close(defaultRelays);
+};
+
 export const ensureRelay = async (
   url: string,
   params?: { connectionTimeout?: number }

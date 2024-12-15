@@ -207,7 +207,6 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     options: { [key: string]: boolean } = {}
   ) {
     let embeddedUrl = constructFormUrl(pubKey, formId, relay);
-
     if (options.hideTitleImage) {
       embeddedUrl += "?hideTitleImage=true";
     }
