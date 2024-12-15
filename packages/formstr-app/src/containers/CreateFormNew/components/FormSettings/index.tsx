@@ -5,6 +5,7 @@ import TitleImage from "./TitleImage";
 import { Sharing } from "./Sharing";
 import { RelayList } from "./RelayList";
 import FormIdentifier from "./FormIdentifier";
+import { Notifications } from "./Notifications";
 
 const { Text } = Typography;
 
@@ -40,12 +41,22 @@ function FormSettings() {
 
       <Divider className="divider" />
       <div className="form-setting">
-        <Tooltip title="This will make the form appear on the Public Forms section on formstr">
-          <div className="property-setting">
-            <Text className="property-text">Show in public feed</Text>
-            <Switch onChange={handlePublicForm} />
-          </div>
-        </Tooltip>
+        <Text className="property-name">Notifications</Text>
+        <Notifications />
+        {formSettings.notifyNpubs?.length ? (
+          <Text className="warning-text">
+            *These npubs will receive
+            <a
+              href="https://github.com/nostr-protocol/nips/blob/master/04.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {" "}
+              nip-04{" "}
+            </a>
+            encrypted notifications.
+          </Text>
+        ) : null}
       </div>
       <Divider className="divider" />
       <div className="form-setting">

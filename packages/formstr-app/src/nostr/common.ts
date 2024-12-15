@@ -153,7 +153,7 @@ export const sendNotification = async (
     const question = questionMap[response[1]];
     message +=
       "\n" +
-      question[1] +
+      question[3] +
       ": \n" +
       getDisplayAnswer(response[2], question) +
       "\n";
