@@ -1,5 +1,4 @@
 import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
-import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateFormNew/components/FormTitle";
 import {
@@ -17,7 +16,6 @@ import { ReactComponent as CreatedUsingFormstr } from "../../Images/created-usin
 import Markdown from "react-markdown";
 import { Event, generateSecretKey, nip19 } from "nostr-tools";
 import { FormFields } from "./FormFields";
-import { hexToBytes } from "@noble/hashes/utils";
 import { RequestAccess } from "./RequestAccess";
 import { CheckRequests } from "./CheckRequests";
 import { fetchFormTemplate } from "@formstr/sdk/dist/formstr/nip101/fetchFormTemplate";
@@ -27,6 +25,7 @@ import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
 import { LoadingOutlined } from "@ant-design/icons";
 import { sendNotification } from "../../nostr/common";
+import { sendResponses } from "../../nostr/common";
 
 const { Text } = Typography;
 
@@ -42,17 +41,11 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const { naddr } = useParams();
   let isPreview: boolean = false;
   if (!naddr) isPreview = true;
-  //if (!naddr) return <Typography.Text> Corrupted Form Link</Typography.Text>;
-  // let {
-  //   pubkey,
-  //   identifier,
-  //   kind,
-  //   relays,
-  // } = nip19.decode(naddr).data as AddressPointer;
   let decodedData;
   if (!isPreview) decodedData = nip19.decode(naddr!).data as AddressPointer;
   let pubKey = decodedData?.pubkey;
   let formId = decodedData?.identifier;
+  let relays = decodedData?.relays;
   const { pubkey: userPubKey, requestPubkey } = useProfileContext();
   const [formTemplate, setFormTemplate] = useState<Tag[] | null>(
     formSpec || null
@@ -82,10 +75,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     setEditKey(editKey);
   };
 
-  const initialize = async (formAuthor: string, formId: string) => {
+  const initialize = async (
+    formAuthor: string,
+    formId: string,
+    relays?: string[]
+  ) => {
     console.log("Author and id are", formAuthor, formId);
     if (!formEvent) {
-      const form = await fetchFormTemplate(formAuthor, formId);
+      const form = await fetchFormTemplate(formAuthor, formId, relays);
       if (!form) {
         alert("Could not find the form");
         return;
@@ -107,7 +104,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     if (!(pubKey && formId)) {
       return;
     }
-    initialize(pubKey, formId);
+    initialize(pubKey, formId, relays);
   }, [formEvent, formTemplate, userPubKey]);
 
   const handleInput = (
@@ -139,12 +136,14 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     if (anonymous) {
       anonUser = generateSecretKey();
     }
-    sendResponses(pubKey, formId, responses, anonUser).then((res) => {
-      console.log("Submitted!");
-      sendNotification(formTemplate!, responses);
-      setFormSubmitted(true);
-      setThankYouScreen(true);
-    });
+    sendResponses(pubKey, formId, responses, anonUser, true, relays).then(
+      (res: any) => {
+        console.log("Submitted!");
+        sendNotification(formTemplate!, responses);
+        setFormSubmitted(true);
+        setThankYouScreen(true);
+      }
+    );
   };
 
   const renderSubmitButton = () => {
