@@ -18,6 +18,7 @@ export const LocalFormCard: React.FC<LocalFormCardProps> = ({
   let responseUrl = form.formId
     ? `/s/${form.privateKey}/${form.formId}`
     : `/response/${form.privateKey}`;
+  responseUrl = responseUrl + `?relay=${form.relay}`;
   let formUrl =
     form.publicKey && form.formId
       ? `/f/${nip19.naddrEncode({
