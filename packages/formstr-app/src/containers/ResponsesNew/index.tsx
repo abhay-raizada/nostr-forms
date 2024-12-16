@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Event, getPublicKey, nip19, nip44 } from "nostr-tools";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Field, Tag } from "@formstr/sdk/dist/formstr/nip101";
 import { fetchFormResponses } from "@formstr/sdk/dist/formstr/nip101/fetchFormResponses";
 import SummaryStyle from "./summary.style";
@@ -21,7 +21,7 @@ export const Response = () => {
   const [formSpec, setFormSpec] = useState<Tag[] | null | undefined>(undefined);
   const [editKey, setEditKey] = useState<string | undefined | null>();
   let { pubKey, formId, secretKey } = useParams();
-
+  let [searchParams] = useSearchParams();
   const { pubkey: userPubkey, requestPubkey } = useProfileContext();
 
   console.log("params received are:", pubKey, formId, secretKey);
@@ -40,7 +40,12 @@ export const Response = () => {
       setEditKey(secretKey);
       pubKey = getPublicKey(hexToBytes(secretKey));
     }
-    const formEvent = await fetchFormTemplate(pubKey!, formId);
+    let relay = searchParams.get("relay");
+    const formEvent = await fetchFormTemplate(
+      pubKey!,
+      formId,
+      relay ? [relay!] : undefined
+    );
     if (!formEvent) return;
     if (!secretKey) {
       if (userPubkey) {
@@ -57,12 +62,17 @@ export const Response = () => {
     let allowedPubkeys;
     let pubkeys = getAllowedUsers(formEvent);
     if (pubkeys.length !== 0) allowedPubkeys = pubkeys;
-    const responses = await fetchFormResponses(pubKey!, formId, allowedPubkeys);
+    const responses = await fetchFormResponses(
+      pubKey!,
+      formId,
+      allowedPubkeys,
+      relay ? [relay!] : undefined
+    );
     setResponses(responses);
   };
 
   useEffect(() => {
-    if (!formEvent) initialize();
+    if (!formEvent && !responses) initialize();
   });
 
   const getInputs = (responseEvent: Event) => {
@@ -94,6 +104,7 @@ export const Response = () => {
     let answers: Array<{
       [key: string]: string;
     }> = [];
+    if (!formSpec) return;
     (responses || []).forEach((response) => {
       let inputs = getInputs(response) as Tag[];
       if (inputs.length === 0) return;
@@ -105,11 +116,21 @@ export const Response = () => {
         authorPubkey: nip19.npubEncode(response.pubkey),
       };
       inputs.forEach((input) => {
-        let question = formSpec?.find(
+        let questionField = formSpec.find(
           (t) => t[0] === "field" && t[1] === input[1]
-        )?.[3];
+        );
+        if (!questionField) return;
+        let question = questionField?.[3];
         const label = useLabels ? question || input[1] : input[1];
-        answerObject[label] = input[2];
+        let responseLabel = input[2];
+        if (questionField[2] === "option") {
+          let choices = JSON.parse(questionField[4]) as Tag[];
+          let choiceField = choices.filter((choice) => {
+            return choice[0] === input[2];
+          })?.[0];
+          if (choiceField[1]) responseLabel = choiceField[1];
+        }
+        answerObject[label] = responseLabel;
       });
       answers.push(answerObject);
     });
@@ -193,7 +214,10 @@ export const Response = () => {
           </div>
         </SummaryStyle>
         <ResponseWrapper>
-          <Export responsesData={getData(true)} formName={getFormName()} />
+          <Export
+            responsesData={getData(true) || []}
+            formName={getFormName()}
+          />
           <div style={{ overflow: "scroll", marginBottom: 60 }}>
             <Table
               columns={getColumns()}

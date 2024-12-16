@@ -4,17 +4,17 @@ import { Field, Tag } from "./interfaces";
 
 export const fetchFormTemplate = async (
   pubKey: string,
-  formIdentifier: string
+  formIdentifier: string,
+  relays?: string[]
 ): Promise<Event | null> => {
   const pool = new SimplePool();
   let formIdPubkey = pubKey;
-  let relayList = getDefaultRelays();
+  let relayList = relays?.length ? relays : getDefaultRelays();
   const filter = {
     kinds: [30168],
     authors: [formIdPubkey],
     "#d": [formIdentifier],
   };
-  console.log("Fetching template....", filter);
   const nostrEvent = await pool.get(relayList, filter);
   console.log("nostr event fetched is", nostrEvent);
   pool.close(relayList);

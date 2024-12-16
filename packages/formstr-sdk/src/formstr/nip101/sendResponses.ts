@@ -26,13 +26,12 @@ export const sendResponses = async (
   formId: string,
   responses: Response[],
   responderSecretKey: Uint8Array | null = null,
-  encryptResponses: boolean = true
+  encryptResponses: boolean = true,
+  relays: string[] = []
 ) => {
   let responderPub;
   responderPub = await getUserPublicKey(responderSecretKey);
-  let tags = [
-    ["a", `30168:${formAuthorPub}:${formId}`],
-  ];
+  let tags = [["a", `30168:${formAuthorPub}:${formId}`]];
   let content = "";
   if (!encryptResponses) {
     tags = [...tags, ...responses];
@@ -53,8 +52,8 @@ export const sendResponses = async (
 
   const fullEvent = await signEvent(baseEvent, responderSecretKey);
   const pool = new SimplePool();
-  console.log("Final Response event sent is", fullEvent);
-  const messages = await Promise.allSettled(pool.publish(defaultRelays, fullEvent));
+  const relayList = [...relays, ...defaultRelays];
+  const messages = await Promise.allSettled(pool.publish(relayList, fullEvent));
   console.log("Message from relays", messages);
-  pool.close(defaultRelays);
+  pool.close(relayList);
 };
