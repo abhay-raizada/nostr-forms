@@ -7,22 +7,23 @@ import StyleWrapper from "./style";
 import { RightAnswer } from "./RightAnswer";
 import { Field } from "../../providers/FormBuilder";
 import { IAnswerSettings } from "./types";
+import UploadImage from "../QuestionCard/UploadImage";
 
 const { Text } = Typography;
 
 function AnswerSettings() {
   const { questionsList, questionIdInFocus, editQuestion, deleteQuestion } =
     useFormBuilderContext();
-    
-    if (!questionIdInFocus) {
-      return null;
-    }
-    const questionIndex = questionsList.findIndex(
-      (field: Field) => field[1] === questionIdInFocus
-    );
-    if (questionIndex === -1) {
-      return null;
-    }
+
+  if (!questionIdInFocus) {
+    return null;
+  }
+  const questionIndex = questionsList.findIndex(
+    (field: Field) => field[1] === questionIdInFocus
+  );
+  if (questionIndex === -1) {
+    return null;
+  }
   const question = questionsList[questionIndex];
   const answerSettings = JSON.parse(
     question[5] || '{ "renderElement": "shortText"}'
@@ -31,7 +32,6 @@ function AnswerSettings() {
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
   );
-
 
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
@@ -93,7 +93,42 @@ function AnswerSettings() {
           />
         </div>
       </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginLeft: "16px",
+          marginRight: "16px",
+        }}
+      >
+        <Text className="property-title">Upload Image</Text>
+        <UploadImage
+          onImageUpload={(markdownUrl) => {
+            const name = markdownUrl.match(/\[(.*?)\]/)?.[1] || "";
+            const url = markdownUrl.match(/\((.*?)\)/)?.[1] || "";
+            const imageMarkdown = `![${name}](${url})`;
+
+            const currentDisplay = question[3] || "";
+            const newDisplay = currentDisplay
+              ? `${currentDisplay}\n\n${imageMarkdown}`
+              : imageMarkdown;
+
+            const field: Field = [
+              question[0],
+              question[1],
+              question[2],
+              newDisplay,
+              question[4],
+              question[5],
+            ];
+
+            editQuestion(field, field[1]);
+          }}
+        />
+      </div>
       <Divider className="divider" />
+
       <Validation
         key={question[1] + "validation"}
         answerType={answerSettings.renderElement}

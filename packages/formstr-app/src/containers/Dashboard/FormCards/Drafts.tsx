@@ -28,7 +28,7 @@ export const Drafts = () => {
     setDrafts((getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS) || []) as Draft[]);
   }, []);
   return (
-    <div>
+    <div style={{  width: "80%" }}>  
       {drafts.map((d: Draft) => {
         let name = d.formSpec.filter((t) => t[0] === "name")?.[0][1];
         return (

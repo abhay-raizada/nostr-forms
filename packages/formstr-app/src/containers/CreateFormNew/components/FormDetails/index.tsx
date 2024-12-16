@@ -43,7 +43,6 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     null
   );
 
-  console.log("Inside form details", isOpen);
   const { pubkey: userPub, requestPubkey } = useProfileContext();
   const saveToDevice = (
     formAuthorPub: string,
@@ -53,7 +52,6 @@ export const FormDetails: React.FC<FormDetailsProps> = ({
     relay: string,
     viewKey?: string
   ) => {
-    console.log("inside save to device");
     let saveObject: ILocalForm = {
       key: `${formAuthorPub}:${formId}`,
       publicKey: `${formAuthorPub}`,

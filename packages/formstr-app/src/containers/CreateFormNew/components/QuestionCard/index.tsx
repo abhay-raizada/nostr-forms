@@ -26,7 +26,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   firstQuestion,
   lastQuestion,
 }) => {
-  console.log("question is", question, question[5]);
+  // console.log("question is", question, question[5]);
   let options = JSON.parse(question[4] || "[]") as Array<Choice>;
   const answerSettings = JSON.parse(
     question[5] || '{"renderElement": "shortText"}'
