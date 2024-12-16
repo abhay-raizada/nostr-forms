@@ -7,7 +7,6 @@ import StyleWrapper from "./style";
 import { RightAnswer } from "./RightAnswer";
 import { Field } from "../../providers/FormBuilder";
 import { IAnswerSettings } from "./types";
-import UploadImage from "../QuestionCard/UploadImage";
 
 const { Text } = Typography;
 
@@ -92,40 +91,6 @@ function AnswerSettings() {
             onChange={updateIsRequired}
           />
         </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginLeft: "16px",
-          marginRight: "16px",
-        }}
-      >
-        <Text className="property-title">Upload Image</Text>
-        <UploadImage
-          onImageUpload={(markdownUrl) => {
-            const name = markdownUrl.match(/\[(.*?)\]/)?.[1] || "";
-            const url = markdownUrl.match(/\((.*?)\)/)?.[1] || "";
-            const imageMarkdown = `![${name}](${url})`;
-
-            const currentDisplay = question[3] || "";
-            const newDisplay = currentDisplay
-              ? `${currentDisplay}\n\n${imageMarkdown}`
-              : imageMarkdown;
-
-            const field: Field = [
-              question[0],
-              question[1],
-              question[2],
-              newDisplay,
-              question[4],
-              question[5],
-            ];
-
-            editQuestion(field, field[1]);
-          }}
-        />
       </div>
       <Divider className="divider" />
 
