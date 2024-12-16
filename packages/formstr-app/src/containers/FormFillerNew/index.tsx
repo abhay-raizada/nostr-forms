@@ -1,5 +1,4 @@
 import { Field, Tag, Option, Response } from "@formstr/sdk/dist/formstr/nip101";
-import { sendResponses } from "@formstr/sdk/dist/formstr/nip101/sendResponses";
 import FillerStyle from "./formFiller.style";
 import FormTitle from "../CreateFormNew/components/FormTitle";
 import {
@@ -26,6 +25,7 @@ import { IFormSettings } from "../CreateFormNew/components/FormSettings/types";
 import { AddressPointer } from "nostr-tools/nip19";
 import { LoadingOutlined } from "@ant-design/icons";
 import { sendNotification } from "../../nostr/common";
+import { sendResponses } from "../../nostr/common";
 
 const { Text } = Typography;
 
@@ -137,7 +137,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       anonUser = generateSecretKey();
     }
     sendResponses(pubKey, formId, responses, anonUser, true, relays).then(
-      (res) => {
+      (res: any) => {
         console.log("Submitted!");
         sendNotification(formTemplate!, responses);
         setFormSubmitted(true);

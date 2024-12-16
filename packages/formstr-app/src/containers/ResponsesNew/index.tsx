@@ -72,7 +72,7 @@ export const Response = () => {
   };
 
   useEffect(() => {
-    if (!formEvent) initialize();
+    if (!formEvent && !responses) initialize();
   });
 
   const getInputs = (responseEvent: Event) => {
