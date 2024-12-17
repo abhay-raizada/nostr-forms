@@ -97,7 +97,7 @@ export const customPublish = (
       relay = await ensureRelay(url, { connectionTimeout: 5000 });
       return await Promise.race<string>([
         relay.publish(event).then((reason) => {
-          console.log("accepted relays", url);
+          // console.log("accepted relays", url);
           onAcceptedRelays?.(url);
           return reason;
         }),

@@ -13,16 +13,16 @@ const { Text } = Typography;
 function AnswerSettings() {
   const { questionsList, questionIdInFocus, editQuestion, deleteQuestion } =
     useFormBuilderContext();
-    
-    if (!questionIdInFocus) {
-      return null;
-    }
-    const questionIndex = questionsList.findIndex(
-      (field: Field) => field[1] === questionIdInFocus
-    );
-    if (questionIndex === -1) {
-      return null;
-    }
+
+  if (!questionIdInFocus) {
+    return null;
+  }
+  const questionIndex = questionsList.findIndex(
+    (field: Field) => field[1] === questionIdInFocus
+  );
+  if (questionIndex === -1) {
+    return null;
+  }
   const question = questionsList[questionIndex];
   const answerSettings = JSON.parse(
     question[5] || '{ "renderElement": "shortText"}'
@@ -31,7 +31,6 @@ function AnswerSettings() {
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
   );
-
 
   const handleRightAnswer = (rightAnswer: string) => {
     const field = question;
@@ -94,6 +93,7 @@ function AnswerSettings() {
         </div>
       </div>
       <Divider className="divider" />
+
       <Validation
         key={question[1] + "validation"}
         answerType={answerSettings.renderElement}
