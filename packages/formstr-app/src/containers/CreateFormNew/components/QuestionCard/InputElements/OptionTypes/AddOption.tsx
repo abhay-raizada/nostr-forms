@@ -3,6 +3,7 @@ import { Button, Typography } from "antd";
 import { makeTag } from "../../../../../../utils/utility";
 import { addOption } from "./utils";
 import { Choice } from "./types";
+import UploadImage from "../../UploadImage";
 const { Text } = Typography;
 
 interface AddOptionProps {
@@ -29,6 +30,11 @@ export const AddOption: React.FC<AddOptionProps> = ({
       >
         Add Option
       </Button>
+      <UploadImage 
+        onImageUpload={(markdownUrl) => {
+          addOption([makeTag(6), markdownUrl], choices, callback);
+        }}
+      />
       {displayOther && (
         <>
           <div className="orText">

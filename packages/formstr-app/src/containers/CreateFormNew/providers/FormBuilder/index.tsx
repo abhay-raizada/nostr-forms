@@ -188,10 +188,10 @@ export default function FormBuilderProvider({
     }
     console.log("setting", LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
     setItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS, draftArr);
-    console.log(
-      "current local storage",
-      getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS)
-    );
+    // console.log(
+    //   "current local storage",
+    //   getItem(LOCAL_STORAGE_KEYS.DRAFT_FORMS)
+    // );
   };
 
   const editQuestion = (question: Field, tempId: string) => {

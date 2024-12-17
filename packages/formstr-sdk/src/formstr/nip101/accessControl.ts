@@ -64,7 +64,7 @@ const createWrap = (
   let aliasPubKey = bytesToHex(
     sha256(`${30168}:${eventAuthor}:${d_tag}:${recipientPublicKey}`)
   );
-  console.log("Alias pubkey created is", aliasPubKey);
+  // console.log("Alias pubkey created is", aliasPubKey);
   return finalizeEvent(
     {
       kind: 1059,
@@ -83,9 +83,9 @@ const createWrap = (
 const sendToUserRelays = async (wrap: Event, pubkey: string) => {
   let pool = new SimplePool();
   const defaultRelays = getDefaultRelays();
-  console.log("Sending event to relays", defaultRelays, wrap);
+  // console.log("Sending event to relays", defaultRelays, wrap);
   let messages = await Promise.allSettled(pool.publish(defaultRelays, wrap));
-  console.log("Relay replies", messages);
+  // console.log("Relay replies", messages);
   pool.close(defaultRelays);
 };
 

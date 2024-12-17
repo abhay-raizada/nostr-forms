@@ -42,7 +42,6 @@ export const Dashboard = () => {
   const subCloserRef = useRef<SubCloser | null>(null);
 
   const handleEvent = (event: Event) => {
-    console.log("got form event");
     setNostrForms((prevMap) => {
       const newMap = new Map(prevMap);
       newMap.set(event.id, event);
@@ -51,13 +50,11 @@ export const Dashboard = () => {
   };
 
   const fetchNostrForms = () => {
-    console.log("fetching forms shared with me");
     const queryFilter = {
       kinds: [30168],
       "#p": [pubkey!],
     };
 
-    console.log("search filters are", queryFilter);
     subCloserRef.current = poolRef.current.subscribeMany(
       defaultRelays,
       [queryFilter],
@@ -68,7 +65,6 @@ export const Dashboard = () => {
         },
       }
     );
-    console.log("subscribed to relays", subCloserRef);
   };
 
   useEffect(() => {
