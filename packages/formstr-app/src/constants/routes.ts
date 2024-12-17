@@ -6,6 +6,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   PUBLIC_FORMS: "/public",
   FORM_FILLER: "/fill/:formId",
+  FORM_FILLER_OLD: "/forms/:formId",
   FORM_FILLER_NEW: "/f/:naddr",
   PREVIEW: "/preview",
   RESPONSES: "/response/:formSecret",

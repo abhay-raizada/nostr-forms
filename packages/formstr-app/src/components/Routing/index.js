@@ -36,7 +36,6 @@ const withNewCreateFormHeaderWrapper = (Component, props) => {
 function Routing() {
   return (
     <Routes>
-      <Route path="forms/:formId" element={<FormFiller />} />
       <Route
         path="forms/:formSecret/responses"
         element={withNostrHeaderWrapper(ResponsesOld)}
@@ -55,6 +54,7 @@ function Routing() {
         element={withNostrHeaderWrapper(PublicForms)}
       />
       <Route path={`${ROUTES.FORM_FILLER}/*`} element={<FormFillerOld />} />
+      <Route path={`${ROUTES.FORM_FILLER_OLD}/*`} element={<FormFillerOld />} />
       <Route
         path={`${ROUTES.EMBEDDED}/*`}
         element={<FormFiller embedded={true} />}
