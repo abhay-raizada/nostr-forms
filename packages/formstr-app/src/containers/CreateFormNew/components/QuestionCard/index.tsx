@@ -78,11 +78,14 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           firstQuestion={firstQuestion}
           lastQuestion={lastQuestion}
         />
-        <div className="question-text" style={{justifyContent: "space-between", display:"flex"}} >
+        <div
+          className="question-text"
+          style={{ justifyContent: "space-between", display: "flex" }}
+        >
           <QuestionTextStyle style={{ width: "100%" }}>
             <label>
               <Input.TextArea
-                key={question[1]} 
+                key={question[1]}
                 className="question-input"
                 onChange={handleTextChange}
                 value={question[3] || "Click to edit"}
@@ -91,38 +94,34 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
               />
             </label>
           </QuestionTextStyle>
-          <UploadImage 
+          <UploadImage
             onImageUpload={(markdownUrl) => {
-              const name = markdownUrl.match(/\[(.*?)\]/)?.[1] || '';
-              const url = markdownUrl.match(/\((.*?)\)/)?.[1] || '';
-              const imageMarkdown = `![${name}](${url})`;
-            
-              const currentDisplay = question[3] || '';
-              const newDisplay = currentDisplay 
-                ? `${currentDisplay}\n\n${imageMarkdown}`
-                : imageMarkdown;
-            
+              const currentDisplay = question[3] || "";
+              const newDisplay = currentDisplay
+                ? `${currentDisplay}\n\n${markdownUrl}`
+                : markdownUrl;
+
               const field: Field = [
                 question[0],
                 question[1],
                 question[2],
                 newDisplay,
                 question[4],
-                question[5]
+                question[5],
               ];
-              
+
               onEdit(field, field[1]);
             }}
           />
         </div>
-        
-          <Inputs
-            inputType={answerSettings.renderElement}
-            options={options}
-            answerSettings={answerSettings}
-            answerSettingsHandler={handleAnswerSettings}
-            optionsHandler={handleOptions}
-          />
+
+        <Inputs
+          inputType={answerSettings.renderElement}
+          options={options}
+          answerSettings={answerSettings}
+          answerSettingsHandler={handleAnswerSettings}
+          optionsHandler={handleOptions}
+        />
       </Card>
     </StyledWrapper>
   );

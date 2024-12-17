@@ -19,7 +19,7 @@ const UploadImage: React.FC<Props> = ({ onImageUpload }) => {
   const formatImageUrl = (url: string, customName?: string) => {
     const fileName = (customName || url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'image')
       .slice(0, 5);
-    return `[${fileName}](${url})`;
+    return `![${fileName}](${url})`;
   };
 
   const showModal = () => {

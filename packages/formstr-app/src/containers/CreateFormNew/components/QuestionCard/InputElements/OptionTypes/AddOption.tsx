@@ -32,7 +32,7 @@ export const AddOption: React.FC<AddOptionProps> = ({
       </Button>
       <UploadImage 
         onImageUpload={(markdownUrl) => {
-          addOption([makeTag(6), "!" + markdownUrl], choices, callback);
+          addOption([makeTag(6), markdownUrl], choices, callback);
         }}
       />
       {displayOther && (
