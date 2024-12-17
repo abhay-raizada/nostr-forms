@@ -23,12 +23,12 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   const [isDisabled, setIsDisabled] = useState(false);
 
   const submitForm = async (anonymous: boolean = true) => {
-    setIsDisabled(true);
     setIsSubmitting(true);
     try {
       await form.validateFields();
       let errors = form.getFieldsError().filter((e) => e.errors.length > 0);
       if (errors.length === 0) {
+        setIsDisabled(true);
         await onSubmit(anonymous);
       }
     } catch (err) {
