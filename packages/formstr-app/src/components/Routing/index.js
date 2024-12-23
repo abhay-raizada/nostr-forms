@@ -57,7 +57,7 @@ function Routing() {
       <Route path={`${ROUTES.FORM_FILLER_OLD}/*`} element={<FormFillerOld />} />
       <Route
         path={`${ROUTES.EMBEDDED}/*`}
-        element={<FormFiller embedded={true} />}
+        element={<FormFillerOld embedded={true} />}
       />
       <Route
         path={`${ROUTES.RESPONSES}/*`}
