@@ -24,15 +24,16 @@ function AnswerSettings() {
     return null;
   }
   const question = questionsList[questionIndex];
-  const answerSettings = JSON.parse(
-    question[5] || '{ "renderElement": "shortText"}'
-  );
+  const answerSettings = {
+    ...JSON.parse(question[5] || '{ "renderElement": "shortText"}'),
+    choices: question[4],
+  };
   const answerType = INPUTS_MENU.find(
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
   );
 
-  const handleRightAnswer = (rightAnswer: string) => {
+  const handleRightAnswer = (rightAnswer: string | string[]) => {
     const field = question;
     let newAnswerSettings = {
       ...answerSettings,
@@ -42,8 +43,10 @@ function AnswerSettings() {
       },
     };
     field[5] = JSON.stringify(newAnswerSettings);
+    console.log("field[5]", field[5]);
     editQuestion(field, field[1]);
   };
+
   const updateAnswerType: MenuProps["onClick"] = ({ key }) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === key);
     if (!selectedItem) return;

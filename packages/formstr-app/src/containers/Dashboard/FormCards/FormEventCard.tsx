@@ -1,15 +1,16 @@
 import { Tag } from "@formstr/sdk/dist/formstr/nip101";
-import { Button, Card, Divider, Typography } from "antd";
+import { Button, Card, Typography } from "antd";
 import { Event, nip19 } from "nostr-tools";
 import { useNavigate } from "react-router-dom";
+import DeleteFormTrigger from "./DeleteForm";
 
 const { Text } = Typography;
 
 interface FormEventCardProps {
   event: Event;
+  onDeleted?: () => void;
 }
-
-export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
+export const FormEventCard: React.FC<FormEventCardProps> = ({ event, onDeleted }) => {
   const navigate = useNavigate();
   const name = event.tags.find((tag: Tag) => tag[0] === "name") || [];
   const pubKey = event.pubkey;
@@ -17,18 +18,29 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
   const relays = event.tags
     .filter((tag: Tag) => tag[0] === "relay")
     .map((t) => t[1]);
-
   if (!formId) {
     return <Card title="Invalid Form Event">{JSON.stringify(event)}</Card>;
   }
 
-  let publicForm = event.content === "";
+  const publicForm = event.content === "";
+  const formKey = `${pubKey}:${formId}`;
+  
   return (
-    <>
-      <Card
-        title={name[1] || "Hidden Form"}
-        className="form-card"
-        onClick={() => {
+    <Card
+      title={name[1] || "Hidden Form"}
+      className="form-card"
+      extra={onDeleted ? <DeleteFormTrigger formKey={formKey} onDeleted={onDeleted} /> : null}
+    >
+      <Button
+        onClick={(e) => {
+          navigate(`/r/${pubKey}/${formId}`);
+        }}
+      >
+        View Responses
+      </Button>
+      <Button
+        onClick={(e: any) => {
+          e.stopPropagation();
           navigate(
             `/f/${nip19.naddrEncode({
               identifier: formId,
@@ -38,27 +50,12 @@ export const FormEventCard: React.FC<FormEventCardProps> = ({ event }) => {
             })}`
           );
         }}
-        hoverable={true}
+        style={{
+          marginLeft: "10px",
+        }}
       >
-        {publicForm ? (
-          <Text>
-            {" "}
-            {event.tags.filter((tag: Tag) => tag[0] === "field").length}{" "}
-            Questions
-          </Text>
-        ) : (
-          <Text> Hidden Content</Text>
-        )}
-        <Divider />
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/r/${pubKey}/${formId}`);
-          }}
-        >
-          View Responses
-        </Button>
-      </Card>
-    </>
+        Open Form
+      </Button>
+    </Card>
   );
 };

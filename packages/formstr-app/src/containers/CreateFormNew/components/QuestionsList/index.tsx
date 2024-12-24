@@ -4,12 +4,51 @@ import FormTitle from "../FormTitle";
 import StyleWrapper from "./style";
 import DescriptionStyle from "./description.style";
 import useFormBuilderContext from "../../hooks/useFormBuilderContext";
-import { ChangeEvent } from "react";
-import { IQuestion } from "../../typeDefs";
-import { Reorder } from "framer-motion";
+import { ChangeEvent, useState, useRef, useEffect } from "react";
+import { Reorder, motion, useDragControls } from "framer-motion";
 import { Field } from "../../providers/FormBuilder";
 
+interface FloatingButtonProps {
+  onClick: () => void;
+  containerRef: React.RefObject<HTMLDivElement>;
+}
+
+const FloatingButton = ({ onClick, containerRef }: FloatingButtonProps) => {
+  const dragControls = useDragControls();
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  return (
+    <motion.div
+      drag
+      dragControls={dragControls}
+      dragMomentum={false}
+      dragElastic={0}
+      dragConstraints={containerRef}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => {
+        setIsDragging(false);
+      }}
+      animate={position}
+      whileDrag={{ scale: 1.1 }}
+      whileHover={{ scale: 1.05 }}
+    >
+      <Button
+        type="primary"
+        size="large"
+        onClick={() => {
+          if (!isDragging) onClick();
+        }}
+      >
+        +
+      </Button>
+    </motion.div>
+  );
+};
+
 export const QuestionsList = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   const {
     formSettings,
     questionsList,
@@ -39,8 +78,7 @@ export const QuestionsList = () => {
     const order = keyType === "UP" ? -1 : +1;
     if (selectedQuestionIndex !== -1) {
       const replaceQuestion = questions[selectedQuestionIndex + order];
-      questions[selectedQuestionIndex + order] =
-        questions[selectedQuestionIndex];
+      questions[selectedQuestionIndex + order] = questions[selectedQuestionIndex];
       questions[selectedQuestionIndex] = replaceQuestion;
     }
     updateQuestionsList(questions);
@@ -54,6 +92,8 @@ export const QuestionsList = () => {
     <StyleWrapper
       className="main-content"
       onClick={() => setQuestionIdInFocus()}
+      ref={containerRef}
+      style={{ position: 'relative' }}
     >
       <div>
         <FormTitle className="form-title" />
@@ -74,36 +114,30 @@ export const QuestionsList = () => {
         className="reorder-group"
       >
         <div>
-          {questionsList.map((question, idx) => {
-            // console.log("Rendering Question", question);
-            return (
-              <Reorder.Item
-                value={question}
-                key={question[1]}
-                dragListener={false}
-              >
-                <QuestionCard
-                  question={question}
-                  onEdit={editQuestion}
-                  onReorderKey={onReorderKey}
-                  firstQuestion={idx === 0}
-                  lastQuestion={idx === questionsList.length - 1}
-                />
-              </Reorder.Item>
-            );
-          })}
+          {questionsList.map((question, idx) => (
+            <Reorder.Item
+              value={question}
+              key={question[1]}
+              dragListener={true}
+            >
+              <QuestionCard
+                question={question}
+                onEdit={editQuestion}
+                onReorderKey={onReorderKey}
+                firstQuestion={idx === 0}
+                lastQuestion={idx === questionsList.length - 1}
+              />
+            </Reorder.Item>
+          ))}
           <div ref={bottomElementRef}></div>
         </div>
       </Reorder.Group>
-      <div>
-        <Button
-          type="primary"
-          size="large"
-          onClick={onPlusButtonClick}
-          className="mobile-add-btn"
-        >
-          +
-        </Button>
+      <div className="mobile-add-btn">
+
+      <FloatingButton 
+        onClick={onPlusButtonClick} 
+        containerRef={containerRef}
+      />
       </div>
     </StyleWrapper>
   );

@@ -31,11 +31,23 @@ export default styled.div`
       right: 10px;
       bottom: 80px;
       margin: 10px;
-      height: 50px;
-      width: 53px;
-      box-shadow: 0px 0px 5px 5px #dedede;
+      z-index: 1000;
+
+      > div {
+        width: 53px;
+        height: 50px;
+        > div > button {
+          width: 100%;
+          height: 100%;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
     }
   }
+
   .reorder-group {
     list-style: none;
     padding: 0;
