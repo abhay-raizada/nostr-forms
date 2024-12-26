@@ -79,31 +79,14 @@ function Match(rule: MatchRule): Rule {
       if (!value) return Promise.resolve();
       if (!rule.answer) return Promise.resolve();
 
-      if (Array.isArray(rule.answer)) {
-        // Split the concatenated values and remove empty strings
-        const userAnswers = value[0]?.split(';').filter(Boolean) || [];
-        
-        // Sort both arrays for comparison
-        const sortedUserAnswers = [...userAnswers].sort();
-        const sortedExpectedAnswers = [...rule.answer].sort();
-
-        console.log("Processed userAnswers:", sortedUserAnswers);
-        console.log("Expected answers:", sortedExpectedAnswers);
-
-        if (JSON.stringify(sortedUserAnswers) === JSON.stringify(sortedExpectedAnswers)) {
-          return Promise.resolve();
-        }
-        return Promise.reject(
-          `This is not the correct answer for this question`
-        );
+      const userValue = value[0];
+      if (userValue === rule.answer) {
+        return Promise.resolve();
       }
 
-      if (value[0] !== rule.answer) {
-        return Promise.reject(
-          `This is not the correct answer for this question`
-        );
-      }
-      return Promise.resolve();
+      return Promise.reject(
+        `This is not the correct answer for this question`
+      );
     },
   };
 }

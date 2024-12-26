@@ -24,10 +24,10 @@ function AnswerSettings() {
     return null;
   }
   const question = questionsList[questionIndex];
-  const answerSettings = {
-    ...JSON.parse(question[5] || '{ "renderElement": "shortText"}'),
-    choices: question[4],
-  };
+  const answerSettings = JSON.parse(
+    question[5] || '{ "renderElement": "shortText"}'
+  );
+
   const answerType = INPUTS_MENU.find(
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
@@ -43,7 +43,6 @@ function AnswerSettings() {
       },
     };
     field[5] = JSON.stringify(newAnswerSettings);
-    console.log("field[5]", field[5]);
     editQuestion(field, field[1]);
   };
 
@@ -108,6 +107,7 @@ function AnswerSettings() {
         key={question[1] + "rightAnswer"}
         answerType={answerSettings.renderElement}
         answerSettings={answerSettings}
+        choices={question[4]}
         onChange={handleRightAnswer}
       />
       <Divider className="divider" />
