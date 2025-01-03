@@ -27,6 +27,17 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { sendNotification } from "../../nostr/common";
 import { sendResponses } from "../../nostr/common";
 
+interface Rule {
+  questionId: string;
+  value: string;
+}
+
+interface AnswerSettings {
+  conditions?: {
+    rules: Rule[];
+  };
+}
+
 const { Text } = Typography;
 
 interface FormFillerProps {
@@ -61,6 +72,7 @@ export const FormFiller: React.FC<FormFillerProps> = ({
   const hideTitleImage = searchParams.get("hideTitleImage") === "true";
   const viewKeyParams = searchParams.get("viewKey");
   const hideDescription = searchParams.get("hideDescription") === "true";
+  const [formAnswers, setFormAnswers] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   isPreview = !!formSpec;
@@ -107,18 +119,27 @@ export const FormFiller: React.FC<FormFillerProps> = ({
     initialize(pubKey, formId, relays);
   }, [formEvent, formTemplate, userPubKey]);
 
-  const handleInput = (
-    questionId: string,
-    answer: string,
-    message?: string
-  ) => {
+  const handleInput = (questionId: string, answer: string, message?: string) => {
     if (!answer || answer === "") {
       form.setFieldValue(questionId, null);
+      setFormAnswers(prev => ({...prev, [questionId]: ""}));
       return;
     }
     form.setFieldValue(questionId, [answer, message]);
+    setFormAnswers(prev => ({...prev, [questionId]: answer}));
   };
 
+  const shouldShowQuestion = (question: Field): boolean => {
+    try {
+      const answerSettings = JSON.parse(question[5] || '{}') as AnswerSettings;
+      const conditions = answerSettings.conditions;
+      if (!conditions?.rules?.length) return true;
+      return conditions.rules.every(rule => formAnswers[rule.questionId] === rule.value);
+    } catch {
+      return true;
+    }
+  };
+  
   const saveResponse = async (anonymous: boolean = true) => {
     if (!formId || !pubKey) {
       throw "Cant submit to a form that has not been published";
@@ -239,7 +260,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
       formTemplate.find((tag) => tag[0] === "settings")?.[1] || "{}"
     ) as IFormSettings;
     fields = formTemplate.filter((tag) => tag[0] === "field") as Field[];
-
+    const visibleFields = fields.filter(shouldShowQuestion);
+    
     return (
       <FillerStyle $isPreview={isPreview}>
         {editKey && !isPreview ? (
@@ -277,8 +299,8 @@ export const FormFiller: React.FC<FormFillerProps> = ({
                 }
               >
                 <div>
-                  <FormFields fields={fields} handleInput={handleInput} />
-                  <>{renderSubmitButton()}</>
+                <FormFields fields={visibleFields} handleInput={handleInput} />
+                <>{renderSubmitButton()}</>
                 </div>
               </Form>
             </div>
