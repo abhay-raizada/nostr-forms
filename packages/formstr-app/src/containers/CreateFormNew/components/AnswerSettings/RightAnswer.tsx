@@ -5,11 +5,9 @@ import { Tooltip, Typography } from "antd";
 const { Text } = Typography;
 
 interface RightAnswerProps {
-  answerType: AnswerTypes | string;
-  answerSettings: AnswerSettings & {
-    renderElement?: string;
-  };
-  choices?: string; // Moved choices to be a separate prop
+  answerType: AnswerTypes;
+  answerSettings: AnswerSettings;
+  choices?: string;
   onChange: (answer: string | string[]) => void;
 }
 
@@ -19,10 +17,9 @@ export const RightAnswer: React.FC<RightAnswerProps> = ({
   choices,
   onChange,
 }) => {
-  // Process choices from the separate prop
   const processedAnswerSettings = {
     ...answerSettings,
-    choices: typeof choices === 'string' 
+    choices: choices 
       ? JSON.parse(choices).map(([choiceId, label]: [string, string]) => ({
           choiceId,
           label
@@ -30,32 +27,19 @@ export const RightAnswer: React.FC<RightAnswerProps> = ({
       : []
   };
 
-  const getAnswerType = () => {
-    switch (answerSettings.renderElement) {
-      case 'checkboxes':
-        return AnswerTypes.checkboxes;
-      case 'radioButton':
-        return AnswerTypes.radioButton;
-      case 'dropdown':
-        return AnswerTypes.dropdown;
-      default:
-        return answerType as AnswerTypes;
-    }
-  };
+  const isMultipleChoice = answerType === AnswerTypes.checkboxes;
 
   return (
     <Tooltip title={
-      "Select the correct answer" + 
-      (answerSettings.renderElement === 'checkboxes' ? "s" : "") + 
-      " for this quiz question"
+      `Select the correct answer${isMultipleChoice ? 's' : ''} for this quiz question`
     }>
       <div className="right-answer">
         <Text className="property-name">
-          Right answer{answerSettings.renderElement === 'checkboxes' ? "s" : ""}
+          Right answer{isMultipleChoice ? 's' : ''}
         </Text>
         <InputFiller
           defaultValue={answerSettings?.validationRules?.match?.answer}
-          answerType={getAnswerType()}
+          answerType={answerType}
           answerSettings={processedAnswerSettings}
           onChange={onChange}
         />
@@ -63,3 +47,5 @@ export const RightAnswer: React.FC<RightAnswerProps> = ({
     </Tooltip>
   );
 };
+
+export default RightAnswer;
