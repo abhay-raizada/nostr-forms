@@ -73,7 +73,7 @@ const fetchMyForms = async (existingPool?: SimplePool) => {
     }
 };
 
-const handleFormDeleted = async (formId: string) => {
+const handleFormDeleted = async (formId: string, extractedFormPubkey: string) => {
   if (!userPub) return;
   setRefreshing(true);
   const pool = new SimplePool();
@@ -97,8 +97,8 @@ const handleFormDeleted = async (formId: string) => {
     ));
 
     const updatedForms = forms.filter((f: Tag) => {
-      const [_, formKey] = f[1].split(":");
-      return formKey !== formId;
+      const [formPubKey, extractedFormId] = f[1].split(":");
+      return !(formPubKey === extractedFormPubkey && extractedFormId === formId);
     });
 
     const event = {
@@ -139,7 +139,7 @@ useEffect(() => {
           <FormEventCard 
             event={form} 
             key={form.id}
-            onDeleted={() => formId && handleFormDeleted(formId)}
+            onDeleted={() => formId && handleFormDeleted(formId, form.pubkey)}
           />
         );
       })}
