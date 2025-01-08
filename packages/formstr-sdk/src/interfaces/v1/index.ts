@@ -77,6 +77,7 @@ export interface MinRule {
 }
 
 export interface AnswerSettings {
+  renderElement?: string;
   choices?: Array<Choice>;
   numberConstraints?: NumberConstraint;
   required?: boolean;

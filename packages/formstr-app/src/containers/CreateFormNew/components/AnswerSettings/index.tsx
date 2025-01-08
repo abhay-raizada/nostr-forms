@@ -27,12 +27,13 @@ function AnswerSettings() {
   const answerSettings = JSON.parse(
     question[5] || '{ "renderElement": "shortText"}'
   );
+
   const answerType = INPUTS_MENU.find(
     (option) =>
       option.answerSettings.renderElement === answerSettings.renderElement
   );
 
-  const handleRightAnswer = (rightAnswer: string) => {
+  const handleRightAnswer = (rightAnswer: string | string[]) => {
     const field = question;
     let newAnswerSettings = {
       ...answerSettings,
@@ -44,6 +45,7 @@ function AnswerSettings() {
     field[5] = JSON.stringify(newAnswerSettings);
     editQuestion(field, field[1]);
   };
+
   const updateAnswerType: MenuProps["onClick"] = ({ key }) => {
     const selectedItem = INPUTS_MENU.find((item) => item.key === key);
     if (!selectedItem) return;
@@ -105,6 +107,7 @@ function AnswerSettings() {
         key={question[1] + "rightAnswer"}
         answerType={answerSettings.renderElement}
         answerSettings={answerSettings}
+        choices={question[4]}
         onChange={handleRightAnswer}
       />
       <Divider className="divider" />

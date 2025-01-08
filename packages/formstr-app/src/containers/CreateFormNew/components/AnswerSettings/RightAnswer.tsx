@@ -7,38 +7,45 @@ const { Text } = Typography;
 interface RightAnswerProps {
   answerType: AnswerTypes;
   answerSettings: AnswerSettings;
-  onChange: (answer: string) => void;
+  choices?: string;
+  onChange: (answer: string | string[]) => void;
 }
 
-export const RightAnswer: React.FC<RightAnswerProps> = ({
+export const RightAnswer: React.FC<RightAnswerProps> = ({ 
   answerType,
   answerSettings,
+  choices,
   onChange,
 }) => {
-  function convertV1toV2(answerSettings: AnswerSettings) {
-    const newAnswerSettings = {
-      ...answerSettings,
-      choices: answerSettings?.choices?.map((choice) => {
-        return {
-          ...choice,
-          choiceId: choice.choiceId!,
-        };
-      }),
-    };
-    return newAnswerSettings;
-  }
+  const processedAnswerSettings = {
+    ...answerSettings,
+    choices: choices 
+      ? JSON.parse(choices).map(([choiceId, label]: [string, string]) => ({
+          choiceId,
+          label
+        }))
+      : []
+  };
+
+  const isMultipleChoice = answerType === AnswerTypes.checkboxes;
 
   return (
-    <Tooltip title="For quiz-like forms where you want users to choose the right answer">
+    <Tooltip title={
+      `Select the correct answer${isMultipleChoice ? 's' : ''} for this quiz question`
+    }>
       <div className="right-answer">
-        <Text className="property-name"> Right answer</Text>
+        <Text className="property-name">
+          Right answer{isMultipleChoice ? 's' : ''}
+        </Text>
         <InputFiller
           defaultValue={answerSettings?.validationRules?.match?.answer}
           answerType={answerType}
-          answerSettings={convertV1toV2(answerSettings)}
+          answerSettings={processedAnswerSettings}
           onChange={onChange}
         />
       </div>
     </Tooltip>
   );
 };
+
+export default RightAnswer;

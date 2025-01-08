@@ -78,12 +78,15 @@ function Match(rule: MatchRule): Rule {
     validator: (_: any, value: any) => {
       if (!value) return Promise.resolve();
       if (!rule.answer) return Promise.resolve();
-      if (value[0] !== rule.answer) {
-        return Promise.reject(
-          `This is not the correct answer for this question`
-        );
+
+      const userValue = value[0];
+      if (userValue === rule.answer) {
+        return Promise.resolve();
       }
-      return Promise.resolve();
+
+      return Promise.reject(
+        `This is not the correct answer for this question`
+      );
     },
   };
 }
