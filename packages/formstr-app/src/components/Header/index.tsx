@@ -1,8 +1,17 @@
-import { Layout, Menu, Row, Col, Button, Dropdown, MenuProps } from "antd";
+import {
+  Layout,
+  Menu,
+  Row,
+  Col,
+  Button,
+  Dropdown,
+  MenuProps,
+  Typography,
+} from "antd";
 import { Link } from "react-router-dom";
 import "./index.css";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
-import { DownOutlined, MenuOutlined } from "@ant-design/icons";
+import { DownOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import { HEADER_MENU, HEADER_MENU_KEYS } from "./configs";
 import { useProfileContext } from "../../hooks/useProfileContext";
 import { NostrAvatar } from "./NostrAvatar";
@@ -36,8 +45,14 @@ export const NostrHeader = () => {
         </Dropdown>
       </div>
     ) : (
-      <Button type="dashed" size="small" onClick={() => requestPubkey()}>
-        Login
+      <Button
+        type="text"
+        size="small"
+        onClick={() => requestPubkey()}
+        style={{ color: "black" }}
+        icon={<UserOutlined />}
+      >
+        <Typography.Text style={{ marginTop: 3 }}>Login</Typography.Text>
       </Button>
     ),
   };
