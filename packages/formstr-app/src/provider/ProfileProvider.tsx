@@ -63,7 +63,14 @@ export const ProfileProvider: FC<ProfileProviderProps> = ({ children }) => {
         onCancel={() => setUsingNip07(false)}
       >
         {" "}
-        Check your NIP07 Extension{" "}
+        Check your NIP07 Extension. If you do not have one, or wish to read
+        more, checkout these{" "}
+        <a
+          href="https://github.com/aljazceru/awesome-nostr?tab=readme-ov-file#nip-07-browser-extensions"
+          target="_blank noreferrer"
+        >
+          Awesome Nostr Recommendations
+        </a>
       </Modal>
     </ProfileContext.Provider>
   );
