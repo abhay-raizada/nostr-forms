@@ -347,7 +347,19 @@ export class FormstrSDK {
       created_at: Math.floor(Date.now() / 1000),
     };
     const signed = await signerFn(event);
-    await Promise.allSettled(pool.publish(form.relays, signed));
+    const acceptedRelays: string[] = [];
+    await Promise.allSettled(
+      pool.publish(form.relays, signed).map((p, i) =>
+        p
+          .then(() => acceptedRelays.push(form.relays[i]))
+          .catch(() => {}),
+      ),
+    );
+    if (acceptedRelays.length === 0) {
+      throw new Error(
+        "No relay accepted the response. It has not been submitted. Please try again.",
+      );
+    }
     return signed;
   }
 

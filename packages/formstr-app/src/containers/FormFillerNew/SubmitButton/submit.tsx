@@ -8,7 +8,11 @@ import {
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import React, { useState } from "react";
-import { sendNRPCWebhook, sendResponses } from "../../../nostr/common";
+import {
+  NO_RELAYS_ACCEPTED_ERROR_CODE,
+  sendNRPCWebhook,
+  sendResponses,
+} from "../../../nostr/common";
 import { RelayPublishModal } from "../../../components/RelayPublishModal/RelaysPublishModal";
 import { Event } from "nostr-tools";
 import { Response, Tag } from "../../../nostr/types";
@@ -58,6 +62,10 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   );
   const [isValidated, setIsValidated] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [publishFailed, setPublishFailed] = useState(false);
+  const [hasSubmissionFailed, setHasSubmissionFailed] = useState(false);
+  const [lastAnonymous, setLastAnonymous] = useState<boolean>(!selfSign);
 
   // --- Helpers ---
   const fireWebhook = async (
@@ -72,11 +80,11 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   };
 
   // --- Main ---
-  const saveResponse = async (anonymous: boolean) => {
+  const saveResponse = async (anonymous: boolean): Promise<boolean> => {
     let formId = formEvent.tags.find((t) => t[0] === "d")?.[1];
     if (!formId) {
       alert(t("filler.submit.formIdNotFound"));
-      return;
+      return false;
     }
 
     const pubKey = formEvent.pubkey;
@@ -84,27 +92,63 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
     // Use the responderSecretKey passed from FormRendererContainer (same key used for file encryption)
     const anonUser = anonymous ? responderSecretKey : null;
 
+    setLastAnonymous(anonymous);
     setIsSubmitting(true);
-    await sendResponses(
-      pubKey,
-      formId!,
-      responses,
-      anonUser,
-      true,
-      relays,
-      (url: string) => setAcceptedRelays((prev) => [...prev, url]),
-    );
+    setIsModalOpen(true);
+    setPublishFailed(false);
+    setAcceptedRelays([]);
+    setErrorMessage(null);
+
+    let result;
+    try {
+      result = await sendResponses(
+        pubKey,
+        formId!,
+        responses,
+        anonUser,
+        true,
+        relays,
+        (url: string) => {
+          setAcceptedRelays((prev) =>
+            prev.includes(url) ? prev : [...prev, url],
+          );
+        },
+      );
+    } catch (err: any) {
+      const noRelaysAccepted =
+        err?.code === NO_RELAYS_ACCEPTED_ERROR_CODE;
+      setIsSubmitting(false);
+      setIsDisabled(false);
+      setPublishFailed(noRelaysAccepted);
+      setHasSubmissionFailed(noRelaysAccepted);
+      setIsModalOpen(noRelaysAccepted);
+      setErrorMessage(
+        t(
+          noRelaysAccepted
+            ? "filler.submit.noRelaysAccepted"
+            : "filler.submit.submissionFailed",
+        ),
+      );
+      console.error("Failed to submit form responses to relays:", err);
+      return false;
+    }
+
     setIsSubmitting(false);
+    setIsModalOpen(false);
+    setIsDisabled(false);
+    setHasSubmissionFailed(false);
+
     recordSubmission({
       formId: formId!,
       formPubkey: pubKey,
       formName: formTemplate.find((t) => t[0] === "name")?.[1] || formId!,
-      relays,
+      relays: result!.acceptedRelays,
       submittedAt: new Date().toISOString(),
       anonymous,
       submittedAs: anonymous ? undefined : userPubKey || undefined,
     });
-    onSubmit();
+    await onSubmit();
+    return true;
   };
 
   // --- Webhook Validation ---
@@ -150,6 +194,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
 
   const submitForm = async (anonymous: boolean = true) => {
     setErrorMessage(null);
+    setHasSubmissionFailed(false);
 
     // Check if user is logged in when attempting non-anonymous submission
     if (!anonymous && !userPubKey) {
@@ -175,13 +220,16 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
           await saveResponse(anonymous);
         } else {
           // Fire-and-forget webhook after saving
-          await saveResponse(anonymous);
-          fireWebhook(formTemplate, responses, anonUser || undefined);
+          const success = await saveResponse(anonymous);
+          if (success) {
+            fireWebhook(formTemplate, responses, anonUser || undefined);
+          }
         }
       }
     } catch (err) {
       setIsSubmitting(false);
       setIsDisabled(false);
+      setErrorMessage(t("filler.submit.postPublishFailed"));
       console.log("Error in sending response", err);
     }
   };
@@ -196,7 +244,11 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
   };
 
   const handleButtonClick = async () => {
-    await submitForm(!selfSign);
+    if (hasSubmissionFailed) {
+      await submitForm(lastAnonymous);
+    } else {
+      await submitForm(!selfSign);
+    }
   };
 
   const items = [
@@ -257,6 +309,8 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
                     <CircularProgress size={16} color="inherit" />
                     {t("filler.submit.submitting")}
                   </Box>
+                ) : hasSubmissionFailed ? (
+                  t("filler.submit.tryAgain")
                 ) : selfSign ? (
                   items[1].label
                 ) : (
@@ -316,7 +370,19 @@ export const SubmitButton: React.FC<SubmitButtonProps> = ({
       <RelayPublishModal
         relays={relays}
         acceptedRelays={acceptedRelays}
-        isOpen={isSubmitting}
+        isOpen={isModalOpen}
+        title={t("filler.submit.relayStatusTitle")}
+        failureMessage={t("filler.submit.noRelaysAccepted")}
+        publishFailed={publishFailed}
+        onClose={() => {
+          setIsModalOpen(false);
+          setPublishFailed(false);
+        }}
+        onRetry={() => {
+          setIsModalOpen(false);
+          setPublishFailed(false);
+          submitForm(lastAnonymous);
+        }}
       />
     </div>
   );

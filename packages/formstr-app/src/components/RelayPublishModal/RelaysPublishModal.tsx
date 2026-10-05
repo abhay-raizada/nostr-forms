@@ -17,8 +17,11 @@ interface RelayPublishModalProps {
   relays: string[];
   acceptedRelays: string[];
   isOpen: boolean;
+  title?: string;
+  failureMessage?: string;
   publishFailed?: boolean;
   onClose?: () => void;
+  onRetry?: () => void;
 }
 
 export const RelayPublishModal: React.FC<RelayPublishModalProps> = ({
@@ -26,7 +29,10 @@ export const RelayPublishModal: React.FC<RelayPublishModalProps> = ({
   relays,
   acceptedRelays,
   publishFailed,
+  title,
+  failureMessage,
   onClose,
+  onRetry,
 }) => {
   const { t } = useTranslation();
   const allRelaysAccepted =
@@ -67,7 +73,7 @@ export const RelayPublishModal: React.FC<RelayPublishModalProps> = ({
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>{t("relayPublish.title")}</DialogTitle>
+      <DialogTitle>{title || t("relayPublish.title")}</DialogTitle>
       <DialogContent>
         <Typography sx={{ fontWeight: 600, display: "block", mb: 2 }}>
           {t("relayPublish.relays")}{" "}
@@ -76,14 +82,18 @@ export const RelayPublishModal: React.FC<RelayPublishModalProps> = ({
         {renderRelays()}
         {publishFailed && acceptedRelays.length === 0 && (
           <Typography color="error" sx={{ display: "block", mt: 2 }}>
-            {t("relayPublish.noRelaysAccepted")}
+            {failureMessage || t("relayPublish.noRelaysAccepted")}
           </Typography>
         )}
       </DialogContent>
       {canClose && (
         <DialogActions>
           <Button
-            variant="contained"
+            variant={
+              publishFailed && acceptedRelays.length === 0 && onRetry
+                ? "outlined"
+                : "contained"
+            }
             color={
               publishFailed && acceptedRelays.length === 0 ? "error" : "primary"
             }
@@ -93,6 +103,15 @@ export const RelayPublishModal: React.FC<RelayPublishModalProps> = ({
               ? t("common.actions.close")
               : t("common.actions.done")}
           </Button>
+          {publishFailed && acceptedRelays.length === 0 && onRetry && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={onRetry}
+            >
+              {t("common.actions.tryAgain")}
+            </Button>
+          )}
         </DialogActions>
       )}
     </Dialog>

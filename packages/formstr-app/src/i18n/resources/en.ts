@@ -23,6 +23,7 @@ const resources = {
       save: "Save",
       search: "Search",
       submit: "Submit",
+      tryAgain: "Try Again",
       validate: "Validate",
     },
     status: {
@@ -381,7 +382,14 @@ const resources = {
       },
       validating: "Validating...",
       submitting: "Submitting...",
+      relayStatusTitle: "Submitting Response",
       errorPrefix: "Error",
+      noRelaysAccepted:
+        "No relays accepted your response. It has not been submitted. Please try again.",
+      submissionFailed: "Submission could not be completed.",
+      postPublishFailed:
+        "Your response was accepted, but confirmation could not be shown.",
+      tryAgain: "Try Again",
     },
     settings: {
       title: "Form Settings",
