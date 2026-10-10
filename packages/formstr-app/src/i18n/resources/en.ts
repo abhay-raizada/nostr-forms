@@ -385,7 +385,7 @@ const resources = {
       relayStatusTitle: "Submitting Response",
       errorPrefix: "Error",
       noRelaysAccepted:
-        "No relays accepted your response. It has not been submitted. Please try again.",
+        "No relays accepted your response. It has not been submitted. Please contact the form owner.",
       submissionFailed: "Submission could not be completed.",
       postPublishFailed:
         "Your response was accepted, but confirmation could not be shown.",
