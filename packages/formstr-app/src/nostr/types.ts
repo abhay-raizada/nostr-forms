@@ -20,7 +20,7 @@ export type Option = [
 export type Response = [
   placeholder: string,
   fieldId: string,
-  response: string,
+  response: string | null,
   metadata: string,
 ];
 

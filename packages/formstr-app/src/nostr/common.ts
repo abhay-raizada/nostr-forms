@@ -178,7 +178,11 @@ function createQuestionMap(form: Tag[]) {
   return questionMap;
 }
 
-const getDisplayAnswer = (answer: string | number | boolean, field: Field) => {
+const getDisplayAnswer = (
+  answer: string | number | boolean | null | undefined,
+  field: Field,
+) => {
+  const answerText = answer == null ? "" : String(answer);
   let parsed: unknown;
   try {
     parsed = JSON.parse(field[4] || "[]");
@@ -189,11 +193,11 @@ const getDisplayAnswer = (answer: string | number | boolean, field: Field) => {
   return (
     choices
       .filter((choice: Tag) => {
-        const answers = answer.toString().split(";");
+        const answers = answerText.split(";");
         return answers.includes(choice[0]);
       })
       .map((choice: Tag) => choice[1])
-      .join(", ") || (answer || "").toString()
+      .join(", ") || answerText
   );
 };
 
@@ -356,6 +360,8 @@ const encryptResponse = async (
   return nip44.v2.encrypt(message, conversationKey);
 };
 
+export const NO_RELAYS_ACCEPTED_ERROR_CODE = "NO_RELAYS_ACCEPTED";
+
 export const sendResponses = async (
   formAuthorPub: string,
   formId: string,
@@ -374,7 +380,17 @@ export const sendResponses = async (
   let tags = [["a", `30168:${formAuthorPub}:${formId}`]];
   let content = "";
   if (!encryptResponses) {
-    tags = [...tags, ...responses];
+    tags = [
+      ...tags,
+      ...responses.map(
+        (response): Tag => [
+          response[0],
+          response[1],
+          response[2] ?? "",
+          response[3],
+        ],
+      ),
+    ];
   } else {
     content = await encryptResponse(
       JSON.stringify(responses),
@@ -394,10 +410,37 @@ export const sendResponses = async (
   if (relayList.length === 0) {
     relayList = defaultRelays;
   }
+  const acceptedRelays: string[] = [];
   const messages = await Promise.allSettled(
-    customPublish(relayList, fullEvent!, onAcceptedRelays, responderSecretKey),
+    customPublish(
+      relayList,
+      fullEvent!,
+      (url: string) => {
+        let normalized = url;
+        try {
+          normalized = normalizeURL(url);
+        } catch {
+          // keep original
+        }
+        if (!acceptedRelays.includes(normalized)) {
+          acceptedRelays.push(normalized);
+        }
+        onAcceptedRelays?.(url);
+      },
+      responderSecretKey,
+    ),
   );
   console.log("Message from relays", messages);
+  if (acceptedRelays.length === 0) {
+    const error = new Error("No relays accepted the response") as Error & {
+      code: string;
+    };
+    error.code = NO_RELAYS_ACCEPTED_ERROR_CODE;
+    (error as any).relayList = relayList;
+    (error as any).messages = messages;
+    throw error;
+  }
+  return { acceptedRelays, relayList, messages };
 };
 
 //
