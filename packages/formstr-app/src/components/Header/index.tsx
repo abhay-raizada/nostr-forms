@@ -25,6 +25,8 @@ import LanguageIcon from "@mui/icons-material/Language";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import AppsIcon from "@mui/icons-material/Apps";
+import { useAppDesk } from "@formstr/common-ui";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ReactComponent as Logo } from "../../Images/formstr.svg";
@@ -58,6 +60,7 @@ import { muiTheme } from "../../theme/muiTheme";
  */
 export const NostrHeader = () => {
   const { t, i18n } = useTranslation();
+  const openDesk = useAppDesk();
   const { pubkey, accounts, requestPubkey, addAccount } = useProfileContext();
   const {
     localForms,
@@ -348,9 +351,24 @@ export const NostrHeader = () => {
       >
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ gap: { xs: 0.5, sm: 2 } }}>
-            <Link to="/" style={{ display: "flex", flexShrink: 0 }}>
-              <Logo />
-            </Link>
+            <Box
+              className="formstr-logo-wrap"
+              sx={{ flexShrink: 0, position: "relative" }}
+            >
+              <Link to="/" style={{ display: "flex" }}>
+                <Logo />
+              </Link>
+              <button
+                type="button"
+                className="formstr-suite-trigger"
+                aria-label="Open the Formstr app desk"
+                title="Formstr app desk"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  openDesk(event.currentTarget);
+                }}
+              />
+            </Box>
             <Box sx={{ flexGrow: 1 }} />
             {!isMobile &&
               getHeaderMenu(t).map((item) => (
@@ -436,6 +454,19 @@ export const NostrHeader = () => {
             {t("common.actions.login")}
           </MenuItem>
         )}
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            if (userMenuAnchor) openDesk(userMenuAnchor);
+            closeUserMenu();
+          }}
+        >
+          <ListItemIcon>
+            <AppsIcon fontSize="small" />
+          </ListItemIcon>
+          Apps
+        </MenuItem>
+        <Divider />
         <MenuItem
           onClick={() => {
             closeUserMenu();

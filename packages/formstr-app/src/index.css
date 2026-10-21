@@ -84,3 +84,30 @@ code {
 .form-cards-container .form-card > .MuiCardActions-root {
   margin-top: auto;
 }
+
+
+/* The suite asterisk in the Formstr wordmark opens the app desk. The rest of
+   the mark remains the normal home link. */
+.formstr-logo-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.formstr-suite-trigger {
+  position: absolute;
+  right: 0;
+  top: 18%;
+  width: 18%;
+  height: 64%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.formstr-suite-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
