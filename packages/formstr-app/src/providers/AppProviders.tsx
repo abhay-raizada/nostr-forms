@@ -4,6 +4,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "../i18n";
 import { muiTheme } from "../theme/muiTheme";
 import { SnackbarProvider } from "./SnackbarProvider";
+import { AppDeskProvider } from "./AppDeskProvider";
 
 const ThemedProviders = ({ children }: { children: React.ReactNode }) => {
   // MUI is the sole styling system: ui-rewrite-mui Phase 6 removed antd's
@@ -11,7 +12,9 @@ const ThemedProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <MuiThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <SnackbarProvider>{children}</SnackbarProvider>
+      <AppDeskProvider>
+        <SnackbarProvider>{children}</SnackbarProvider>
+      </AppDeskProvider>
     </MuiThemeProvider>
   );
 };
